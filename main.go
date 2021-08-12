@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/greatestusername-splunk/terraform-provider-synthetics/synthetics"
+	"github.com/splunk/terraform-provider-synthetics/synthetics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )

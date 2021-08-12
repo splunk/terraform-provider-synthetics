@@ -1,4 +1,4 @@
-module github.com/greatestusername-splunk/terraform-provider-synthetics
+module github.com/splunk/terraform-provider-synthetics
 
 go 1.15
 
