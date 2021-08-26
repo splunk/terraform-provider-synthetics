@@ -3,7 +3,7 @@ HOSTNAME=splunk.com
 NAMESPACE=edu
 NAME=synthetics
 BINARY=terraform-provider-${NAME}
-VERSION=0.0.1
+VERSION=0.1.1
 OS_ARCH=darwin_amd64
 
 default: install
