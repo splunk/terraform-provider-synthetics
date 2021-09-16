@@ -1,7 +1,5 @@
 # Splunk Synthetics Terraform Provider
 
-**Until this description is changed this is not a complete provider. Currently it may not even work. Proceed at your own risk.**
-
 This repository is an **alpha* Terraform provider for [Splunk Synthetics (formerly Rigor™)](https://monitoring.rigor.com/). It currently contains CRUD operations for HTTP (Uptime) Checks and Real Browser Checks with some caveats:
 
  - Currently Real Browser Checks cannot have `steps` or `javascript_files` added via Public API and thus are not included in this provider.
@@ -15,7 +13,8 @@ This repo and the companion [Synthetics Golang client](https://github.com/splunk
 
 ## Installation
 
-Currently this provider is in testing and is not published to the Terraform Provider Registry.
+Whenever possible install from the official Terraform Registry:  
+https://registry.terraform.io/providers/splunk/synthetics/latest
 
 To install this provider locally follow the directions for installing [In-House Providers](https://www.terraform.io/docs/cloud/run/install-software.html#in-house-providers).
 
