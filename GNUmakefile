@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
 HOSTNAME=splunk.com
-NAMESPACE=edu
+NAMESPACE=splunk
 NAME=synthetics
 BINARY=terraform-provider-${NAME}
 VERSION=0.1.1

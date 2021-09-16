@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     synthetics = {
-      version = "0.0.1"
-      source  = "splunk.com/edu/synthetics"
+      version = "0.1.3"
+      source  = "splunk/synthetics"
     }
   }
 }
@@ -58,7 +58,7 @@ resource "synthetics_create_http_check" "http_check" {
     notify_who {
       sms = false
       email = true
-      custom_user_email = "aperson@splunk.com"
+      custom_user_email = "example_person@splunk.com"
       call = false
     }
     notify_who {
@@ -146,7 +146,7 @@ resource "synthetics_create_browser_check" "browser_check" {
     notify_who {
       sms = false
       email = true
-      custom_user_email = "aperson@splunk.com"
+      custom_user_email = "example_person@splunk.com"
       call = false
     }
     notify_who {
