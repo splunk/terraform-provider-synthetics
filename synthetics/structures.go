@@ -15,9 +15,429 @@
 package synthetics
 
 import (
+	"log"
+	sc2 "syntheticsclientv2"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sc "github.com/splunk/syntheticsclient/syntheticsclient"
 )
+
+func flattenIdData(test interface{}) int {
+	
+	test_schema := test.(*schema.Set)
+
+	test_list := test_schema.List()
+	test_map := test_list[0].(map[string]interface{})
+	id := test_map["id"]
+	return id.(int)
+}
+
+func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
+	apiV2 := make(map[string]interface{})
+
+	apiV2["active"] = checkApiV2.Test.Active
+	
+	if checkApiV2.Test.Createdat.IsZero() {
+		}else{
+			apiV2["created_at"] = checkApiV2.Test.Createdat.String()	
+	}
+	
+	if checkApiV2.Test.Updatedat.IsZero() {
+		}else{
+			apiV2["updated_at"] = checkApiV2.Test.Updatedat.String()
+	}
+	
+	if checkApiV2.Test.Frequency != 0 {
+		apiV2["frequency"] = checkApiV2.Test.Frequency
+	}
+	
+	if checkApiV2.Test.ID != 0 {
+		apiV2["id"] = checkApiV2.Test.ID
+	} 
+	
+	if checkApiV2.Test.Name != "" {
+		apiV2["name"] = checkApiV2.Test.Name
+	}
+	
+	if checkApiV2.Test.Schedulingstrategy != "" {
+		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
+	}
+	
+	if checkApiV2.Test.Type != "" {
+		apiV2["type"] = checkApiV2.Test.Type
+	}
+		
+	device := flattenDeviceData(&checkApiV2.Test.Device)
+	apiV2["device"] = device
+	
+	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
+	apiV2["location_ids"] = locationIds
+
+	requests := flattenRequestData(&checkApiV2.Test.Requests)
+	apiV2["requests"] = requests
+
+	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	log.Println(checkApiV2)
+	
+	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	log.Println(apiV2)
+
+	return []interface{}{apiV2}
+}
+
+func flattenRequestData(checkRequests *[]sc2.Requests) []interface{} {
+	if checkRequests != nil {
+		cls := make([]interface{}, len(*checkRequests))
+
+		for i, checkRequests := range *checkRequests {
+			cl := make(map[string]interface{})
+
+			configuration := flattenConfigurationData(&checkRequests.Configuration)
+			cl["configuration"] = configuration
+
+			setup := flattenSetupData(&checkRequests.Setup)
+			cl["setup"] = setup
+
+			validations := flattenValidationsData(&checkRequests.Validations)
+			cl["validations"] = validations
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenConfigurationData(checkConfiguration *sc2.Configuration) []interface{} {
+	configuration := make(map[string]interface{})
+
+	if checkConfiguration.Body != "" {
+		configuration["body"] = checkConfiguration.Body
+	}
+	if checkConfiguration.Name != "" {
+		configuration["name"] = checkConfiguration.Name
+	}
+
+	if checkConfiguration.Requestmethod != "" {
+		configuration["request_method"] = checkConfiguration.Requestmethod
+	}
+	if checkConfiguration.URL != "" {
+		configuration["url"] = checkConfiguration.URL
+	}
+
+	headers := flattenHeaderData(&checkConfiguration.Headers)
+	configuration["headers"] = headers
+
+	return []interface{}{configuration}
+}
+
+func flattenSetupData(checkSetup *[]sc2.Setup) []interface{} {
+	if checkSetup != nil {
+		cls := make([]interface{}, len(*checkSetup))
+
+		for i, checkSetup := range *checkSetup {
+			cl := make(map[string]interface{})
+
+			if checkSetup.Extractor != "" {
+				cl["extractor"] = checkSetup.Extractor
+			}
+
+			if checkSetup.Name != "" {
+				cl["name"] = checkSetup.Name
+			}
+
+			if checkSetup.Source != "" {
+				cl["source"] = checkSetup.Source
+			}
+
+			if checkSetup.Type != "" {
+				cl["type"] = checkSetup.Type
+			}
+
+			if checkSetup.Variable != "" {
+				cl["variable"] = checkSetup.Variable
+			}
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenValidationsData(checkValidations *[]sc2.Validations) []interface{} {
+	if checkValidations != nil {
+		cls := make([]interface{}, len(*checkValidations))
+
+		for i, checkValidations := range *checkValidations {
+			cl := make(map[string]interface{})
+
+			if checkValidations.Name != "" {
+				cl["name"] = checkValidations.Name
+			}
+
+			if checkValidations.Type != "" {
+				cl["type"] = checkValidations.Type
+			}
+
+			if checkValidations.Actual != "" {
+				cl["actual"] = checkValidations.Actual
+			}
+
+			if checkValidations.Expected != "" {
+				cl["expected"] = checkValidations.Expected
+			}
+
+			if checkValidations.Comparator != "" {
+				cl["comparator"] = checkValidations.Comparator
+			}
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenHeaderData(checkHeaders *sc2.Headers) map[string]interface{} {
+	if checkHeaders != nil {
+		cls := make(map[string]interface{}, len(*checkHeaders))
+
+		for k, v := range *checkHeaders {
+			cls[k] = v
+		}
+		return cls
+	}
+	return make(map[string]interface{}, 0)
+}
+
+func flattenLocationData(checkLocations *[]string) []interface{} {
+	if checkLocations != nil {
+		cls := make([]interface{}, len(*checkLocations))
+
+		for i, checkLocations := range *checkLocations {
+			cls[i] = checkLocations
+		}
+		return cls
+	}
+	return make([]interface{}, 0)
+}
+
+func flattenDeviceData(checkDevice *sc2.Device) []interface{} {
+	device := make(map[string]interface{})
+
+	if checkDevice.ID != 0 {
+		device["id"] = checkDevice.ID
+	}
+
+	if checkDevice.Label != "" {
+		device["label"] = checkDevice.Label
+	}
+	
+	if checkDevice.UserAgent != "" {
+		device["user_agent"] = checkDevice.UserAgent
+	}
+
+	if checkDevice.Viewportheight != 0 {
+		device["viewport_height"] = checkDevice.Viewportheight
+	}
+	if checkDevice.Viewportwidth != 0 {
+		device["viewport_width"] = checkDevice.Viewportwidth
+	}
+
+	Networkconnection := flattenNetworkConnectionData(&checkDevice.Networkconnection)
+	device["network_connection"] = Networkconnection
+
+	return []interface{}{device}
+}
+
+func flattenNetworkConnectionData(checkNetworkConnection *sc2.Networkconnection) []interface{} {
+	networkConnection := make(map[string]interface{})
+
+	networkConnection["description"] = checkNetworkConnection.Description
+	networkConnection["download_bandwidth"] = checkNetworkConnection.Downloadbandwidth
+	networkConnection["latency"] = checkNetworkConnection.Latency
+	networkConnection["packet_loss"] = checkNetworkConnection.Packetloss
+	networkConnection["upload_bandwidth"] = checkNetworkConnection.Uploadbandwidth
+
+	return []interface{}{networkConnection}
+}
+
+func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
+	var apiv2 sc2.ApiCheckV2Input
+	apiv2Data := d.Get("test").(*schema.Set).List()
+	// log.Printf("[WARN] 11111***** apiv2Data in *****11111*****11111*****11111*****11111*****11111*****")
+	// log.Println(apiv2Data)
+	var i = 0
+	for _, api := range apiv2Data {
+		if i < 1 {
+			api := api.(map[string]interface{})
+			apiv2.Test.Active = api["active"].(bool)
+			apiv2.Test.Deviceid = api["device_id"].(int)
+			apiv2.Test.Frequency = api["frequency"].(int)
+			apiv2.Test.Locationids = buildLocationIdData(api["location_ids"].([]interface{}))
+			apiv2.Test.Name = api["name"].(string)
+			apiv2.Test.Requests = buildRequestsData(api["requests"].(*schema.Set))
+			apiv2.Test.Schedulingstrategy = api["scheduling_strategy"].(string)
+			i++
+			log.Println("[WARN] ------------------ I is now: ", i)
+			log.Println(apiv2Data)
+		}
+	}
+	log.Printf("[WARN] 11111***** apiv2 out *****11111*****11111*****11111*****11111*****11111*****")
+	log.Println(apiv2)
+	return apiv2
+}
+
+func buildLocationIdData(d []interface{}) []string {
+	log.Printf("[WARN] *****&&*& d *schema.ResourceData ****************")
+	log.Println(d)
+	locationsList := make([]string, len(d))
+	for i, locations := range d {
+		log.Printf("[WARN] *****&&*& d *schema.ResourceData ****************")
+		log.Println(i)
+		log.Println(locations)
+		locationsList[i] = locations.(string)
+	}
+	return locationsList
+}
+
+func buildRequestsData(requests *schema.Set) []sc2.Requests {
+	requestsList := make([]sc2.Requests, len(requests.List()))
+	log.Printf("[WARN] requests *************")
+	log.Println(requests.List())
+
+	for i, request := range requests.List() {
+		request := request.(map[string]interface{})
+		req := sc2.Requests{
+			Configuration: buildConfigurationData(request["configuration"].(*schema.Set)),
+			Setup: buildSetupData(request["setup"].(*schema.Set)),
+			Validations: buildValidationsData(request["validations"].(*schema.Set)),
+		}
+		log.Printf("[WARN] iiiiiii")
+		log.Println(i)
+		requestsList[0] = req
+
+	}
+	return requestsList
+}
+
+func buildSetupData(setups *schema.Set) []sc2.Setup {
+	setupsList := make([]sc2.Setup, len(setups.List()))
+	log.Printf("[WARN] SETUP *************")
+	log.Println(setups.List())
+
+	for i, setup := range setups.List() {
+		setup := setup.(map[string]interface{})
+		set := sc2.Setup{
+			Extractor:          setup["extractor"].(string),
+			Name:          setup["name"].(string),
+			Source:          setup["source"].(string),
+			Type:          setup["type"].(string),
+			Variable:          setup["variable"].(string),
+		}
+		log.Printf("[WARN] *********$$$$$$  SETUP!!! $$$$$**********")
+		log.Println(i)
+		setupsList[0] = set
+
+	}
+	return setupsList
+}
+
+func buildValidationsData(validations *schema.Set) []sc2.Validations {
+	validationsList := make([]sc2.Validations, len(validations.List()))
+	log.Printf("[WARN] Validation *************")
+	log.Println(validations.List())
+
+	for i, validation := range validations.List() {
+		validation := validation.(map[string]interface{})
+		val := sc2.Validations{
+			Actual:          validation["actual"].(string),
+			Comparator:          validation["comparator"].(string),
+			Expected:          validation["expected"].(string),
+			Name:          validation["name"].(string),
+			Type:          validation["type"].(string),
+		}
+		log.Printf("[WARN] *********$$$$$$  Validation!!! $$$$$**********")
+		log.Println(i)
+		validationsList[0] = val
+
+	}
+	return validationsList
+}
+
+func buildConfigurationData(configuration *schema.Set) sc2.Configuration {
+	var configurationData sc2.Configuration
+	
+	// for k, v := range configuration.List() {
+	// log.Printf("[WARN] 11111***** configuration K, V *****11111*****11111*****11111*****11111*****11111*****")
+	// configurationData := v
+	// log.Println(k)
+	// log.Println(v)
+	// log.Println(configurationData)
+	// }
+
+	config_list := configuration.List()
+	config_map := config_list[0].(map[string]interface{})
+
+	configurationData.Body = config_map["body"].(string)
+	configurationData.Headers = config_map["headers"].(map[string]interface{})
+	configurationData.Name = config_map["name"].(string)
+	configurationData.Requestmethod = config_map["request_method"].(string)
+	configurationData.URL = config_map["url"].(string)
+	
+	return configurationData
+}
+
+// func buildHeadersData(headers map[string]interface{}) sc2.Headers {
+// 	if headers != nil {
+// 		cls := make(map[string]interface{}, len(headers))
+// 		for k, v := range headers {
+// 			log.Printf("[WARN] 11111***** headersData K , V *****11111*****11111*****11111*****11111*****11111*****")
+// 			log.Println(k)
+// 			log.Println(v)
+// 			cls[k] = v
+// 		}
+// 		log.Printf("[WARN] 11111***** headers cls *****11111*****11111*****11111*****11111*****11111*****")
+//  		log.Println(cls)
+// 		return cls
+// 	}	
+// 	return headers
+// }
+
+
+// func buildRequestsData(requests interface{}) sc2.Requests {
+// 	requestsList := make(sc2.Requests, 0) //len(requests))
+// 	log.Printf("[WARN] 11111***** requests input *****11111*****11111*****11111*****11111*****11111*****")
+// 	log.Println(requests)
+
+// 	test_schema := requests.(*schema.Set)
+
+// 	test_list := test_schema.List()
+// 	test_map := test_list[0].(map[string]interface{})
+// 	id := test_map["configuration"]
+// 	log.Printf("[WARN] 11111***** requests test_list *****11111*****11111*****11111*****11111*****11111*****")
+// 	log.Println(test_list)
+// 	log.Println(id)
+
+// 	// for i, request := range requests {
+// 	// 	request := request.(map[string]interface{})
+// 	// 	req := sc2.Requests{
+			
+// 	// 	}
+// 	// 	// requestsList[i] = req
+
+// 	// }
+// 	return requestsList
+// }
+
+
 
 func flattenLinkData(checkLinks *sc.Links) []interface{} {
 	links := make(map[string]interface{})
