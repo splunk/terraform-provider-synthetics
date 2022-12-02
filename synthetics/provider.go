@@ -44,10 +44,12 @@ func Provider() *schema.Provider {
 			"synthetics_create_http_check":    resourceHttpCheck(),
 			"synthetics_create_browser_check": resourceBrowserCheck(),
 			"synthetics_create_api_check_v2": resourceApiCheckV2(),
+			"synthetics_create_browser_check_v2": resourceBrowserCheckV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"synthetics_check": dataSourceCheck(),
 			"synthetics_api_v2_check": dataSourceApiCheckV2(),
+			"synthetics_browser_v2_check": dataSourceBrowserCheckV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
