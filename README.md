@@ -1,6 +1,6 @@
 # Splunk Synthetics Terraform Provider
 
-This repository is a **beta* Terraform provider for [Splunk Synthetics in Splunk Observability](https://docs.splunk.com/Observability/synthetics/intro-synthetics.html). It currently contains CRUD operations for API Checks, Real Browser Checks, Port Checks, HTTP Checks, and Variables.
+This repository is a **beta** Terraform provider for [Splunk Synthetics in Splunk Observability](https://docs.splunk.com/Observability/synthetics/intro-synthetics.html). It currently contains CRUD operations for API Checks, Real Browser Checks, Port Checks, HTTP Checks, and Variables.
 
 **NOTE:** The client expects a valid Splunk Observability API token defined as an environment variable named `OBSERVABILITY_API_TOKEN` (E.G. `export OBSERVABILITY_API_TOKEN="This_is_my_api_token"`)
 
