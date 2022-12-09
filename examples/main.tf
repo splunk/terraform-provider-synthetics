@@ -1,173 +1,270 @@
 terraform {
   required_providers {
     synthetics = {
-      version = "0.1.3"
-      source  = "splunk/synthetics"
+      version = "1.0.0"
+      source  = "splunk.com/splunk/synthetics"
     }
   }
 }
 
-provider "synthetics" {}
+provider "synthetics" {
+  product = "observability"
+}
 
 //Pull a Check as a datasource
-/*
-data "synthetics_check" "datasource_check" {
-  id = 123456
+
+# data "synthetics_port_v2_check" "datasource_check" {
+#   test {
+#     id = 1777
+#   }
+# }
+
+# output "datasource_check" {
+#   value = data.synthetics_port_v2_check.datasource_check
+# }
+
+# data "synthetics_http_v2_check" "datasource_check" {
+#   test {
+#     id = 1739
+#   }
+# }
+
+# output "datasource_check" {
+#   value = data.synthetics_http_v2_check.datasource_check
+# }
+
+data "synthetics_variable_v2_check" "datasource_check" {
+  variable {
+    id = 246
+  }
 }
 
 output "datasource_check" {
-  value = data.synthetics_check.datasource_check
-}
-*/
-
-
-
-//Create an HTTP Check
-resource "synthetics_create_http_check" "http_check" {
-  name = "Uptime Checkaroo"
-  frequency = 15
-  url = "https://www.google.com"
-  success_criteria {
-    action_type = "presence_of_text"
-    comparison_string = "Images"
-  }
-  success_criteria {
-    action_type = "presence_of_text"
-    comparison_string = "About"
-  }
-  check_connection {
-    download_bandwidth = 20010
-    upload_bandwidth = 5010
-    latency = 23
-    packet_loss = 0.1
-  }
-  tags = ["beep","boiiiiip","haaaai"]
-  locations = [1,2,158,48,22]
-  round_robin = false
-  integrations = [80,82]
-  auto_retry = true
-  enabled = false
-  http_method = "GET"
-  notifications {
-    sms = true
-    email = false
-    call = true
-    notify_after_failure_count = 10
-    notify_on_location_failure = false
-    muted = true
-    notify_who {
-      sms = false
-      email = true
-      custom_user_email = "example_person@splunk.com"
-      call = false
-    }
-    notify_who {
-      type = "user"
-      id = 18100
-      sms = true
-      email = true
-    }
-    escalations {
-      sms = true
-      email = true
-      call = false
-      after_minutes = 30
-      notify_who {
-        type = "user"
-        id = 18100
-      }
-    }
-  }
+  value = data.synthetics_variable_v2_check.datasource_check
 }
 
-output "http_check" {
-  value = synthetics_create_http_check.http_check
-}
+# data "synthetics_api_v2_check" "datasource_check" {
+#   test {
+#     id = 489
+#   }
+# }
+
+# output "datasource_check" {
+#   value = data.synthetics_api_v2_check.datasource_check
+# }
+
+# data "synthetics_browser_v2_check" "datasource_check" {
+#   test {
+#     id = 1696
+#   }
+# }
+
+# output "datasource_check" {
+#   value = data.synthetics_browser_v2_check.datasource_check
+# }
 
 
+//=================================
+//=================================
+//=================================
 
-// Create a Browser Check †
-// †: steps and javascript_files currently not available through public API endpoints
-resource "synthetics_create_browser_check" "browser_check" {
-  name = "BROWSERMANIA"
-  frequency = 15
-  type = "real_browser"
-  url = "https://www.google.com"
-  viewport {
-    width = 800    
-    height = 600
-  }
-  check_connection {
-    download_bandwidth = 0
-    upload_bandwidth = 0
-    latency = 0
-    packet_loss = 0
-  }
-  tags = ["beelp","boiiiiip","haaaai"]
-  locations = [6]
-  integrations = [80,71]  
-  cookies {
-    key = "beep"
-    value = "boop"
-    domain = "google.com"
-    path = "/"
-  }
-  cookies {
-    key = "bam"
-    value = "botch"
-    domain = "google.com"
-    path = "/"
-  }
-  dns_overrides {
-    original_domain = "new.domain.com"
-    original_host = "123.123.123.123"
-  }
-  threshold_monitors {
-    matcher = "*.google.com"
-    metric_name = "first_byte_time_ms"
-    comparison_type = "less_than"
-    value = 9999
-  }
-  excluded_files {
-    pattern = ".+\\.clicktale\\.net"
-    preset_name = "clicktale"
-    exclusion_type = "preset"
-  }  
-  round_robin = false
-  auto_retry = true
-  enabled = false
-  notifications {
-    sms = true
-    email = false
-    call = true
-    notify_after_failure_count = 10
-    notify_on_location_failure = false
-    muted = true
-    notify_who {
-      sms = false
-      email = true
-      custom_user_email = "example_person@splunk.com"
-      call = false
-    }
-    notify_who {
-      type = "user"
-      id = 18100
-      sms = true
-      email = true
-    }
-    escalations {
-      sms = true
-      email = true
-      call = false
-      after_minutes = 30
-      notify_who {
-        type = "user"
-        id = 18100
-      }
-    }
-  }
-}
+//Create a V2 Variable
+# resource "synthetics_create_variable_v2" "variable_v2_foo" {
+#   variable {
+#     description = "The most awesome variable. Full of snakes."
+#     value = "barv3--oopsasdasd"
+#     // Once created name and secret can not be changed and will result in a 422 from the API
+#     // unless the variable is deleted and re-created
+#     name = "terraform-test121"
+#     secret = false  
+#   }    
+# }
 
-output "browser_check" {
-  value = synthetics_create_browser_check.browser_check
-}
+  
+# output "variable_v2_foo" {
+#   value = synthetics_create_variable_v2.variable_v2_foo
+# }
+
+# //Create a Http V2 Check
+# resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
+#   test {
+#     active = true 
+#     frequency = 5
+#     location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
+#     name = "Terraform - HTTP V2 Checkaroo"
+#     type = "http"
+#     url = "https://www.splunk.com"
+#     scheduling_strategy = "round_robin"
+#     request_method = "GET"
+#     body = null
+#     headers {
+#       name = "Synthetic_transaction_1"
+#       value = "batman is the man"
+#     }
+#     headers {
+#       name = "back_transaction_1"
+#       value = "peeko"
+#     }
+#   }    
+# }
+
+  
+# output "http_v2_foo_check" {
+#   value = synthetics_create_http_check_v2.http_v2_foo_check
+# }
+
+# //Create a Port V2 Check
+# resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
+#   test {
+#     name = "Terraform - PORT V2 Checkaroo"
+#     # type = "port"
+#     port = 8080
+#     protocol = "udp"
+#     host = "www.splunk.com"
+#     location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
+#     frequency = 5
+#     scheduling_strategy = "concurrent"
+#     active = true 
+#   }    
+# }
+
+  
+# output "port_v2_foo_check" {
+#   value = synthetics_create_port_check_v2.port_v2_foo_check
+# }
+
+# //Create a Browser V2 Check
+# resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
+#   test {
+#     active = true
+#     device_id = 1  
+#     frequency = 5
+#     location_ids = ["aws-us-east-1"]
+#     name = "Terraform - Browser V2 Checkaroo"
+#     scheduling_strategy = "round_robin"
+#     url_protocol = "https://"
+#     start_url = "www.splunk.com"
+#     business_transactions {
+#       name = "Synthetic transaction 1"
+#       steps {
+#         name = "Go to URL"
+#         type = "go_to_url"
+#         url = "https://www.splunk.com"
+#         action = "go_to_url"
+#         wait_for_nav = true
+#         options {
+#           url = "https://www.splunk.com"
+#         }
+#       }
+#       steps {
+#         name = "New step"
+#         type = "click_element"
+#         selector_type = "id"
+#         wait_for_nav = false
+#         selector = "\"free-splunk-click-mobile\""
+#       }
+#       steps {
+#         name = "New step"
+#         type = "click_element"
+#         selector_type = "id"
+#         wait_for_nav = false
+#         selector = "login-button"
+#       }
+#     }
+#     business_transactions {
+#       name = "New synthetic transaction"
+#       steps {
+#         name = "New step"
+#         type = "go_to_url"
+#         wait_for_nav = true
+#         action = "go_to_url"
+#         url = "https://www.batman.com"
+#       }
+#     }
+#     advanced_settings {
+#       verify_certificates = false
+#       user_agent = "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+#       authentication {
+#         username = "batmab"
+#         password = "{{env.beep-var}}"
+#       }
+#       headers {
+#         name = "superstar-machine"
+#         value = "\"taking it too the staaaaars\""
+#         domain = "asdasd.batman.com"
+#       }
+#       cookies {
+#         key = "sda"
+#         value = "sda"
+#         domain = "asd.com"
+#         path = "/asd"
+#       }
+#       cookies {
+#         key = "yes"
+#         value = "no"
+#         domain = "zodiak.com"
+#         path = "/Edlesley"
+#       }
+#       host_overrides {
+#         source = "asdasd.com"
+#         target = "whost.com"
+#         keep_host_header = false
+#       }
+#       host_overrides {
+#         source = "92.2.2.2"
+#         target = "91.1.1.1"
+#         keep_host_header = true
+#       }
+#     }
+#   }    
+# }
+
+  
+# output "browser_v2_foo_check" {
+#   value = synthetics_create_browser_check_v2.browser_v2_foo_check
+# }
+
+# //Create an API V2 Check
+# resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
+#   test {
+#     active = true
+#     device_id = 1  
+#     frequency = 5
+#     location_ids = ["aws-us-east-1"]
+#     name = "Terraform - Api V2 Checkaroo"
+#     scheduling_strategy = "round_robin"
+#     requests {
+#         configuration {
+#           body = "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"
+#           headers = {
+#             "Accept": "application/json"
+#             "x-foo": "bar"
+#           }
+#           name = "Get products"
+#           request_method = "GET"
+#           url = "https://dummyjson.com/products"
+#         }
+#         setup {
+#             extractor = "$.foo"
+#             name = "First setup step"
+#             source = "{\\'foo\\': \\'bar\\'}"
+#             type = "extract_json"
+#             variable = "myVariable"
+#           }
+#         validations {
+#             actual = "{{response.code}}"
+#             comparator = "equals"
+#             expected = 200
+#             name = "My validation step"
+#             type = "assert_numeric"
+#           }
+#       }
+#   }
+# }
+
+  
+# output "api_v2_foo_check" {
+#   value = synthetics_create_api_check_v2.api_v2_foo_check
+# }
+
+

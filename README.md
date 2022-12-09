@@ -1,15 +1,17 @@
 # Splunk Synthetics Terraform Provider
 
-This repository is an **alpha* Terraform provider for [Splunk Synthetics (formerly Rigor™)](https://monitoring.rigor.com/). It currently contains CRUD operations for HTTP (Uptime) Checks and Real Browser Checks with some caveats:
+This repository is a **beta* Terraform provider for [Splunk Synthetics in Splunk Observability](https://docs.splunk.com/Observability/synthetics/intro-synthetics.html). It currently contains CRUD operations for API Checks, Real Browser Checks, Port Checks, HTTP Checks, and Variables.
 
- - Currently Real Browser Checks cannot have `steps` or `javascript_files` added via Public API and thus are not included in this provider.
- - Integrations are not managed by this provider and must be setup in the UI and referenced with their ID number.
- - Private Locations are not managed by this provider and must be setup in the UI and referenced with their ID number.
- - Excluding custom files is currently not supported. All preset file exclusions are included and working.
- 
-This repo and the companion [Synthetics Golang client](https://github.com/splunk/syntheticsclient) are not DRY and are specifically verbose for code auditing and teaching reasons.     
+**NOTE:** The client expects a valid Splunk Observability API token defined as an environment variable named `OBSERVABILITY_API_TOKEN` (E.G. `export OBSERVABILITY_API_TOKEN="This_is_my_api_token"`)
 
-**NOTE:** The client expects a valid Synthetics API token defined as an environment variable named `API_ACCESS_TOKEN` (E.G. `export API_ACCESS_TOKEN="This_is_my_api_token"`)
+### Rigor Classic (V1)
+Rigor Classic endpoints and CRUD operations are still available by setting the provider's `product` setting to `rigor`
+```
+provider "synthetics" {
+  product = "rigor"
+}
+```
+**NOTE:** The Rigor Classic client expects a valid Rigor Monitoring API token defined as an environment variable named `API_ACCESS_TOKEN` (E.G. `export API_ACCESS_TOKEN="This_is_my_api_token"`)
 
 ## Installation
 
@@ -20,9 +22,10 @@ To install this provider locally follow the directions for installing [In-House 
 
 ## Examples
 
-see ./examples/ for current examples of HTTP and Browser Checks
+see ./examples/ for examples of Splunk Synthetics resources and datasources.
+see ./examples/rigor/ for examples of Rigor Classic resources and datasources
 
 ## Requirements
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
--	[Go](https://golang.org/doc/install) >= 1.15
+-	[Go](https://golang.org/doc/install) >= 1.18
