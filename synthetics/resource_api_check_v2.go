@@ -17,12 +17,15 @@ package synthetics
 import (
 	"context"
 	"log"
+	"regexp"
 	"strconv"
 	"time"
 
+	sc2 "syntheticsclientv2"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	sc2 "syntheticsclientv2"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceApiCheckV2() *schema.Resource {
@@ -159,7 +162,9 @@ func resourceApiCheckV2() *schema.Resource {
 						},
 						"scheduling_strategy": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Default: "round_robin",
+							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
 					},
 				},
@@ -174,15 +179,12 @@ func resourceApiCheckV2() *schema.Resource {
 func resourceApiCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*sc2.Client)
 
-	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	checkData := processApiCheckV2Items(d)
 
-	o, req, err := c.CreateApiCheckV2(&checkData)
-	log.Printf("[WARN] ^^^^^^^^^^^^^^^^ CREATE REQUEST BODY JSON^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-	log.Println(o)
-	log.Println(req)
+	o, _, err := c.CreateApiCheckV2(&checkData)
+	//log.Println("[DEBUG] CREATE REQUEST BODY JSON: ", req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -205,17 +207,12 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	check, req, err := c.GetApiCheckV2(checkID)
+	o, _, err := c.GetApiCheckV2(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] ^^^^^^^^^^^^^^^^GET REQUEST BODY JSON^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-	log.Println(req)
-	log.Printf("[DEBUG] G***************************************G: ")
-	log.Println("[DEBUG] GET check response data: ", check)
-	log.Printf("[DEBUG] #########################################: ")
-	log.Printf("[DEBUG] $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: ")
-
+	log.Println("[DEBUG] GET REQUEST BODY JSON: ", o)
+	
 	return diags
 }
 
@@ -236,8 +233,6 @@ func resourceApiCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] #########################################: ")
-	log.Printf("[DEBUG] $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: ")
 	log.Println("[DEBUG] Delete check response data: ", resp)
 	d.SetId("")
 
@@ -249,29 +244,19 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 
 	checkID := d.Id()
 
-	log.Printf("[WARN] ^^^^^^^^^^^^^^^^UPDATE!! CHECK ID!!!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-	log.Println(checkID)
-
 	checkData := processApiCheckV2Items(d)
-
-	log.Printf("[WARN] ^^^^^^^^^^^^^^^^UPDATE!! CHECK DATA#$#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-	log.Println(checkID)
 
 	checkIdString, err := strconv.Atoi(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	o, req, err := c.UpdateApiCheckV2(checkIdString, &checkData)
+	o, _, err := c.UpdateApiCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] ^^^^^^^^^^^^^^^^UPDATE BODY JSON^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-	log.Println(req)
+	log.Println("[DEBUG] UPDATE BODY JSON: ", o)
 
-	log.Printf("[DEBUG] #########################################: ")
-	log.Printf("[DEBUG] $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: ")
-	log.Println("[DEBUG] Update check response data: ", o)
 	d.Set("test.updated_at", time.Now().Format(time.RFC850))
 
 	return resourceApiCheckV2Read(ctx, d, meta)
@@ -279,18 +264,8 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 
 func processApiCheckV2Items(d *schema.ResourceData) sc2.ApiCheckV2Input {
 
-	log.Printf("[WARN] *****&&*&  PRE OUTPUT ****************")
-	log.Println(d)
-	//These MUST exist or the request will fail
 	var check = buildApiV2Data(d)
-	// check.Test.Active = d.Get("test.active").(bool)
-	// check.Test.Deviceid = d.Get("test.device_id").(int)
-	// check.Test.Frequency = d.Get("test.frequency").(int)
-	// check.Test.Locationids = buildLocationIdData(d)   //Start tomorry
-	// check.Test.Name = d.Get("test.name").(string)
-	// //check.Test.Requests = buildRequestsData(d)
-	// check.Test.Schedulingstrategy = d.Get("test.scheduling_strategy").(string)
-	log.Printf("[WARN] *****&&*& CHECK OUTPUT ****************")
-	log.Println(check)
+
+	log.Println("[DEBUG] API V2 CHECK OUTPUT: ", check)
 	return check
 }

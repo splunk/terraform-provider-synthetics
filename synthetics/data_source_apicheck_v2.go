@@ -17,7 +17,6 @@ package synthetics
 import (
 	"context"
 	"fmt"
-	"log"
 
 	sc2 "syntheticsclientv2"
 
@@ -247,15 +246,11 @@ func dataSourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, m int
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] ************************************************")
-	log.Println(check)
 
 	checkTest := flattenApiV2Data(check)
 	if err := d.Set("test", checkTest); err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(check.Test.ID)
 
 	id := fmt.Sprint(check.Test.ID)
 	d.SetId(id)
