@@ -33,15 +33,15 @@ provider "synthetics" {
 #   value = data.synthetics_http_v2_check.datasource_check
 # }
 
-data "synthetics_variable_v2_check" "datasource_check" {
-  variable {
-    id = 246
-  }
-}
+# data "synthetics_variable_v2_check" "datasource_check" {
+#   variable {
+#     id = 246
+#   }
+# }
 
-output "datasource_check" {
-  value = data.synthetics_variable_v2_check.datasource_check
-}
+# output "datasource_check" {
+#   value = data.synthetics_variable_v2_check.datasource_check
+# }
 
 # data "synthetics_api_v2_check" "datasource_check" {
 #   test {

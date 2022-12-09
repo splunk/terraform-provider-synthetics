@@ -30,3 +30,6 @@
 
 .DS_Store
 .vscode/settings.json
+
+.terraform*
+terraform.tf*
