@@ -17,7 +17,6 @@ package synthetics
 import (
 	"context"
 	"fmt"
-	"log"
 
 	sc2 "syntheticsclientv2"
 
@@ -49,7 +48,6 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 						"frequency": {
 							Type:     schema.TypeInt,
 							Computed: true,
-							Optional: true,
 						},
 						"scheduling_strategy": {
 							Type:     schema.TypeString,
@@ -65,7 +63,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 						},
 						"location_ids": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -367,15 +365,11 @@ func dataSourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] ************************************************")
-	log.Println(check)
 
 	checkTest := flattenBrowserV2Data(check)
 	if err := d.Set("test", checkTest); err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(check.Test.ID)
 
 	id := fmt.Sprint(check.Test.ID)
 	d.SetId(id)

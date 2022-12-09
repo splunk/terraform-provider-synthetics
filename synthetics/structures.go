@@ -16,6 +16,7 @@ package synthetics
 
 import (
 	"log"
+	"strings"
 	sc2 "syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -76,13 +77,39 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	requests := flattenRequestData(&checkApiV2.Test.Requests)
 	apiV2["requests"] = requests
 
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(checkApiV2)
+
 	
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(apiV2)
+	log.Println("[DEBUG] apiv2 data: ", apiV2)
 
 	return []interface{}{apiV2}
+}
+
+func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{} {
+	variableV2 := make(map[string]interface{})
+
+	variableV2["name"] = checkVariableV2.Variable.Name
+
+	variableV2["id"] = checkVariableV2.Variable.ID
+
+	variableV2["description"] = checkVariableV2.Variable.Description
+
+	variableV2["value"] = checkVariableV2.Variable.Value
+
+	variableV2["secret"] = checkVariableV2.Variable.Secret
+	
+	if checkVariableV2.Variable.Createdat.IsZero() {
+		}else{
+			variableV2["created_at"] = checkVariableV2.Variable.Createdat.String()	
+	}
+	
+	if checkVariableV2.Variable.Updatedat.IsZero() {
+		}else{
+			variableV2["updated_at"] = checkVariableV2.Variable.Updatedat.String()
+	}
+	
+	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
+
+	return []interface{}{variableV2}
 }
 
 func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
@@ -126,7 +153,6 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	device := flattenDeviceData(&checkBrowserV2.Test.Device)
 	browserV2["device"] = device
 
-
 	advancedSettings := flattenAdvancedSettingsData(&checkBrowserV2.Test.Advancedsettings)
 	browserV2["advanced_settings"] = advancedSettings
 	
@@ -135,16 +161,123 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
-	// Normal Transactions Next
-
-
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(checkBrowserV2)
 	
-	log.Printf("[WARN] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-	log.Println(browserV2)
+	log.Println("[DEBUG] browserv2 data: ", browserV2)
 
 	return []interface{}{browserV2}
+}
+
+func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
+	httpV2 := make(map[string]interface{})
+	
+	if checkHttpV2.Test.ID != 0 {
+		httpV2["id"] = checkHttpV2.Test.ID
+	} 
+	
+	if checkHttpV2.Test.Name != "" {
+		httpV2["name"] = checkHttpV2.Test.Name
+	}
+	
+	httpV2["active"] = checkHttpV2.Test.Active
+	
+	if checkHttpV2.Test.Frequency != 0 {
+		httpV2["frequency"] = checkHttpV2.Test.Frequency
+	}
+	
+	if checkHttpV2.Test.CreatedAt.IsZero() {
+		}else{
+			httpV2["created_at"] = checkHttpV2.Test.CreatedAt.String()	
+	}
+	
+	if checkHttpV2.Test.UpdatedAt.IsZero() {
+		}else{
+			httpV2["updated_at"] = checkHttpV2.Test.UpdatedAt.String()
+	}
+	
+	if checkHttpV2.Test.SchedulingStrategy != "" {
+		httpV2["scheduling_strategy"] = checkHttpV2.Test.SchedulingStrategy
+	}
+	
+	if checkHttpV2.Test.Type != "" {
+		httpV2["type"] = checkHttpV2.Test.Type
+	}
+
+	if checkHttpV2.Test.URL != "" {
+		httpV2["url"] = checkHttpV2.Test.URL
+	}
+
+	if checkHttpV2.Test.RequestMethod != "" {
+		httpV2["request_method"] = checkHttpV2.Test.RequestMethod
+	}
+
+	if checkHttpV2.Test.Body != "" {
+		httpV2["body"] = checkHttpV2.Test.Body
+	}
+
+	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
+	httpV2["location_ids"] = locationIds
+
+	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
+	httpV2["headers"] = httpHeaders
+	
+	log.Println("[DEBUG] httpV2 data: ", httpV2)
+
+	return []interface{}{httpV2}
+}
+
+func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} {
+	portV2 := make(map[string]interface{})
+	
+	if checkPortV2.Test.ID != 0 {
+		portV2["id"] = checkPortV2.Test.ID
+	} 
+	
+	if checkPortV2.Test.Name != "" {
+		portV2["name"] = checkPortV2.Test.Name
+	}
+	
+	portV2["active"] = checkPortV2.Test.Active
+	
+	if checkPortV2.Test.Frequency != 0 {
+		portV2["frequency"] = checkPortV2.Test.Frequency
+	}
+	
+	if checkPortV2.Test.CreatedAt.IsZero() {
+		}else{
+			portV2["created_at"] = checkPortV2.Test.CreatedAt.String()	
+	}
+	
+	if checkPortV2.Test.UpdatedAt.IsZero() {
+		}else{
+			portV2["updated_at"] = checkPortV2.Test.UpdatedAt.String()
+	}
+	
+	if checkPortV2.Test.SchedulingStrategy != "" {
+		portV2["scheduling_strategy"] = checkPortV2.Test.SchedulingStrategy
+	}
+	
+	if checkPortV2.Test.Type != "" {
+		portV2["type"] = checkPortV2.Test.Type
+	}
+
+	if checkPortV2.Test.Protocol != "" {
+		portV2["protocol"] = checkPortV2.Test.Protocol
+	}
+
+	if checkPortV2.Test.Host != "" {
+		portV2["host"] = checkPortV2.Test.Host
+	}
+
+	if checkPortV2.Test.Port != 0 {
+		portV2["port"] = checkPortV2.Test.Port
+	}
+
+	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
+	portV2["location_ids"] = locationIds
+
+	log.Println("[DEBUG] portv2 data: ", portV2)
+
+	return []interface{}{portV2}
 }
 
 func flattenRequestData(checkRequests *[]sc2.Requests) []interface{} {
@@ -183,6 +316,25 @@ func flattenBusinessTransactionsData(checkBusinessTransactions *[]sc2.BusinessTr
 
 			steps := flattenStepsData(&checkBusinessTransactions.StepsV2)
 			cl["steps"] = steps
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenHttpHeadersData(checkHttpHeaders *[]sc2.HttpHeaders) []interface{} {
+	if checkHttpHeaders != nil {
+		cls := make([]interface{}, len(*checkHttpHeaders))
+
+		for i, checkHttpHeaders := range *checkHttpHeaders {
+			cl := make(map[string]interface{})
+
+			cl["name"] = checkHttpHeaders.Name
+			cl["value"] = checkHttpHeaders.Value
+
 			cls[i] = cl
 		}
 
@@ -259,10 +411,7 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 				cl["action"] = checkStep.Action
 			}
 
-			//Does this convert to false on backend when no value is provided? 
-			// NO IT DOES NOT
 			cl["wait_for_nav"] = checkStep.WaitForNav
-
 
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
@@ -335,12 +484,10 @@ func flattenCookiesData(checkCookies *[]sc2.Cookiesv2) []interface{} {
 				cl["value"] = checkSetup.Value
 			}
 
-			// Do a domain check regex?
 			if checkSetup.Domain != "" {
 				cl["domain"] = checkSetup.Domain
 			}
 
-			// verify that this starts with a / character
 			if checkSetup.Path != "" {
 				cl["path"] = checkSetup.Path
 			}
@@ -369,7 +516,6 @@ func flattenBrowserHeadersData(checkBrowserHeaders *[]sc2.BrowserHeaders) []inte
 				cl["value"] = checkSetup.Value
 			}
 
-			// Do a domain check regex?
 			if checkSetup.Domain != "" {
 				cl["domain"] = checkSetup.Domain
 			}
@@ -398,7 +544,6 @@ func flattenHostOverridesData(checkHostOverrides *[]sc2.HostOverrides) []interfa
 				cl["target"] = checkSetup.Target
 			}
 
-			// Do a domain check regex?
 			if checkSetup.KeepHostHeader {
 				cl["keep_host_header"] = checkSetup.KeepHostHeader
 			}
@@ -558,8 +703,6 @@ func flattenAuthenticationData(checkAuthentications *sc2.Authentication) []inter
 func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 	var apiv2 sc2.ApiCheckV2Input
 	apiv2Data := d.Get("test").(*schema.Set).List()
-	// log.Printf("[WARN] 11111***** apiv2Data in *****11111*****11111*****11111*****11111*****11111*****")
-	// log.Println(apiv2Data)
 	var i = 0
 	for _, api := range apiv2Data {
 		if i < 1 {
@@ -572,24 +715,19 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Requests = buildRequestsData(api["requests"].(*schema.Set))
 			apiv2.Test.Schedulingstrategy = api["scheduling_strategy"].(string)
 			i++
-			log.Println("[WARN] ------------------ I is now: ", i)
-			log.Println(apiv2Data)
 		}
 	}
-	log.Printf("[WARN] 11111***** apiv2 out *****11111*****11111*****11111*****11111*****11111*****")
-	log.Println(apiv2)
+	log.Println("[DEBUG] build apiv2 data: ", apiv2)
 	return apiv2
 }
 
 func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 	var browserv2 sc2.BrowserCheckV2Input
 	browserv2Data := d.Get("test").(*schema.Set).List()
-	// log.Printf("[WARN] 11111***** browserv2Data in *****11111*****11111*****11111*****11111*****11111*****")
-	// log.Println(apiv2Data)
 	var i = 0
-	for _, api := range browserv2Data {
+	for _, browser := range browserv2Data {
 		if i < 1 {
-			browser := api.(map[string]interface{})
+			browser := browser.(map[string]interface{})
 			browserv2.Test.Active = browser["active"].(bool)
 			browserv2.Test.DeviceID = browser["device_id"].(int)
 			browserv2.Test.Frequency = browser["frequency"].(int)
@@ -601,23 +739,82 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
 			i++
-			log.Println("[WARN] ------------------ I is now: ", i)
-			log.Println(browserv2)
 		}
 	}
-	log.Printf("[WARN] 11111***** browserv2 out *****11111*****11111*****11111*****11111*****11111*****")
-	log.Println(browserv2)
+	log.Println("[DEBUG] build browserv2 data:")
 	return browserv2
 }
 
+func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
+	var httpv2 sc2.HttpCheckV2Input
+	httpv2Data := d.Get("test").(*schema.Set).List()
+	var i = 0
+	for _, http := range httpv2Data {
+		if i < 1 {
+			http := http.(map[string]interface{})
+			httpv2.Test.Name = http["name"].(string)
+			httpv2.Test.Type = http["type"].(string)
+			httpv2.Test.URL = http["url"].(string)
+			httpv2.Test.LocationIds = buildLocationIdData(http["location_ids"].([]interface{}))
+			httpv2.Test.Frequency = http["frequency"].(int)
+			httpv2.Test.SchedulingStrategy = http["scheduling_strategy"].(string)
+			httpv2.Test.Active = http["active"].(bool)
+			httpv2.Test.RequestMethod = http["request_method"].(string)
+			httpv2.Test.Body = http["body"].(string)
+			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
+			i++
+		}
+	}
+	log.Println("[DEBUG] build httpv2 data: ", httpv2)
+	return httpv2
+}
+
+func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
+	var portv2 sc2.PortCheckV2Input
+	portv2Data := d.Get("test").(*schema.Set).List()
+	var i = 0
+	for _, port := range portv2Data {
+		if i < 1 {
+			port := port.(map[string]interface{})
+			portv2.Test.Name = port["name"].(string)
+			portv2.Test.Type = port["type"].(string)
+			portv2.Test.URL = port["url"].(string)
+			portv2.Test.Port = port["port"].(int)
+			portv2.Test.Protocol = port["protocol"].(string)
+			portv2.Test.Host = port["host"].(string)
+			portv2.Test.LocationIds = buildLocationIdData(port["location_ids"].([]interface{}))
+			portv2.Test.Frequency = port["frequency"].(int)
+			portv2.Test.SchedulingStrategy = port["scheduling_strategy"].(string)
+			portv2.Test.Active = port["active"].(bool)		
+			i++
+
+		}
+	}
+	log.Println("[DEBUG] build portv2 data: ", portv2)
+	return portv2
+}
+
+func buildVariableV2Data(d *schema.ResourceData) sc2.VariableV2Input {
+	var variablev2 sc2.VariableV2Input
+	variablev2Data := d.Get("variable").(*schema.Set).List()
+	var i = 0
+	for _, variable := range variablev2Data {
+		if i < 1 {
+			variable := variable.(map[string]interface{})
+			variablev2.Variable.Description = variable["description"].(string)
+			variablev2.Variable.Name = variable["name"].(string)
+			variablev2.Variable.Secret = variable["secret"].(bool)
+			variablev2.Variable.Value = variable["value"].(string)
+			i++
+		}
+	}
+	log.Println("[WARN] build variablev2 data: ", variablev2)
+	return variablev2
+}
+
 func buildLocationIdData(d []interface{}) []string {
-	log.Printf("[WARN] *****&&*& d *schema.ResourceData ****************")
-	log.Println(d)
 	locationsList := make([]string, len(d))
 	for i, locations := range d {
-		log.Printf("[WARN] *****&&*& d *schema.ResourceData ****************")
-		log.Println(i)
-		log.Println(locations)
 		locationsList[i] = locations.(string)
 	}
 	return locationsList
@@ -625,8 +822,6 @@ func buildLocationIdData(d []interface{}) []string {
 
 func buildRequestsData(requests *schema.Set) []sc2.Requests {
 	requestsList := make([]sc2.Requests, len(requests.List()))
-	log.Printf("[WARN] requests *************")
-	log.Println(requests.List())
 
 	for i, request := range requests.List() {
 		request := request.(map[string]interface{})
@@ -635,8 +830,6 @@ func buildRequestsData(requests *schema.Set) []sc2.Requests {
 			Setup: buildSetupData(request["setup"].(*schema.Set)),
 			Validations: buildValidationsData(request["validations"].(*schema.Set)),
 		}
-		log.Printf("[WARN] iiiiiii")
-		log.Println(i)
 		requestsList[i] = req
 
 	}
@@ -645,8 +838,6 @@ func buildRequestsData(requests *schema.Set) []sc2.Requests {
 
 func buildBusinessTransactionsData(businessTransactions *schema.Set) []sc2.BusinessTransactions {
 	businessTransactionsList := make([]sc2.BusinessTransactions, len(businessTransactions.List()))
-	log.Printf("[WARN] BizTrans *************")
-	log.Println(businessTransactions.List())
 
 	for i, bisTrans := range businessTransactions.List() {
 		bisTrans := bisTrans.(map[string]interface{})
@@ -654,25 +845,34 @@ func buildBusinessTransactionsData(businessTransactions *schema.Set) []sc2.Busin
 			Name: bisTrans["name"].(string),
 			StepsV2: buildStepV2Data(bisTrans["steps"].(*schema.Set)),
 		}
-		log.Printf("[WARN] iiiiiii")
-		log.Println(i)
-		log.Println(bisTrans)
 		businessTransactionsList[i] = transaction
-
 	}
 	return businessTransactionsList
 }
 
+func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
+	httpHeadersList := make([]sc2.HttpHeaders, len(httpHeaders.List()))
+
+	for i, httpHeads := range httpHeaders.List() {
+		http := httpHeads.(map[string]interface{})
+		if strings.Contains(http["name"].(string), " ") {
+			log.Println("[ERROR] Header names cannot have spaces. Please check your header names")
+		}
+		headerValues := sc2.HttpHeaders{
+			Name: strings.TrimSpace(http["name"].(string)),
+			Value: strings.TrimSpace(http["value"].(string)),
+		}
+		httpHeadersList[i] = headerValues
+
+	}
+	return httpHeadersList
+}
+
 func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
 	stepsList := make([]sc2.StepsV2, len(steps.List()))
-	log.Printf("[WARN] StepsV2 *************")
-	log.Println(steps.List())
 
 	for i, step := range steps.List() {
 		step := step.(map[string]interface{})
-		log.Println("*===================== bool? ===============+&")
-		log.Println("Bool: ", step["wait_for_nav"].(bool))
-		log.Println("Name: ", step["name"].(string))
 		st := sc2.StepsV2{
 			URL:          step["url"].(string),
 			Name:          step["name"].(string),
@@ -683,7 +883,6 @@ func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
 			Selector:          step["selector"].(string),
 			Options: buildOptionsData(step["options"].(*schema.Set)),
 		}
-		log.Println("all steps: ", st)
 		stepsList[i] = st
 
 	}
@@ -692,8 +891,6 @@ func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
 
 func buildSetupData(setups *schema.Set) []sc2.Setup {
 	setupsList := make([]sc2.Setup, len(setups.List()))
-	log.Printf("[WARN] SETUP *************")
-	log.Println(setups.List())
 
 	for i, setup := range setups.List() {
 		setup := setup.(map[string]interface{})
@@ -704,8 +901,6 @@ func buildSetupData(setups *schema.Set) []sc2.Setup {
 			Type:          setup["type"].(string),
 			Variable:          setup["variable"].(string),
 		}
-		log.Printf("[WARN] *********$$$$$$  SETUP!!! $$$$$**********")
-		log.Println(i)
 		setupsList[i] = set
 
 	}
@@ -714,8 +909,6 @@ func buildSetupData(setups *schema.Set) []sc2.Setup {
 
 func buildValidationsData(validations *schema.Set) []sc2.Validations {
 	validationsList := make([]sc2.Validations, len(validations.List()))
-	log.Printf("[WARN] Validation *************")
-	log.Println(validations.List())
 
 	for i, validation := range validations.List() {
 		validation := validation.(map[string]interface{})
@@ -726,9 +919,8 @@ func buildValidationsData(validations *schema.Set) []sc2.Validations {
 			Name:          validation["name"].(string),
 			Type:          validation["type"].(string),
 		}
-		log.Printf("[WARN] *********$$$$$$  Validation!!! $$$$$**********")
-		log.Println(i)
-		validationsList[0] = val
+
+		validationsList[i] = val
 
 	}
 	return validationsList
@@ -768,8 +960,6 @@ func buildAdvancedSettingsData(advancedSettings *schema.Set) sc2.Advancedsetting
 
 func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {
 	headersList := make([]sc2.BrowserHeaders, len(headers.List()))
-	log.Printf("[WARN] headers *************")
-	log.Println(headers.List())
 
 	for i, header := range headers.List() {
 		header := header.(map[string]interface{})
@@ -778,8 +968,6 @@ func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {
 			Value:          header["value"].(string),
 			Domain:          header["domain"].(string),
 		}
-		log.Printf("[WARN] *********$$$$$$  headers!!! $$$$$**********")
-		log.Println(i)
 		headersList[i] = set
 
 	}
@@ -788,12 +976,9 @@ func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {
 
 func buildCookiesData(cookies *schema.Set) []sc2.Cookiesv2 {
 	cookiesList := make([]sc2.Cookiesv2, len(cookies.List()))
-	log.Printf("[WARN] cookies *************")
-	log.Println(cookies.List())
+
 	for i, cookie := range cookies.List() {
 		cookie := cookie.(map[string]interface{})
-		log.Printf("[WARN] cookies *************")
-		log.Println(cookie)
 		if cookie != nil {
 		set := sc2.Cookiesv2{
 			Key:          cookie["key"].(string),
@@ -801,11 +986,6 @@ func buildCookiesData(cookies *schema.Set) []sc2.Cookiesv2 {
 			Domain:          cookie["domain"].(string),
 			Path:          cookie["path"].(string),
 		}
-		log.Printf("[WARN] *********$$$$$$  cookie!!! $$$$$**********")
-		log.Println(i)
-		log.Println()
-		log.Println(set)
-		log.Println()
 		cookiesList[i] = set
 		}
 
@@ -815,8 +995,6 @@ func buildCookiesData(cookies *schema.Set) []sc2.Cookiesv2 {
 
 func buildHostOverridesData(hostOverrides *schema.Set) []sc2.HostOverrides {
 	hostOverridesList := make([]sc2.HostOverrides, len(hostOverrides.List()))
-	log.Printf("[WARN] hostOverrides *************")
-	log.Println(hostOverrides.List())
 
 	for i, hostOverride := range hostOverrides.List() {
 		hostOverride := hostOverride.(map[string]interface{})
@@ -825,8 +1003,7 @@ func buildHostOverridesData(hostOverrides *schema.Set) []sc2.HostOverrides {
 			Target:          hostOverride["target"].(string),
 			KeepHostHeader:  hostOverride["keep_host_header"].(bool),
 		}
-		log.Printf("[WARN] *********$$$$$$  hostOverride!!! $$$$$**********")
-		log.Println(i)
+
 		hostOverridesList[i] = set
 
 	}

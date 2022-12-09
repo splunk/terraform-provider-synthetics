@@ -45,4 +45,10 @@ func testAccPreCheck(t *testing.T) {
 	if err := os.Getenv("API_ACCESS_TOKEN"); err == "" {
 		t.Fatal("API_ACCESS_TOKEN must be set for acceptance tests")
 	}
+	if err := os.Getenv("OBSERVABILITY_API_TOKEN"); err == "" {
+		t.Fatal("OBSERVABILITY_API_TOKEN must be set for acceptance tests")
+	}
+	if err := os.Getenv("REALM"); err == "" {
+		t.Fatal("REALM must be set for acceptance tests")
+	}
 }

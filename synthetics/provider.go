@@ -16,28 +16,43 @@ package synthetics
 
 import (
 	"context"
+	"regexp"
+
+	sc2 "syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	sc "github.com/splunk/syntheticsclient/syntheticsclient"
-	sc2 "syntheticsclientv2"
 )
 
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			// Add a setting for Realm
 
-			// Add a setting to chose o11y or classic
+			"product": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "One of: `observability` or `rigor`",
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "Setting must match observability or rigor"),
+			},
 			"apikey": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("API_ACCESS_TOKEN", nil),
+				Description: "Splunk Observability API Key. Will pull from `OBSERVABILITY_API_TOKEN` environment variable if available.",
+				DefaultFunc: schema.EnvDefaultFunc("OBSERVABILITY_API_TOKEN", nil),
 			},
 			"realm": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available.",
 				DefaultFunc: schema.EnvDefaultFunc("REALM", nil),
+			},
+			"rigorkey": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Rigor Classic API Key. Will pull from `API_ACCESS_TOKEN` environment variable if available.",
+				DefaultFunc: schema.EnvDefaultFunc("API_ACCESS_TOKEN", nil),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -45,11 +60,17 @@ func Provider() *schema.Provider {
 			"synthetics_create_browser_check": resourceBrowserCheck(),
 			"synthetics_create_api_check_v2": resourceApiCheckV2(),
 			"synthetics_create_browser_check_v2": resourceBrowserCheckV2(),
+			"synthetics_create_http_check_v2": resourceHttpCheckV2(),
+			"synthetics_create_port_check_v2": resourcePortCheckV2(),
+			"synthetics_create_variable_v2": resourceVariableV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"synthetics_check": dataSourceCheck(),
 			"synthetics_api_v2_check": dataSourceApiCheckV2(),
 			"synthetics_browser_v2_check": dataSourceBrowserCheckV2(),
+			"synthetics_http_v2_check": dataSourceHttpCheckV2(),
+			"synthetics_port_v2_check": dataSourcePortCheckV2(),
+			"synthetics_variable_v2_check": dataSourceVariableV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -57,15 +78,14 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("apikey").(string)
+	rigorToken := d.Get("rigorkey").(string)
 	realm := d.Get("realm").(string)
+	product := d.Get("product").(string)
 
-	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	// If realm is defined we'll be using the V2 endpoints from Splunk Observability
-	// Otherwise use Rigor Classic endpoints
-	if realm != "" {
-		if token != "" {
+	if product == "observability" {
+		if token != "" && realm != "" {
 			c := sc2.NewClient(token, realm)
 	
 			return c, diags
@@ -75,13 +95,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 		return c, diags
 	} else {
-		if token != "" {
-			c := sc.NewClient(token)
+		if product == "rigor" && rigorToken != "" {
+			c := sc.NewClient(rigorToken)
 	
 			return c, diags
 		}
 	
-		c := sc.NewClient(token)
+		c := sc.NewClient(rigorToken)
 
 		return c, diags
 	}
