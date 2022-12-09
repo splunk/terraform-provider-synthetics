@@ -9,6 +9,7 @@ terraform {
 
 provider "synthetics" {
   product = "observability"
+  realm = "us1"
 }
 
 //Pull a Check as a datasource
