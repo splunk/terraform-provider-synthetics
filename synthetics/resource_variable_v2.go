@@ -20,9 +20,10 @@ import (
 	"strconv"
 	"time"
 
+	sc2 "syntheticsclientv2"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	sc2 "syntheticsclientv2"
 )
 
 func resourceVariableV2() *schema.Resource {
@@ -151,7 +152,6 @@ func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		log.Println("[ERROR] Variable failed to update. Dumping request data: ", o)
 		return diag.FromErr(err)
 	}
-
 
 	log.Println("[DEBUG] Update variable response data: ", o)
 	d.Set("variable.updated_at", time.Now().Format(time.RFC850))

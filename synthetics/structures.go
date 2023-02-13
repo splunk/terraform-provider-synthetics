@@ -17,6 +17,7 @@ package synthetics
 import (
 	"log"
 	"strings"
+
 	sc2 "syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,7 +25,7 @@ import (
 )
 
 func flattenIdData(test interface{}) int {
-	
+
 	test_schema := test.(*schema.Set)
 
 	test_list := test_schema.List()
@@ -37,48 +38,46 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
 	apiV2["active"] = checkApiV2.Test.Active
-	
+
 	if checkApiV2.Test.Createdat.IsZero() {
-		}else{
-			apiV2["created_at"] = checkApiV2.Test.Createdat.String()	
+	} else {
+		apiV2["created_at"] = checkApiV2.Test.Createdat.String()
 	}
-	
+
 	if checkApiV2.Test.Updatedat.IsZero() {
-		}else{
-			apiV2["updated_at"] = checkApiV2.Test.Updatedat.String()
+	} else {
+		apiV2["updated_at"] = checkApiV2.Test.Updatedat.String()
 	}
-	
+
 	if checkApiV2.Test.Frequency != 0 {
 		apiV2["frequency"] = checkApiV2.Test.Frequency
 	}
-	
+
 	if checkApiV2.Test.ID != 0 {
 		apiV2["id"] = checkApiV2.Test.ID
-	} 
-	
+	}
+
 	if checkApiV2.Test.Name != "" {
 		apiV2["name"] = checkApiV2.Test.Name
 	}
-	
+
 	if checkApiV2.Test.Schedulingstrategy != "" {
 		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
 	}
-	
+
 	if checkApiV2.Test.Type != "" {
 		apiV2["type"] = checkApiV2.Test.Type
 	}
-		
+
 	device := flattenDeviceData(&checkApiV2.Test.Device)
 	apiV2["device"] = device
-	
+
 	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
 	apiV2["location_ids"] = locationIds
 
 	requests := flattenRequestData(&checkApiV2.Test.Requests)
 	apiV2["requests"] = requests
 
-
-	
 	log.Println("[DEBUG] apiv2 data: ", apiV2)
 
 	return []interface{}{apiV2}
@@ -96,17 +95,17 @@ func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{
 	variableV2["value"] = checkVariableV2.Variable.Value
 
 	variableV2["secret"] = checkVariableV2.Variable.Secret
-	
+
 	if checkVariableV2.Variable.Createdat.IsZero() {
-		}else{
-			variableV2["created_at"] = checkVariableV2.Variable.Createdat.String()	
+	} else {
+		variableV2["created_at"] = checkVariableV2.Variable.Createdat.String()
 	}
-	
+
 	if checkVariableV2.Variable.Updatedat.IsZero() {
-		}else{
-			variableV2["updated_at"] = checkVariableV2.Variable.Updatedat.String()
+	} else {
+		variableV2["updated_at"] = checkVariableV2.Variable.Updatedat.String()
 	}
-	
+
 	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
 
 	return []interface{}{variableV2}
@@ -116,52 +115,52 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	browserV2 := make(map[string]interface{})
 
 	browserV2["active"] = checkBrowserV2.Test.Active
-	
+
 	if checkBrowserV2.Test.Createdat.IsZero() {
-		}else{
-			browserV2["created_at"] = checkBrowserV2.Test.Createdat.String()	
+	} else {
+		browserV2["created_at"] = checkBrowserV2.Test.Createdat.String()
 	}
-	
+
 	if checkBrowserV2.Test.Updatedat.IsZero() {
-		}else{
-			browserV2["updated_at"] = checkBrowserV2.Test.Updatedat.String()
+	} else {
+		browserV2["updated_at"] = checkBrowserV2.Test.Updatedat.String()
 	}
-	
+
 	if checkBrowserV2.Test.Frequency != 0 {
 		browserV2["frequency"] = checkBrowserV2.Test.Frequency
 	}
-	
+
 	if checkBrowserV2.Test.ID != 0 {
 		browserV2["id"] = checkBrowserV2.Test.ID
-	} 
-	
+	}
+
 	if checkBrowserV2.Test.Name != "" {
 		browserV2["name"] = checkBrowserV2.Test.Name
 	}
-	
+
 	if checkBrowserV2.Test.Schedulingstrategy != "" {
 		browserV2["scheduling_strategy"] = checkBrowserV2.Test.Schedulingstrategy
 	}
-	
+
 	if checkBrowserV2.Test.Type != "" {
 		browserV2["type"] = checkBrowserV2.Test.Type
 	}
 
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
 	browserV2["location_ids"] = locationIds
-		
+
 	device := flattenDeviceData(&checkBrowserV2.Test.Device)
 	browserV2["device"] = device
 
 	advancedSettings := flattenAdvancedSettingsData(&checkBrowserV2.Test.Advancedsettings)
 	browserV2["advanced_settings"] = advancedSettings
-	
-	businessTranscations := flattenBusinessTransactionsData(&checkBrowserV2.Test.BusinessTransactions)
-	browserV2["business_transactions"] = businessTranscations
+
+	businessTranscations := flattenBusinessTransactionsData(&checkBrowserV2.Test.Transactions)
+	browserV2["transactions"] = businessTranscations
 
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
-	
+
 	log.Println("[DEBUG] browserv2 data: ", browserV2)
 
 	return []interface{}{browserV2}
@@ -169,35 +168,35 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 
 func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	httpV2 := make(map[string]interface{})
-	
+
 	if checkHttpV2.Test.ID != 0 {
 		httpV2["id"] = checkHttpV2.Test.ID
-	} 
-	
+	}
+
 	if checkHttpV2.Test.Name != "" {
 		httpV2["name"] = checkHttpV2.Test.Name
 	}
-	
+
 	httpV2["active"] = checkHttpV2.Test.Active
-	
+
 	if checkHttpV2.Test.Frequency != 0 {
 		httpV2["frequency"] = checkHttpV2.Test.Frequency
 	}
-	
+
 	if checkHttpV2.Test.CreatedAt.IsZero() {
-		}else{
-			httpV2["created_at"] = checkHttpV2.Test.CreatedAt.String()	
+	} else {
+		httpV2["created_at"] = checkHttpV2.Test.CreatedAt.String()
 	}
-	
+
 	if checkHttpV2.Test.UpdatedAt.IsZero() {
-		}else{
-			httpV2["updated_at"] = checkHttpV2.Test.UpdatedAt.String()
+	} else {
+		httpV2["updated_at"] = checkHttpV2.Test.UpdatedAt.String()
 	}
-	
+
 	if checkHttpV2.Test.SchedulingStrategy != "" {
 		httpV2["scheduling_strategy"] = checkHttpV2.Test.SchedulingStrategy
 	}
-	
+
 	if checkHttpV2.Test.Type != "" {
 		httpV2["type"] = checkHttpV2.Test.Type
 	}
@@ -219,7 +218,7 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
 	httpV2["headers"] = httpHeaders
-	
+
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
@@ -227,35 +226,35 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} {
 	portV2 := make(map[string]interface{})
-	
+
 	if checkPortV2.Test.ID != 0 {
 		portV2["id"] = checkPortV2.Test.ID
-	} 
-	
+	}
+
 	if checkPortV2.Test.Name != "" {
 		portV2["name"] = checkPortV2.Test.Name
 	}
-	
+
 	portV2["active"] = checkPortV2.Test.Active
-	
+
 	if checkPortV2.Test.Frequency != 0 {
 		portV2["frequency"] = checkPortV2.Test.Frequency
 	}
-	
+
 	if checkPortV2.Test.CreatedAt.IsZero() {
-		}else{
-			portV2["created_at"] = checkPortV2.Test.CreatedAt.String()	
+	} else {
+		portV2["created_at"] = checkPortV2.Test.CreatedAt.String()
 	}
-	
+
 	if checkPortV2.Test.UpdatedAt.IsZero() {
-		}else{
-			portV2["updated_at"] = checkPortV2.Test.UpdatedAt.String()
+	} else {
+		portV2["updated_at"] = checkPortV2.Test.UpdatedAt.String()
 	}
-	
+
 	if checkPortV2.Test.SchedulingStrategy != "" {
 		portV2["scheduling_strategy"] = checkPortV2.Test.SchedulingStrategy
 	}
-	
+
 	if checkPortV2.Test.Type != "" {
 		portV2["type"] = checkPortV2.Test.Type
 	}
@@ -305,7 +304,7 @@ func flattenRequestData(checkRequests *[]sc2.Requests) []interface{} {
 	return make([]interface{}, 0)
 }
 
-func flattenBusinessTransactionsData(checkBusinessTransactions *[]sc2.BusinessTransactions) []interface{} {
+func flattenBusinessTransactionsData(checkBusinessTransactions *[]sc2.Transactions) []interface{} {
 	if checkBusinessTransactions != nil {
 		cls := make([]interface{}, len(*checkBusinessTransactions))
 
@@ -374,8 +373,8 @@ func flattenConfigurationData(checkConfiguration *sc2.Configuration) []interface
 		configuration["name"] = checkConfiguration.Name
 	}
 
-	if checkConfiguration.Requestmethod != "" {
-		configuration["request_method"] = checkConfiguration.Requestmethod
+	if checkConfiguration.RequestMethod != "" {
+		configuration["request_method"] = checkConfiguration.RequestMethod
 	}
 	if checkConfiguration.URL != "" {
 		configuration["url"] = checkConfiguration.URL
@@ -386,7 +385,6 @@ func flattenConfigurationData(checkConfiguration *sc2.Configuration) []interface
 
 	return []interface{}{configuration}
 }
-
 
 func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 	if checkSteps != nil {
@@ -635,7 +633,7 @@ func flattenDeviceData(checkDevice *sc2.Device) []interface{} {
 	if checkDevice.Label != "" {
 		device["label"] = checkDevice.Label
 	}
-	
+
 	if checkDevice.UserAgent != "" {
 		device["user_agent"] = checkDevice.UserAgent
 	}
@@ -663,7 +661,7 @@ func flattenAdvancedSettingsData(checkDevice *sc2.Advancedsettings) []interface{
 	if checkDevice.UserAgent != "" {
 		advancedSettings["user_agent"] = checkDevice.UserAgent
 	}
-	
+
 	Authentication := flattenAuthenticationData(&checkDevice.Authentication)
 	advancedSettings["authentication"] = Authentication
 
@@ -735,7 +733,7 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Starturl = browser["start_url"].(string)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
-			browserv2.Test.BusinessTransactions = buildBusinessTransactionsData(browser["business_transactions"].(*schema.Set))
+			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].(*schema.Set))
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
 			i++
@@ -785,7 +783,7 @@ func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
 			portv2.Test.LocationIds = buildLocationIdData(port["location_ids"].([]interface{}))
 			portv2.Test.Frequency = port["frequency"].(int)
 			portv2.Test.SchedulingStrategy = port["scheduling_strategy"].(string)
-			portv2.Test.Active = port["active"].(bool)		
+			portv2.Test.Active = port["active"].(bool)
 			i++
 
 		}
@@ -827,8 +825,8 @@ func buildRequestsData(requests *schema.Set) []sc2.Requests {
 		request := request.(map[string]interface{})
 		req := sc2.Requests{
 			Configuration: buildConfigurationData(request["configuration"].(*schema.Set)),
-			Setup: buildSetupData(request["setup"].(*schema.Set)),
-			Validations: buildValidationsData(request["validations"].(*schema.Set)),
+			Setup:         buildSetupData(request["setup"].(*schema.Set)),
+			Validations:   buildValidationsData(request["validations"].(*schema.Set)),
 		}
 		requestsList[i] = req
 
@@ -836,13 +834,13 @@ func buildRequestsData(requests *schema.Set) []sc2.Requests {
 	return requestsList
 }
 
-func buildBusinessTransactionsData(businessTransactions *schema.Set) []sc2.BusinessTransactions {
-	businessTransactionsList := make([]sc2.BusinessTransactions, len(businessTransactions.List()))
+func buildBusinessTransactionsData(businessTransactions *schema.Set) []sc2.Transactions {
+	businessTransactionsList := make([]sc2.Transactions, len(businessTransactions.List()))
 
 	for i, bisTrans := range businessTransactions.List() {
 		bisTrans := bisTrans.(map[string]interface{})
-		transaction := sc2.BusinessTransactions{
-			Name: bisTrans["name"].(string),
+		transaction := sc2.Transactions{
+			Name:    bisTrans["name"].(string),
 			StepsV2: buildStepV2Data(bisTrans["steps"].(*schema.Set)),
 		}
 		businessTransactionsList[i] = transaction
@@ -859,7 +857,7 @@ func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
 			log.Println("[ERROR] Header names cannot have spaces. Please check your header names")
 		}
 		headerValues := sc2.HttpHeaders{
-			Name: strings.TrimSpace(http["name"].(string)),
+			Name:  strings.TrimSpace(http["name"].(string)),
 			Value: strings.TrimSpace(http["value"].(string)),
 		}
 		httpHeadersList[i] = headerValues
@@ -875,13 +873,13 @@ func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
 		step := step.(map[string]interface{})
 		st := sc2.StepsV2{
 			URL:          step["url"].(string),
-			Name:          step["name"].(string),
-			Action:          step["action"].(string),
-			Type:          step["type"].(string),
-			WaitForNav:          step["wait_for_nav"].(bool),
-			SelectorType:          step["selector_type"].(string),
-			Selector:          step["selector"].(string),
-			Options: buildOptionsData(step["options"].(*schema.Set)),
+			Name:         step["name"].(string),
+			Action:       step["action"].(string),
+			Type:         step["type"].(string),
+			WaitForNav:   step["wait_for_nav"].(bool),
+			SelectorType: step["selector_type"].(string),
+			Selector:     step["selector"].(string),
+			Options:      buildOptionsData(step["options"].(*schema.Set)),
 		}
 		stepsList[i] = st
 
@@ -895,11 +893,11 @@ func buildSetupData(setups *schema.Set) []sc2.Setup {
 	for i, setup := range setups.List() {
 		setup := setup.(map[string]interface{})
 		set := sc2.Setup{
-			Extractor:          setup["extractor"].(string),
-			Name:          setup["name"].(string),
-			Source:          setup["source"].(string),
-			Type:          setup["type"].(string),
-			Variable:          setup["variable"].(string),
+			Extractor: setup["extractor"].(string),
+			Name:      setup["name"].(string),
+			Source:    setup["source"].(string),
+			Type:      setup["type"].(string),
+			Variable:  setup["variable"].(string),
 		}
 		setupsList[i] = set
 
@@ -913,11 +911,11 @@ func buildValidationsData(validations *schema.Set) []sc2.Validations {
 	for i, validation := range validations.List() {
 		validation := validation.(map[string]interface{})
 		val := sc2.Validations{
-			Actual:          validation["actual"].(string),
-			Comparator:          validation["comparator"].(string),
-			Expected:          validation["expected"].(string),
-			Name:          validation["name"].(string),
-			Type:          validation["type"].(string),
+			Actual:     validation["actual"].(string),
+			Comparator: validation["comparator"].(string),
+			Expected:   validation["expected"].(string),
+			Name:       validation["name"].(string),
+			Type:       validation["type"].(string),
 		}
 
 		validationsList[i] = val
@@ -935,9 +933,9 @@ func buildConfigurationData(configuration *schema.Set) sc2.Configuration {
 	configurationData.Body = config_map["body"].(string)
 	configurationData.Headers = config_map["headers"].(map[string]interface{})
 	configurationData.Name = config_map["name"].(string)
-	configurationData.Requestmethod = config_map["request_method"].(string)
+	configurationData.RequestMethod = config_map["request_method"].(string)
 	configurationData.URL = config_map["url"].(string)
-	
+
 	return configurationData
 }
 
@@ -964,9 +962,9 @@ func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {
 	for i, header := range headers.List() {
 		header := header.(map[string]interface{})
 		set := sc2.BrowserHeaders{
-			Name:          header["name"].(string),
-			Value:          header["value"].(string),
-			Domain:          header["domain"].(string),
+			Name:   header["name"].(string),
+			Value:  header["value"].(string),
+			Domain: header["domain"].(string),
 		}
 		headersList[i] = set
 
@@ -980,13 +978,13 @@ func buildCookiesData(cookies *schema.Set) []sc2.Cookiesv2 {
 	for i, cookie := range cookies.List() {
 		cookie := cookie.(map[string]interface{})
 		if cookie != nil {
-		set := sc2.Cookiesv2{
-			Key:          cookie["key"].(string),
-			Value:          cookie["value"].(string),
-			Domain:          cookie["domain"].(string),
-			Path:          cookie["path"].(string),
-		}
-		cookiesList[i] = set
+			set := sc2.Cookiesv2{
+				Key:    cookie["key"].(string),
+				Value:  cookie["value"].(string),
+				Domain: cookie["domain"].(string),
+				Path:   cookie["path"].(string),
+			}
+			cookiesList[i] = set
 		}
 
 	}
@@ -999,9 +997,9 @@ func buildHostOverridesData(hostOverrides *schema.Set) []sc2.HostOverrides {
 	for i, hostOverride := range hostOverrides.List() {
 		hostOverride := hostOverride.(map[string]interface{})
 		set := sc2.HostOverrides{
-			Source:          hostOverride["source"].(string),
-			Target:          hostOverride["target"].(string),
-			KeepHostHeader:  hostOverride["keep_host_header"].(bool),
+			Source:         hostOverride["source"].(string),
+			Target:         hostOverride["target"].(string),
+			KeepHostHeader: hostOverride["keep_host_header"].(bool),
 		}
 
 		hostOverridesList[i] = set
@@ -1009,7 +1007,6 @@ func buildHostOverridesData(hostOverrides *schema.Set) []sc2.HostOverrides {
 	}
 	return hostOverridesList
 }
-
 
 func buildAuthenticationData(authentication *schema.Set) sc2.Authentication {
 	var authenticationData sc2.Authentication
@@ -1019,7 +1016,7 @@ func buildAuthenticationData(authentication *schema.Set) sc2.Authentication {
 
 	authenticationData.Username = authentication_map["username"].(string)
 	authenticationData.Password = authentication_map["password"].(string)
-	
+
 	return authenticationData
 }
 
@@ -1032,13 +1029,9 @@ func buildOptionsData(options *schema.Set) sc2.Options {
 
 		optionsData.URL = options_map["url"].(string)
 	}
-	
+
 	return optionsData
 }
-
-
-
-
 
 func flattenLinkData(checkLinks *sc.Links) []interface{} {
 	links := make(map[string]interface{})

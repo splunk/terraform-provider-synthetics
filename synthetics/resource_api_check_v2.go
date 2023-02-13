@@ -74,7 +74,7 @@ func resourceApiCheckV2() *schema.Resource {
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												
+
 												"body": {
 													Type:     schema.TypeString,
 													Optional: true,
@@ -161,9 +161,9 @@ func resourceApiCheckV2() *schema.Resource {
 							},
 						},
 						"scheduling_strategy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default: "round_robin",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "round_robin",
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
 					},
@@ -212,7 +212,7 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET REQUEST BODY JSON: ", o)
-	
+
 	return diags
 }
 

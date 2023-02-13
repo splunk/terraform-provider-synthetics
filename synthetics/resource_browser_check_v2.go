@@ -54,9 +54,9 @@ func resourceBrowserCheckV2() *schema.Resource {
 							Optional: true,
 						},
 						"scheduling_strategy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default: "round_robin",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "round_robin",
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
 						"url_protocol": {
@@ -121,13 +121,13 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"domain": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:         schema.TypeString,
+													Optional:     true,
 													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain"),
 												},
 												"path": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:         schema.TypeString,
+													Optional:     true,
 													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\/`), "Setting must be a valid path starting with /"),
 												},
 											},
@@ -147,8 +147,8 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"domain": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:         schema.TypeString,
+													Optional:     true,
 													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain"),
 												},
 											},
@@ -177,7 +177,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 								},
 							},
 						},
-						"business_transactions": {
+						"transactions": {
 							Type:     schema.TypeSet,
 							Required: true,
 							Elem: &schema.Resource{

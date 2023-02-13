@@ -207,7 +207,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"wait_for_nav": {
-													Type:     schema.TypeString,
+													Type:     schema.TypeBool,
 													Optional: true,
 												},
 												"options": {
@@ -267,7 +267,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"wait_for_nav": {
-													Type:     schema.TypeString,
+													Type:     schema.TypeBool,
 													Optional: true,
 												},
 												"options": {

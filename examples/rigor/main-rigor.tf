@@ -14,7 +14,7 @@ provider "synthetics" {
 //Pull a Check as a datasource
 
 # data "synthetics_check" "datasource_check" {
-#   id = 123456
+#   id = 270949
 # }
 
 # output "datasource_check" {
@@ -89,8 +89,8 @@ provider "synthetics" {
 
 
 
-// Create a Browser Check †
-// †: steps and javascript_files currently not available through public API endpoints
+# // Create a Browser Check †
+# // †: steps and javascript_files currently not available through public API endpoints
 # resource "synthetics_create_browser_check" "browser_check" {
 #   name = "BROWSERMANIA"
 #   frequency = 60

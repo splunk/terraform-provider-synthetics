@@ -71,7 +71,7 @@ func dataSourceVariableV2() *schema.Resource {
 
 func dataSourceVariableV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
-	c := m.(*sc2.Client)	
+	c := m.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics

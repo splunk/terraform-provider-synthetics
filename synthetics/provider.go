@@ -31,10 +31,10 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 
 			"product": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "One of: `observability` or `rigor`",
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "Setting must match observability or rigor"),
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "One of: `observability` or `rigor`",
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "Setting must match either observability or rigor (v1.0.0+)"),
 			},
 			"apikey": {
 				Type:        schema.TypeString,
@@ -56,20 +56,20 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"synthetics_create_http_check":    resourceHttpCheck(),
-			"synthetics_create_browser_check": resourceBrowserCheck(),
-			"synthetics_create_api_check_v2": resourceApiCheckV2(),
+			"synthetics_create_http_check":       resourceHttpCheck(),
+			"synthetics_create_browser_check":    resourceBrowserCheck(),
+			"synthetics_create_api_check_v2":     resourceApiCheckV2(),
 			"synthetics_create_browser_check_v2": resourceBrowserCheckV2(),
-			"synthetics_create_http_check_v2": resourceHttpCheckV2(),
-			"synthetics_create_port_check_v2": resourcePortCheckV2(),
-			"synthetics_create_variable_v2": resourceVariableV2(),
+			"synthetics_create_http_check_v2":    resourceHttpCheckV2(),
+			"synthetics_create_port_check_v2":    resourcePortCheckV2(),
+			"synthetics_create_variable_v2":      resourceVariableV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"synthetics_check": dataSourceCheck(),
-			"synthetics_api_v2_check": dataSourceApiCheckV2(),
-			"synthetics_browser_v2_check": dataSourceBrowserCheckV2(),
-			"synthetics_http_v2_check": dataSourceHttpCheckV2(),
-			"synthetics_port_v2_check": dataSourcePortCheckV2(),
+			"synthetics_check":             dataSourceCheck(),
+			"synthetics_api_v2_check":      dataSourceApiCheckV2(),
+			"synthetics_browser_v2_check":  dataSourceBrowserCheckV2(),
+			"synthetics_http_v2_check":     dataSourceHttpCheckV2(),
+			"synthetics_port_v2_check":     dataSourcePortCheckV2(),
 			"synthetics_variable_v2_check": dataSourceVariableV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
@@ -87,20 +87,20 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if product == "observability" {
 		if token != "" && realm != "" {
 			c := sc2.NewClient(token, realm)
-	
+
 			return c, diags
 		}
-	
+
 		c := sc2.NewClient(token, realm)
 
 		return c, diags
 	} else {
 		if product == "rigor" && rigorToken != "" {
 			c := sc.NewClient(rigorToken)
-	
+
 			return c, diags
 		}
-	
+
 		c := sc.NewClient(rigorToken)
 
 		return c, diags

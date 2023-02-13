@@ -48,7 +48,7 @@ func resourceHttpCheckV2() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "http",
+							Default:  "http",
 						},
 						"url": {
 							Type:     schema.TypeString,
@@ -63,9 +63,9 @@ func resourceHttpCheckV2() *schema.Resource {
 							Required: true,
 						},
 						"scheduling_strategy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default: "round_robin",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "round_robin",
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
 						"request_method": {
@@ -89,8 +89,8 @@ func resourceHttpCheckV2() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:         schema.TypeString,
+										Optional:     true,
 										ValidateFunc: validation.StringDoesNotContainAny(" "),
 									},
 									"value": {

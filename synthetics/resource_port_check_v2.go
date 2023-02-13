@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,7 +48,7 @@ func resourcePortCheckV2() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "port",
+							Default:  "port",
 						},
 						"url": {
 							Type:     schema.TypeString,
@@ -59,8 +59,8 @@ func resourcePortCheckV2() *schema.Resource {
 							Required: true,
 						},
 						"protocol": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^tcp$|^udp$)`), "Setting must match tcp or udp"),
 						},
 						"host": {
@@ -76,9 +76,9 @@ func resourcePortCheckV2() *schema.Resource {
 							Required: true,
 						},
 						"scheduling_strategy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default: "round_robin",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "round_robin",
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
 						"location_ids": {

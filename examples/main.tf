@@ -10,58 +10,60 @@ terraform {
 provider "synthetics" {
   product = "observability"
   realm = "us1"
+  apikey = "this-is-my-api-key"
 }
 
 //Pull a Check as a datasource
 
-# data "synthetics_port_v2_check" "datasource_check" {
-#   test {
-#     id = 1777
-#   }
-# }
-
-# output "datasource_check" {
-#   value = data.synthetics_port_v2_check.datasource_check
-# }
-
-# data "synthetics_http_v2_check" "datasource_check" {
-#   test {
-#     id = 1739
-#   }
-# }
-
-# output "datasource_check" {
-#   value = data.synthetics_http_v2_check.datasource_check
-# }
-
-# data "synthetics_variable_v2_check" "datasource_check" {
+# data "synthetics_variable_v2_check" "datasource_check_variable" {
 #   variable {
 #     id = 246
 #   }
 # }
 
-# output "datasource_check" {
-#   value = data.synthetics_variable_v2_check.datasource_check
+# output "datasource_check_variable" {
+#   value = data.synthetics_variable_v2_check.datasource_check_variable
 # }
 
-# data "synthetics_api_v2_check" "datasource_check" {
+# data "synthetics_port_v2_check" "datasource_check_port" {
+#   test {
+#     id = 1650
+#   }
+# }
+
+# output "datasource_check_port" {
+#   value = data.synthetics_port_v2_check.datasource_check_port
+# }
+
+# data "synthetics_http_v2_check" "datasource_check_http" {
+#   test {
+#     id = 490
+#   }
+# }
+
+# output "datasource_check_http" {
+#   value = data.synthetics_http_v2_check.datasource_check_http
+# }
+
+
+# data "synthetics_api_v2_check" "datasource_check_api" {
 #   test {
 #     id = 489
 #   }
 # }
 
-# output "datasource_check" {
-#   value = data.synthetics_api_v2_check.datasource_check
+# output "datasource_check_api" {
+#   value = data.synthetics_api_v2_check.datasource_check_api
 # }
 
-# data "synthetics_browser_v2_check" "datasource_check" {
+# data "synthetics_browser_v2_check" "datasource_check_browser" {
 #   test {
-#     id = 1696
+#     id = 496
 #   }
 # }
 
-# output "datasource_check" {
-#   value = data.synthetics_browser_v2_check.datasource_check
+# output "datasource_check_browser" {
+#   value = data.synthetics_browser_v2_check.datasource_check_browser
 # }
 
 
@@ -122,7 +124,7 @@ provider "synthetics" {
 #     port = 8080
 #     protocol = "udp"
 #     host = "www.splunk.com"
-#     location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
+#     location_ids = ["aws-us-west-2"]
 #     frequency = 5
 #     scheduling_strategy = "concurrent"
 #     active = true 
@@ -145,7 +147,7 @@ provider "synthetics" {
 #     scheduling_strategy = "round_robin"
 #     url_protocol = "https://"
 #     start_url = "www.splunk.com"
-#     business_transactions {
+#     transactions {
 #       name = "Synthetic transaction 1"
 #       steps {
 #         name = "Go to URL"
@@ -172,7 +174,7 @@ provider "synthetics" {
 #         selector = "login-button"
 #       }
 #     }
-#     business_transactions {
+#     transactions {
 #       name = "New synthetic transaction"
 #       steps {
 #         name = "New step"
