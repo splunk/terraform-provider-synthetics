@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     synthetics = {
-      version = "1.0.0"
+      version = "1.0.1"
       source  = "splunk.com/splunk/synthetics"
     }
   }
@@ -10,7 +10,7 @@ terraform {
 provider "synthetics" {
   product = "observability"
   realm = "us1"
-  apikey = "this-is-my-api-key"
+  #apikey = "this-is-my-api-key"
 }
 
 //Pull a Check as a datasource
@@ -65,6 +65,25 @@ provider "synthetics" {
 # output "datasource_check_browser" {
 #   value = data.synthetics_browser_v2_check.datasource_check_browser
 # }
+
+# data "synthetics_location_v2_check" "datasource_location" {
+#   location {
+#     id = "aws-us-east-1"
+#   }
+# }
+
+# output "datasource_location" {
+#   value = data.synthetics_location_v2_check.datasource_location
+# }
+
+data "synthetics_locations_v2_check" "datasource_locations" {
+  locations {
+  }
+}
+
+output "datasource_locations" {
+  value = data.synthetics_locations_v2_check.datasource_locations
+}
 
 
 //=================================

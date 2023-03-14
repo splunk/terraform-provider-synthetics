@@ -9,6 +9,7 @@ terraform {
 
 provider "synthetics" {
   product = "rigor"
+  #rigorkey = "my-rigor-api-key"
 }
 
 //Pull a Check as a datasource

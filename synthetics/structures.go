@@ -34,6 +34,16 @@ func flattenIdData(test interface{}) int {
 	return id.(int)
 }
 
+func flattenStringIdData(test interface{}) string {
+
+	test_schema := test.(*schema.Set)
+
+	test_list := test_schema.List()
+	test_map := test_list[0].(map[string]interface{})
+	id := test_map["id"]
+	return id.(string)
+}
+
 func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
@@ -110,6 +120,72 @@ func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{
 
 	return []interface{}{variableV2}
 }
+
+
+func flattenLocationsV2Data(locations *[]sc2.Location) []interface{} {
+	if locations != nil {
+		cls := make([]interface{}, len(*locations))
+
+		for i, location := range *locations {
+			cl := make(map[string]interface{})
+
+			cl["id"] = location.ID
+			cl["label"] = location.Label
+			cl["default"] = location.Default
+			cl["type"] = location.Type
+			cl["country"] = location.Country
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenDefaultLocationData(checkLocations []string) []interface{} {
+	if checkLocations != nil {
+		cls := make([]interface{}, len(checkLocations))
+
+		for i, checkLocations := range checkLocations {
+			cls[i] = checkLocations
+		}
+		return cls
+	}
+	return make([]interface{}, 0)
+}
+
+func flattenLocationV2Data(checkLocationV2 sc2.Location) []interface{} {
+	locationV2 := make(map[string]interface{})
+
+	locationV2["id"] = checkLocationV2.ID
+
+	locationV2["label"] = checkLocationV2.Label
+
+	locationV2["default"] = checkLocationV2.Default
+
+	locationV2["type"] = checkLocationV2.Type
+
+	locationV2["country"] = checkLocationV2.Country
+
+	log.Println("[DEBUG] Location V2 data: ", locationV2)
+
+	return []interface{}{locationV2}
+}
+
+func flattenLocationMetaV2Data(checkLocationV2 sc2.Meta) []interface{} {
+	locationMetaV2 := make(map[string]interface{})
+
+	locationMetaV2["active_test_ids"] = checkLocationV2.ActiveTestIds
+
+	locationMetaV2["paused_test_ids"] = checkLocationV2.PausedTestIds
+
+	log.Println("[DEBUG] Location Meta V2 data: ", locationMetaV2)
+
+	return []interface{}{locationMetaV2}
+}
+
 
 func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
 	browserV2 := make(map[string]interface{})

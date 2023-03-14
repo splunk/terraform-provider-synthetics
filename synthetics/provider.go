@@ -71,6 +71,8 @@ func Provider() *schema.Provider {
 			"synthetics_http_v2_check":     dataSourceHttpCheckV2(),
 			"synthetics_port_v2_check":     dataSourcePortCheckV2(),
 			"synthetics_variable_v2_check": dataSourceVariableV2(),
+			"synthetics_location_v2_check": dataSourceLocationV2(),
+			"synthetics_locations_v2_check": dataSourceLocationsV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
