@@ -63,6 +63,7 @@ func Provider() *schema.Provider {
 			"synthetics_create_http_check_v2":    resourceHttpCheckV2(),
 			"synthetics_create_port_check_v2":    resourcePortCheckV2(),
 			"synthetics_create_variable_v2":      resourceVariableV2(),
+			"synthetics_create_location_v2":      resourceLocationV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"synthetics_check":             dataSourceCheck(),
@@ -71,8 +72,10 @@ func Provider() *schema.Provider {
 			"synthetics_http_v2_check":     dataSourceHttpCheckV2(),
 			"synthetics_port_v2_check":     dataSourcePortCheckV2(),
 			"synthetics_variable_v2_check": dataSourceVariableV2(),
+			"synthetics_variables_v2_check": dataSourceVariablesV2(),
 			"synthetics_location_v2_check": dataSourceLocationV2(),
 			"synthetics_locations_v2_check": dataSourceLocationsV2(),
+			"synthetics_devices_v2_check": dataSourceDevicesV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

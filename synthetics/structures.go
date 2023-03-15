@@ -121,6 +121,54 @@ func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{
 	return []interface{}{variableV2}
 }
 
+func flattenVariablesV2Data(variables *[]sc2.Variable) []interface{} {
+	if variables != nil {
+		cls := make([]interface{}, len(*variables))
+
+		for i, variable := range *variables {
+			cl := make(map[string]interface{})
+
+			cl["id"] = variable.ID
+			cl["name"] = variable.Name
+			cl["secret"] = variable.Secret
+			cl["value"] = variable.Value
+			cl["description"] = variable.Description
+			cl["created_at"] = variable.Createdat.String()
+			cl["updated_at"] = variable.Updatedat.String()
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenDevicesV2Data(devices *[]sc2.Device) []interface{} {
+	if devices != nil {
+		cls := make([]interface{}, len(*devices))
+
+		for i, variable := range *devices {
+			cl := make(map[string]interface{})
+
+			cl["id"] = variable.ID
+			cl["label"] = variable.Label
+			cl["user_agent"] = variable.UserAgent
+			Networkconnection := flattenNetworkConnectionData(&variable.Networkconnection)
+			cl["network_connection"] = Networkconnection
+			cl["viewport_height"] = variable.Viewportheight
+			cl["viewport_width"] = variable.Viewportwidth
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
 
 func flattenLocationsV2Data(locations *[]sc2.Location) []interface{} {
 	if locations != nil {
@@ -154,6 +202,20 @@ func flattenDefaultLocationData(checkLocations []string) []interface{} {
 		return cls
 	}
 	return make([]interface{}, 0)
+}
+
+func buildLocationV2Data(d *schema.ResourceData) sc2.LocationV2Input {
+	locationData := d.Get("location").(*schema.Set).List()
+	var location sc2.LocationV2Input
+	for _, lo := range locationData {
+		loc := lo.(map[string]interface{})
+		location.ID = loc["id"].(string)
+		location.Label = loc["label"].(string)
+		location.Default = loc["default"].(bool)
+		location.Type = loc["type"].(string)
+		location.Country = loc["country"].(string)
+	}
+	return location
 }
 
 func flattenLocationV2Data(checkLocationV2 sc2.Location) []interface{} {

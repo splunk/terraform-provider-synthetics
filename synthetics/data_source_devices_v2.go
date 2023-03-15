@@ -24,70 +24,86 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceLocationsV2() *schema.Resource {
+func dataSourceDevicesV2() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceLocationsV2Read,
+		ReadContext: dataSourceDevicesV2Read,
 		Schema: map[string]*schema.Schema{
-			"locations": {
+			"devices": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"label": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"default": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"type": {
+						"user_agent": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"country": {
-							Type:     schema.TypeString,
+						"viewport_height": {
+							Type:     schema.TypeInt,
 							Computed: true,
+						},
+						"viewport_width": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"network_connection": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"description": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"download_bandwidth": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"latency": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"packet_loss": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"upload_bandwidth": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
 						},
 					},
-				},
-			},
-			"default_location_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
 				},
 			},
 		},
 	}
 }
 
-func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceDevicesV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	c := m.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	check, _, err := c.GetLocationsV2()
+	check, _, err := c.GetDevicesV2()
 	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	
 	
-	locations := flattenLocationsV2Data(&check.Location)
-	if err := d.Set("locations", locations); err != nil {
-		return diag.FromErr(err)
-	}
-
-	defaulty := flattenDefaultLocationData(check.DefaultLocationIds)
-	if err := d.Set("default_location_ids", defaulty); err != nil {
+	devices := flattenDevicesV2Data(&check.Devices)
+	if err := d.Set("devices", devices); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -96,7 +112,7 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 
 
 
-	id := "global_locations_synthetics"
+	id := "global_devices_synthetics"
 	d.SetId(id)
 	return diags
 }

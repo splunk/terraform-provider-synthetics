@@ -24,70 +24,66 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceLocationsV2() *schema.Resource {
+func dataSourceVariablesV2() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceLocationsV2Read,
+		ReadContext: dataSourceVariablesV2Read,
 		Schema: map[string]*schema.Schema{
-			"locations": {
+			"variables": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"label": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"default": {
+						"secret": {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"type": {
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"country": {
+						"value": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"created_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"updated_at": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"default_location_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 		},
 	}
 }
 
-func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceVariablesV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	c := m.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	check, _, err := c.GetLocationsV2()
+	check, _, err := c.GetVariablesV2()
 	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	
 	
-	locations := flattenLocationsV2Data(&check.Location)
-	if err := d.Set("locations", locations); err != nil {
-		return diag.FromErr(err)
-	}
-
-	defaulty := flattenDefaultLocationData(check.DefaultLocationIds)
-	if err := d.Set("default_location_ids", defaulty); err != nil {
+	variables := flattenVariablesV2Data(&check.Variable)
+	if err := d.Set("variables", variables); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -96,7 +92,7 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 
 
 
-	id := "global_locations_synthetics"
+	id := "global_variables_synthetics"
 	d.SetId(id)
 	return diags
 }
