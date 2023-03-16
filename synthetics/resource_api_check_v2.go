@@ -184,7 +184,6 @@ func resourceApiCheckV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	checkData := processApiCheckV2Items(d)
 
 	o, _, err := c.CreateApiCheckV2(&checkData)
-	//log.Println("[DEBUG] CREATE REQUEST BODY JSON: ", req)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -16,7 +16,6 @@ package synthetics
 
 import (
 	"context"
-	"log"
 
 	sc2 "syntheticsclientv2"
 
@@ -90,10 +89,6 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 	if err := d.Set("default_location_ids", defaulty); err != nil {
 		return diag.FromErr(err)
 	}
-
-
-	log.Println("[DEBUG] *******************************************************************", check)
-
 
 
 	id := "global_locations_synthetics"

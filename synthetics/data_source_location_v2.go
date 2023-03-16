@@ -17,7 +17,6 @@ package synthetics
 import (
 	"context"
 	"fmt"
-	"log"
 
 	sc2 "syntheticsclientv2"
 
@@ -45,7 +44,6 @@ func dataSourceLocationV2() *schema.Resource {
 						"default": {
 							Type:     schema.TypeBool,
 							Computed: true,
-							Optional: true,
 						},
 						"type": {
 							Type:     schema.TypeString,
@@ -110,7 +108,6 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 	
-	log.Println("[DEBUG] *******************************************************************", check)
 
 	id := fmt.Sprint(check.Location.ID)
 	d.SetId(id)

@@ -31,7 +31,7 @@ func resourceLocationV2() *schema.Resource {
 		CreateContext: resourceLocationV2Create,
 		ReadContext:   resourceLocationV2Read,
 		// Due to forcing new on every change (locations are immutable) this code shouldn't ever execute
-// Leaving code here in case this changes in the future	
+		// Leaving code here in case this changes in the future
 		// UpdateContext: resourceLocationV2Update,
 		DeleteContext: resourceLocationV2Delete,
 
@@ -43,31 +43,28 @@ func resourceLocationV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`\Aprivate-[a-z\-]*[a-z]\z`), "name must start with 'private-'"),
-							ForceNew: true,
+							ForceNew:     true,
 						},
 						"label": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"default": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default: true,
-							ForceNew: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
 						"country": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+						},
+						"default": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -97,7 +94,6 @@ func resourceLocationV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	resourceLocationV2Read(ctx, d, meta)
 
 	return diags
-	// return nil
 }
 
 func resourceLocationV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -16,7 +16,7 @@ package synthetics
 
 import (
 	"context"
-	"log"
+	
 
 	sc2 "syntheticsclientv2"
 
@@ -60,19 +60,19 @@ func dataSourceDevicesV2() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"description": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Computed: true,
 									},
 									"download_bandwidth": {
 										Type:     schema.TypeInt,
-										Optional: true,
+										Computed: true,
 									},
 									"latency": {
 										Type:     schema.TypeInt,
-										Optional: true,
+										Computed: true,
 									},
 									"packet_loss": {
 										Type:     schema.TypeInt,
-										Optional: true,
+										Computed: true,
 									},
 									"upload_bandwidth": {
 										Type:     schema.TypeInt,
@@ -106,10 +106,6 @@ func dataSourceDevicesV2Read(ctx context.Context, d *schema.ResourceData, m inte
 	if err := d.Set("devices", devices); err != nil {
 		return diag.FromErr(err)
 	}
-
-
-	log.Println("[DEBUG] *******************************************************************", check)
-
 
 
 	id := "global_devices_synthetics"

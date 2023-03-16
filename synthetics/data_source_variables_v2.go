@@ -16,7 +16,6 @@ package synthetics
 
 import (
 	"context"
-	"log"
 
 	sc2 "syntheticsclientv2"
 
@@ -86,10 +85,6 @@ func dataSourceVariablesV2Read(ctx context.Context, d *schema.ResourceData, m in
 	if err := d.Set("variables", variables); err != nil {
 		return diag.FromErr(err)
 	}
-
-
-	log.Println("[DEBUG] *******************************************************************", check)
-
 
 
 	id := "global_variables_synthetics"
