@@ -46,11 +46,12 @@ type RequestDetails struct {
 }
 
 type errorResponse struct {
-	Status  string `json:"status,omitempty"`
-	Error   string `json:"error,omitempty"`
-	Result  string `json:"result,omitempty"`
-	Message string `json:"message,omitempty"`
-	Errors  Errors `json:"errors,omitempty"`
+	Status  string                 `json:"status,omitempty"`
+	Error   string                 `json:"error,omitempty"`
+	Result  string                 `json:"result,omitempty"`
+	Message string                 `json:"message,omitempty"`
+	Errors  Errors                 `json:"errors,omitempty"`
+	Details map[string]interface{} `json:"details,omitempty"`
 }
 
 func (c Client) String() string {
@@ -102,7 +103,7 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 			if err2 != nil {
 				return &details, fmt.Errorf("unknown issue while parsing API error response, status code: %d", resp.StatusCode)
 			}
-			return &details, errors.New("Status Code: " + resp.Status + "\n" + string(errorField))
+			return &details, errors.New("Status Code: " + resp.Status + "\n" + "Response: " + string(errorField))
 		}
 		return &details, fmt.Errorf("unknown error, status code: %d", resp.StatusCode)
 	}

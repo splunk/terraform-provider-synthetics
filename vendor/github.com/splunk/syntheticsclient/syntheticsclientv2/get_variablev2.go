@@ -49,3 +49,33 @@ func (c Client) GetVariableV2(id int) (*VariableV2Response, *RequestDetails, err
 
 	return check, details, nil
 }
+
+func parseVariablesV2Response(response string) (*VariablesV2Response, error) {
+	// Parse the response and return the check object
+	var check VariablesV2Response
+	err := json.Unmarshal([]byte(response), &check)
+	if err != nil {
+		return nil, err
+	}
+
+	return &check, err
+}
+
+func (c Client) GetVariablesV2() (*VariablesV2Response, *RequestDetails, error) {
+
+	details, err := c.makePublicAPICall("GET",
+		"/variables",
+		bytes.NewBufferString("{}"),
+		nil)
+
+	if err != nil {
+		return nil, details, err
+	}
+
+	check, err := parseVariablesV2Response(details.ResponseBody)
+	if err != nil {
+		return check, details, err
+	}
+
+	return check, details, nil
+}

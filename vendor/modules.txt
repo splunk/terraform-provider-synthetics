@@ -1,19 +1,9 @@
-# github.com/Masterminds/goutils v1.1.1
-## explicit
-# github.com/Masterminds/semver/v3 v3.1.1
-## explicit; go 1.12
-# github.com/Masterminds/sprig/v3 v3.2.2
-## explicit; go 1.13
-# github.com/agext/levenshtein v1.2.2
+# github.com/agext/levenshtein v1.2.3
 ## explicit
 github.com/agext/levenshtein
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 ## explicit; go 1.16
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/armon/go-radix v1.0.0
-## explicit
-# github.com/bgentry/speakeasy v0.1.0
-## explicit
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
@@ -36,8 +26,6 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/uuid v1.3.0
-## explicit
 # github.com/hashicorp/errwrap v1.1.0
 ## explicit
 github.com/hashicorp/errwrap
@@ -102,8 +90,6 @@ github.com/hashicorp/terraform-exec/tfexec
 # github.com/hashicorp/terraform-json v0.14.0
 ## explicit; go 1.13
 github.com/hashicorp/terraform-json
-# github.com/hashicorp/terraform-plugin-docs v0.13.0
-## explicit; go 1.17
 # github.com/hashicorp/terraform-plugin-go v0.14.1
 ## explicit; go 1.18
 github.com/hashicorp/terraform-plugin-go/internal/logging
@@ -158,8 +144,6 @@ github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 ## explicit
 github.com/hashicorp/yamux
-# github.com/huandu/xstrings v1.3.2
-## explicit; go 1.12
 # github.com/imdario/mergo v0.3.13
 ## explicit; go 1.13
 # github.com/kr/pretty v0.3.0
@@ -170,16 +154,14 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.14
 ## explicit; go 1.12
 github.com/mattn/go-isatty
-# github.com/mitchellh/cli v1.1.4
-## explicit; go 1.11
 # github.com/mitchellh/copystructure v1.2.0
 ## explicit; go 1.15
 github.com/mitchellh/copystructure
 # github.com/mitchellh/go-testing-interface v1.14.1
 ## explicit; go 1.14
 github.com/mitchellh/go-testing-interface
-# github.com/mitchellh/go-wordwrap v1.0.0
-## explicit
+# github.com/mitchellh/go-wordwrap v1.0.1
+## explicit; go 1.14
 github.com/mitchellh/go-wordwrap
 # github.com/mitchellh/mapstructure v1.5.0
 ## explicit; go 1.14
@@ -190,15 +172,7 @@ github.com/mitchellh/reflectwalk
 # github.com/oklog/run v1.0.0
 ## explicit
 github.com/oklog/run
-# github.com/posener/complete v1.2.3
-## explicit; go 1.13
-# github.com/russross/blackfriday v1.6.0
-## explicit; go 1.13
-# github.com/shopspring/decimal v1.3.1
-## explicit; go 1.13
-# github.com/spf13/cast v1.5.0
-## explicit; go 1.18
-# github.com/splunk/syntheticsclient v1.0.0
+# github.com/splunk/syntheticsclient v1.0.1
 ## explicit; go 1.14
 github.com/splunk/syntheticsclient/syntheticsclient
 github.com/splunk/syntheticsclient/syntheticsclientv2
@@ -215,6 +189,8 @@ github.com/vmihailenco/msgpack/v4/codes
 github.com/vmihailenco/tagparser
 github.com/vmihailenco/tagparser/internal
 github.com/vmihailenco/tagparser/internal/parser
+# github.com/xanzy/ssh-agent v0.3.1
+## explicit; go 1.16
 # github.com/zclconf/go-cty v1.12.1
 ## explicit; go 1.18
 github.com/zclconf/go-cty/cty
@@ -233,7 +209,7 @@ golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/openpgp/errors
 golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
-# golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+# golang.org/x/net v0.0.0-20220927171203-f486391704dc
 ## explicit; go 1.17
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -242,7 +218,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.0.0-20220627191245-f75cf1eec38b
+# golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
@@ -252,7 +228,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# google.golang.org/appengine v1.6.6
+# google.golang.org/appengine v1.6.7
 ## explicit; go 1.11
 google.golang.org/appengine
 google.golang.org/appengine/datastore
@@ -265,7 +241,7 @@ google.golang.org/appengine/internal/datastore
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
-# google.golang.org/genproto v0.0.0-20200711021454-869866162049
+# google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
 ## explicit; go 1.11
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.50.1
