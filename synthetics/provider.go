@@ -18,7 +18,7 @@ import (
 	"context"
 	"regexp"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,16 +66,16 @@ func Provider() *schema.Provider {
 			"synthetics_create_location_v2":      resourceLocationV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"synthetics_check":             dataSourceCheck(),
-			"synthetics_api_v2_check":      dataSourceApiCheckV2(),
-			"synthetics_browser_v2_check":  dataSourceBrowserCheckV2(),
-			"synthetics_http_v2_check":     dataSourceHttpCheckV2(),
-			"synthetics_port_v2_check":     dataSourcePortCheckV2(),
-			"synthetics_variable_v2_check": dataSourceVariableV2(),
+			"synthetics_check":              dataSourceCheck(),
+			"synthetics_api_v2_check":       dataSourceApiCheckV2(),
+			"synthetics_browser_v2_check":   dataSourceBrowserCheckV2(),
+			"synthetics_http_v2_check":      dataSourceHttpCheckV2(),
+			"synthetics_port_v2_check":      dataSourcePortCheckV2(),
+			"synthetics_variable_v2_check":  dataSourceVariableV2(),
 			"synthetics_variables_v2_check": dataSourceVariablesV2(),
-			"synthetics_location_v2_check": dataSourceLocationV2(),
+			"synthetics_location_v2_check":  dataSourceLocationV2(),
 			"synthetics_locations_v2_check": dataSourceLocationsV2(),
-			"synthetics_devices_v2_check": dataSourceDevicesV2(),
+			"synthetics_devices_v2_check":   dataSourceDevicesV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

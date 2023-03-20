@@ -16,9 +16,8 @@ package synthetics
 
 import (
 	"context"
-	
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -100,13 +99,11 @@ func dataSourceDevicesV2Read(ctx context.Context, d *schema.ResourceData, m inte
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	
-	
+
 	devices := flattenDevicesV2Data(&check.Devices)
 	if err := d.Set("devices", devices); err != nil {
 		return diag.FromErr(err)
 	}
-
 
 	id := "global_devices_synthetics"
 	d.SetId(id)

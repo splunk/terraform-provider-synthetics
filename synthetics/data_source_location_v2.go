@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -89,7 +89,7 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-	
+
 	checkID := flattenStringIdData(d.Get("location"))
 
 	check, _, err := c.GetLocationV2(checkID)
@@ -97,8 +97,7 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	
-	
+
 	location := flattenLocationV2Data(check.Location)
 	if err := d.Set("location", location); err != nil {
 		return diag.FromErr(err)
@@ -107,7 +106,6 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 	if err := d.Set("meta", meta); err != nil {
 		return diag.FromErr(err)
 	}
-	
 
 	id := fmt.Sprint(check.Location.ID)
 	d.SetId(id)

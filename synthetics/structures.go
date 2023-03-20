@@ -18,7 +18,7 @@ import (
 	"log"
 	"strings"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sc "github.com/splunk/syntheticsclient/syntheticsclient"
@@ -169,7 +169,6 @@ func flattenDevicesV2Data(devices *[]sc2.Device) []interface{} {
 	return make([]interface{}, 0)
 }
 
-
 func flattenLocationsV2Data(locations *[]sc2.Location) []interface{} {
 	if locations != nil {
 		cls := make([]interface{}, len(*locations))
@@ -247,7 +246,6 @@ func flattenLocationMetaV2Data(checkLocationV2 sc2.Meta) []interface{} {
 
 	return []interface{}{locationMetaV2}
 }
-
 
 func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
 	browserV2 := make(map[string]interface{})

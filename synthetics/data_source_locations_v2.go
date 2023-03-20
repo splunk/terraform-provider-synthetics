@@ -17,7 +17,7 @@ package synthetics
 import (
 	"context"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,8 +78,7 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	
-	
+
 	locations := flattenLocationsV2Data(&check.Location)
 	if err := d.Set("locations", locations); err != nil {
 		return diag.FromErr(err)
@@ -89,7 +88,6 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 	if err := d.Set("default_location_ids", defaulty); err != nil {
 		return diag.FromErr(err)
 	}
-
 
 	id := "global_locations_synthetics"
 	d.SetId(id)

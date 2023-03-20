@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	sc2 "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -127,7 +127,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												
+
 												"body": {
 													Type:     schema.TypeString,
 													Optional: true,
@@ -234,7 +234,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 
 func dataSourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
-	c := m.(*sc2.Client)	
+	c := m.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
