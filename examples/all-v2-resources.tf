@@ -1,7 +1,7 @@
 # terraform {
 #   required_providers {
 #     synthetics = {
-#       version = "1.0.1"
+#       version = "1.0.3"
 #       source  = "splunk/synthetics"
 #     }
 #   }

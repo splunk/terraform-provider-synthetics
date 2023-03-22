@@ -22,12 +22,14 @@ import (
 
 func parseUpdatePortCheckV2Response(response string) (*PortCheckV2Response, error) {
 	var updatePortCheckV2 PortCheckV2Response
-	err := json.Unmarshal([]byte(response), &updatePortCheckV2)
-	if err != nil {
-		return nil, err
+	if response != "" {
+		err := json.Unmarshal([]byte(response), &updatePortCheckV2)
+		if err != nil {
+			return nil, err
+		}
+		return &updatePortCheckV2, err
 	}
-
-	return &updatePortCheckV2, err
+	return &updatePortCheckV2, nil
 }
 
 func (c Client) UpdatePortCheckV2(id int, PortCheckV2Details *PortCheckV2Input) (*PortCheckV2Response, *RequestDetails, error) {
