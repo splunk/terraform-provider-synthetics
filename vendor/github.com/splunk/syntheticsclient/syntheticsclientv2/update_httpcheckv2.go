@@ -22,12 +22,14 @@ import (
 
 func parseUpdateHttpCheckV2Response(response string) (*HttpCheckV2Response, error) {
 	var updateHttpCheckV2 HttpCheckV2Response
-	err := json.Unmarshal([]byte(response), &updateHttpCheckV2)
-	if err != nil {
-		return nil, err
+	if response != "" {
+		err := json.Unmarshal([]byte(response), &updateHttpCheckV2)
+		if err != nil {
+			return nil, err
+		}
+		return &updateHttpCheckV2, err
 	}
-
-	return &updateHttpCheckV2, err
+	return &updateHttpCheckV2, nil
 }
 
 func (c Client) UpdateHttpCheckV2(id int, HttpCheckV2Details *HttpCheckV2Input) (*HttpCheckV2Response, *RequestDetails, error) {

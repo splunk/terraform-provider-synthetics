@@ -21,13 +21,15 @@ import (
 )
 
 func parseUpdateVariableV2Response(response string) (*VariableV2Response, error) {
-	var updateVariableV2 VariableV2Response
-	err := json.Unmarshal([]byte(response), &updateVariableV2)
-	if err != nil {
-		return nil, err
+	var updateVariableCheckV2 VariableV2Response
+	if response != "" {
+		err := json.Unmarshal([]byte(response), &updateVariableCheckV2)
+		if err != nil {
+			return nil, err
+		}
+		return &updateVariableCheckV2, err
 	}
-
-	return &updateVariableV2, err
+	return &updateVariableCheckV2, nil
 }
 
 func (c Client) UpdateVariableV2(id int, VariableV2Details *VariableV2Input) (*VariableV2Response, *RequestDetails, error) {

@@ -21,7 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc "syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
 )
 
 const newLocationV2Config = `
@@ -84,7 +84,7 @@ func TestAccCreateUpdateLocationV2(t *testing.T) {
 func testAccCreateUpdateLocationV2ResourceExists(s *terraform.State) error {
 	token := os.Getenv("OBSERVABILITY_API_TOKEN")
 	realm := os.Getenv("REALM")
-	client := sc.NewClient(token, realm)
+	client := sc2.NewClient(token, realm)
 	for _, rs := range s.RootModule().Resources {
 		switch rs.Type {
 		case "signalfx_alert_muting_rule":
@@ -103,7 +103,7 @@ func testAccCreateUpdateLocationV2ResourceExists(s *terraform.State) error {
 func testAccLocationV2Destroy(s *terraform.State) error {
 	token := os.Getenv("OBSERVABILITY_API_TOKEN")
 	realm := os.Getenv("REALM")
-	client := sc.NewClient(token, realm)
+	client := sc2.NewClient(token, realm)
 	for _, rs := range s.RootModule().Resources {
 		switch rs.Type {
 		case "synthetics_create_location_v2":

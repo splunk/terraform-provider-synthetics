@@ -1,9 +1,9 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=splunk.com
+HOSTNAME=github.com
 NAMESPACE=splunk
 NAME=synthetics
 BINARY=terraform-provider-${NAME}
-VERSION=1.0.1
+VERSION=1.0.3
 
 default: install
 

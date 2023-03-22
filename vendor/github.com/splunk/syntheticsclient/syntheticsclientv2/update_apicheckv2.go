@@ -22,12 +22,14 @@ import (
 
 func parseUpdateApiCheckV2Response(response string) (*ApiCheckV2Response, error) {
 	var updateApiCheckV2 ApiCheckV2Response
-	err := json.Unmarshal([]byte(response), &updateApiCheckV2)
-	if err != nil {
-		return nil, err
+	if response != "" {
+		err := json.Unmarshal([]byte(response), &updateApiCheckV2)
+		if err != nil {
+			return nil, err
+		}
+		return &updateApiCheckV2, err
 	}
-
-	return &updateApiCheckV2, err
+	return &updateApiCheckV2, nil
 }
 
 func (c Client) UpdateApiCheckV2(id int, ApiCheckV2Details *ApiCheckV2Input) (*ApiCheckV2Response, *RequestDetails, error) {
