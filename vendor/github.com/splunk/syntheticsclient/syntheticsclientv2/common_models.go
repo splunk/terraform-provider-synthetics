@@ -71,14 +71,18 @@ type BusinessTransactions struct {
 }
 
 type StepsV2 struct {
-	Name         string `json:"name"`
-	Type         string `json:"type"`
-	URL          string `json:"url,omitempty"`
-	Action       string `json:"action,omitempty"`
-	WaitForNav   bool   `json:"waitForNav"`
-	SelectorType string `json:"selectorType,omitempty"`
-	Selector     string `json:"selector,omitempty"`
-	Options      `json:"options,omitempty"`
+	Name               string  `json:"name"`
+	Type               string  `json:"type"`
+	URL                string  `json:"url,omitempty"`
+	Action             string  `json:"action,omitempty"`
+	WaitForNav         bool    `json:"waitForNav"`
+	SelectorType       string  `json:"selectorType,omitempty"`
+	Selector           string  `json:"selector,omitempty"`
+	OptionSelectorType string  `json:"optionSelectorType,omitempty"`
+	OptionSelector     string  `json:"optionSelector,omitempty"`
+	VariableName       string  `json:"variableName,omitempty"`
+	Value              string  `json:"value,omitempty"`
+	Options            Options `json:"options,omitempty"`
 }
 
 type Options struct {
