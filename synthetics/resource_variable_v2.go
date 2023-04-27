@@ -135,12 +135,7 @@ func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta 
 
 	variableID := d.Id()
 
-	log.Println("[DEBUG] UPDATE variable ID: ", variableID)
-	log.Println(variableID)
-
 	variableData := processVariableV2Items(d)
-
-	log.Println("[DEBUG] UPDATE variable DATA: ", variableData)
 
 	variableIdString, err := strconv.Atoi(variableID)
 	if err != nil {

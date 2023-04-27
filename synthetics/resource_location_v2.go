@@ -133,34 +133,6 @@ func resourceLocationV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return diags
 }
 
-// Due to forcing new on every change (locations are immutable) this code shouldn't ever execute
-// Leaving code here in case this changes in the future
-// func resourceLocationV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-// 	c := meta.(*sc2.Client)
-
-// 	locationID := d.Id()
-
-// 	log.Println("[DEBUG] UPDATE location ID: ", locationID)
-// 	log.Println(locationID)
-
-// 	locationData := processLocationV2Items(d)
-
-// 	log.Println("[DEBUG] UPDATE location DATA: ", locationData)
-
-// 	var locationIdString = locationID
-
-// 	o, _, err := c.UpdateLocationV2(locationIdString, &locationData)
-// 	if err != nil {
-// 		log.Println("[ERROR] Location failed to update. Dumping request data: ", o)
-// 		return diag.FromErr(err)
-// 	}
-
-// 	log.Println("[DEBUG] Update location response data: ", o)
-// 	d.Set("location.updated_at", time.Now().Format(time.RFC850))
-
-// 	return resourceLocationV2Read(ctx, d, meta)
-// }
-
 func processLocationV2Items(d *schema.ResourceData) sc2.LocationV2Input {
 
 	log.Println("[DEBUG] Process Location Resource Data: ", d)
