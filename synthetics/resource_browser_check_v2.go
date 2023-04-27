@@ -178,7 +178,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 							},
 						},
 						"transactions": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -187,8 +187,8 @@ func resourceBrowserCheckV2() *schema.Resource {
 										Optional: true,
 									},
 									"steps": {
-										Type:     schema.TypeSet,
-										Optional: true,
+										Type:     schema.TypeList,
+										Required: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": {
@@ -212,6 +212,22 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"selector": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"option_selector_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"option_selector": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"variable_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
@@ -249,12 +265,9 @@ func resourceBrowserCheckV2() *schema.Resource {
 
 func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*sc2.Client)
-
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-
 	checkData := processBrowserCheckV2Items(d)
-
 	o, _, err := c.CreateBrowserCheckV2(&checkData)
 	if err != nil {
 		return diag.FromErr(err)
@@ -264,7 +277,6 @@ func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, m
 	resourceBrowserCheckV2Read(ctx, d, meta)
 
 	return diags
-	// return nil
 }
 
 func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

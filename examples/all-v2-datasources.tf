@@ -1,17 +1,17 @@
-# terraform {
-#   required_providers {
-#     synthetics = {
-#       version = "1.0.3"
-#       source  = "splunk/synthetics"
-#     }
-#   }
-# }
+terraform {
+  required_providers {
+    synthetics = {
+      version = "1.0.4"
+      source  = "local-provider/splunk/synthetics"
+    }
+  }
+}
 
-# provider "synthetics" {
-#   product = "observability"
-#   realm = "us1"
-#   #apikey = "this-is-my-api-key"
-# }
+provider "synthetics" {
+  product = "observability"
+  realm = "us1"
+  #apikey = "this-is-my-api-key"
+}
 
 # //Pull a Check as a datasource
 
@@ -56,15 +56,15 @@
 #   value = data.synthetics_api_v2_check.datasource_check_api
 # }
 
-# data "synthetics_browser_v2_check" "datasource_check_browser" {
-#   test {
-#     id = 496
-#   }
-# }
+data "synthetics_browser_v2_check" "datasource_check_browser" {
+  test {
+    id = 5056
+  }
+}
 
-# output "datasource_check_browser" {
-#   value = data.synthetics_browser_v2_check.datasource_check_browser
-# }
+output "datasource_check_browser" {
+  value = data.synthetics_browser_v2_check.datasource_check_browser
+}
 
 # data "synthetics_location_v2_check" "datasource_location" {
 #   location {
