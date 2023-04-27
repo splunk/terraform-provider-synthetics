@@ -16,7 +16,7 @@ description: |-
 terraform {
   required_providers {
     synthetics = {
-      version = "1.0.1"
+      version = "1.0.4"
       source  = "splunk/synthetics"
     }
   }
@@ -25,7 +25,7 @@ terraform {
 provider "synthetics" {
   product = "observability"
   realm = "us1"
-  #apikey = "this-is-my-api-key"
+  apikey = "this-is-my-api-key"
 }
 ```
 
@@ -34,10 +34,6 @@ provider "synthetics" {
 
 ### Required
 
-- `product` (String) One of: `observability` or `rigor`
-
-### Optional
-
 - `apikey` (String) Splunk Observability API Key. Will pull from `OBSERVABILITY_API_TOKEN` environment variable if available.
-- `realm` (String) Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available.
-- `rigorkey` (String) Rigor Classic API Key. Will pull from `API_ACCESS_TOKEN` environment variable if available.
+- `product` (String) One of: `observability` or `rigor`
+- `realm` (String) Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available. For Rigor use realm rigor
