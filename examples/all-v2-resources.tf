@@ -28,7 +28,7 @@
 # }
 
 
-//Create a V2 Variable
+# //Create a V2 Variable
 # resource "synthetics_create_variable_v2" "variable_v2_foo" {
 #   variable {
 #     description = "The most awesome variable. Full of snakes and spiders."

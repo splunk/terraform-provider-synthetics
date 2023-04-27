@@ -62,9 +62,9 @@ data "synthetics_browser_v2_check" "datasource_check_browser" {
   }
 }
 
-output "datasource_check_browser" {
-  value = data.synthetics_browser_v2_check.datasource_check_browser
-}
+# output "datasource_check_browser" {
+#   value = data.synthetics_browser_v2_check.datasource_check_browser
+# }
 
 # data "synthetics_location_v2_check" "datasource_location" {
 #   location {
