@@ -555,6 +555,26 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 				cl["selector_type"] = checkStep.SelectorType
 			}
 
+			if checkStep.OptionSelectorType != "" {
+				cl["option_selector_type"] = checkStep.OptionSelectorType
+			}
+
+			if checkStep.OptionSelector != "" {
+				cl["option_selector"] = checkStep.OptionSelector
+			}
+
+			if checkStep.VariableName != "" {
+				cl["variable_name"] = checkStep.VariableName
+			}
+			
+			if checkStep.Value != "" {
+				cl["value"] = string(checkStep.Value)
+			}
+
+			if checkStep.SelectorType != "" {
+				cl["selector_type"] = checkStep.SelectorType
+			}
+
 			options := flattenOptionsData(&checkStep.Options)
 			cl["options"] = options
 
@@ -869,7 +889,7 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Starturl = browser["start_url"].(string)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
-			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].(*schema.Set))
+			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
 			i++
@@ -942,7 +962,7 @@ func buildVariableV2Data(d *schema.ResourceData) sc2.VariableV2Input {
 			i++
 		}
 	}
-	log.Println("[WARN] build variablev2 data: ", variablev2)
+	log.Println("[DEBUG]] build variablev2 data: ", variablev2)
 	return variablev2
 }
 
@@ -970,14 +990,13 @@ func buildRequestsData(requests *schema.Set) []sc2.Requests {
 	return requestsList
 }
 
-func buildBusinessTransactionsData(businessTransactions *schema.Set) []sc2.Transactions {
-	businessTransactionsList := make([]sc2.Transactions, len(businessTransactions.List()))
-
-	for i, bisTrans := range businessTransactions.List() {
+func buildBusinessTransactionsData(businessTransactions []interface{}) []sc2.Transactions {
+	businessTransactionsList := make([]sc2.Transactions, len(businessTransactions))
+	for i, bisTrans := range businessTransactions {
 		bisTrans := bisTrans.(map[string]interface{})
 		transaction := sc2.Transactions{
 			Name:    bisTrans["name"].(string),
-			StepsV2: buildStepV2Data(bisTrans["steps"].(*schema.Set)),
+			StepsV2: buildStepV2Data(bisTrans["steps"].([]interface{})),
 		}
 		businessTransactionsList[i] = transaction
 	}
@@ -1002,10 +1021,10 @@ func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
 	return httpHeadersList
 }
 
-func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
-	stepsList := make([]sc2.StepsV2, len(steps.List()))
 
-	for i, step := range steps.List() {
+func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
+	stepsList := make([]sc2.StepsV2, len(steps))
+	for i, step := range steps {
 		step := step.(map[string]interface{})
 		st := sc2.StepsV2{
 			URL:          step["url"].(string),
@@ -1015,6 +1034,10 @@ func buildStepV2Data(steps *schema.Set) []sc2.StepsV2 {
 			WaitForNav:   step["wait_for_nav"].(bool),
 			SelectorType: step["selector_type"].(string),
 			Selector:     step["selector"].(string),
+			OptionSelectorType: step["option_selector_type"].(string),
+			OptionSelector:     step["option_selector"].(string),
+			VariableName: step["variable_name"].(string),
+			Value:     step["value"].(string),
 			Options:      buildOptionsData(step["options"].(*schema.Set)),
 		}
 		stepsList[i] = st

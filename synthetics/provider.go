@@ -34,25 +34,19 @@ func Provider() *schema.Provider {
 				Type:         schema.TypeString,
 				Required:     true,
 				Description:  "One of: `observability` or `rigor`",
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "Setting must match either observability or rigor (v1.0.0+)"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "product setting must match either observability or rigor (v1.0.0+)"),
 			},
 			"apikey": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Splunk Observability API Key. Will pull from `OBSERVABILITY_API_TOKEN` environment variable if available.",
 				DefaultFunc: schema.EnvDefaultFunc("OBSERVABILITY_API_TOKEN", nil),
 			},
 			"realm": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available.",
+				Required:    true,
+				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available. For Rigor use realm rigor",
 				DefaultFunc: schema.EnvDefaultFunc("REALM", nil),
-			},
-			"rigorkey": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Rigor Classic API Key. Will pull from `API_ACCESS_TOKEN` environment variable if available.",
-				DefaultFunc: schema.EnvDefaultFunc("API_ACCESS_TOKEN", nil),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -83,7 +77,6 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("apikey").(string)
-	rigorToken := d.Get("rigorkey").(string)
 	realm := d.Get("realm").(string)
 	product := d.Get("product").(string)
 
@@ -100,13 +93,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 		return c, diags
 	} else {
-		if product == "rigor" && rigorToken != "" {
-			c := sc.NewClient(rigorToken)
+		if product == "rigor" && token != "" {
+			c := sc.NewClient(token)
 
 			return c, diags
 		}
 
-		c := sc.NewClient(rigorToken)
+		c := sc.NewClient(token)
 
 		return c, diags
 	}

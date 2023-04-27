@@ -1,7 +1,7 @@
 # terraform {
 #   required_providers {
 #     synthetics = {
-#       version = "1.0.3"
+#       version = "1.0.4"
 #       source  = "splunk/synthetics"
 #     }
 #   }
@@ -56,11 +56,11 @@
 #   value = data.synthetics_api_v2_check.datasource_check_api
 # }
 
-# data "synthetics_browser_v2_check" "datasource_check_browser" {
-#   test {
-#     id = 496
-#   }
-# }
+data "synthetics_browser_v2_check" "datasource_check_browser" {
+  test {
+    id = 5056
+  }
+}
 
 # output "datasource_check_browser" {
 #   value = data.synthetics_browser_v2_check.datasource_check_browser

@@ -206,6 +206,22 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
+												"option_selector_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"option_selector": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"variable_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 												"wait_for_nav": {
 													Type:     schema.TypeBool,
 													Optional: true,
@@ -263,6 +279,22 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"selector": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"option_selector_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"option_selector": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"variable_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
