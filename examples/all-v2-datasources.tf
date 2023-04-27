@@ -1,17 +1,17 @@
-terraform {
-  required_providers {
-    synthetics = {
-      version = "1.0.4"
-      source  = "local-provider/splunk/synthetics"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     synthetics = {
+#       version = "1.0.4"
+#       source  = "splunk/synthetics"
+#     }
+#   }
+# }
 
-provider "synthetics" {
-  product = "observability"
-  realm = "us1"
-  #apikey = "this-is-my-api-key"
-}
+# provider "synthetics" {
+#   product = "observability"
+#   realm = "us1"
+#   #apikey = "this-is-my-api-key"
+# }
 
 # //Pull a Check as a datasource
 

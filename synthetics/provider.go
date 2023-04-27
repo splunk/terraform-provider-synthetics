@@ -77,7 +77,6 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("apikey").(string)
-	//rigorToken := d.Get("rigorkey").(string)
 	realm := d.Get("realm").(string)
 	product := d.Get("product").(string)
 

@@ -2,7 +2,7 @@
 #   required_providers {
 #     synthetics = {
 #       version = "1.0.4"
-#       source  = "local-provider/splunk/synthetics"
+#       source  = "splunk/synthetics"
 #     }
 #   }
 # }
@@ -10,7 +10,7 @@
 # provider "synthetics" {
 #   product = "observability"
 #   realm = "us1"
-#   # apikey = "my key or OBSERVABILITY_API_TOKEN env var"
+#   # apikey = "this-is-my-api-key"
 # }
 
 
