@@ -118,11 +118,15 @@ Read-Only:
 
 - `action` (String)
 - `name` (String)
+- `option_selector` (String)
+- `option_selector_type` (String)
 - `options` (Set of Object) (see [below for nested schema](#nestedobjatt--test--business_transactions--steps--options))
 - `selector` (String)
 - `selector_type` (String)
 - `type` (String)
 - `url` (String)
+- `value` (String)
+- `variable_name` (String)
 - `wait_for_nav` (Boolean)
 
 <a id="nestedobjatt--test--business_transactions--steps--options"></a>
@@ -175,11 +179,15 @@ Read-Only:
 
 - `action` (String)
 - `name` (String)
+- `option_selector` (String)
+- `option_selector_type` (String)
 - `options` (Set of Object) (see [below for nested schema](#nestedobjatt--test--transactions--steps--options))
 - `selector` (String)
 - `selector_type` (String)
 - `type` (String)
 - `url` (String)
+- `value` (String)
+- `variable_name` (String)
 - `wait_for_nav` (Boolean)
 
 <a id="nestedobjatt--test--transactions--steps--options"></a>

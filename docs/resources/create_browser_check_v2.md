@@ -17,47 +17,104 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
   test {
     active = true
     device_id = 1  
-    frequency = 5
+    frequency = 15
     location_ids = ["aws-us-east-1"]
     name = "Terraform - Browser V2 Checkaroo"
     scheduling_strategy = "round_robin"
     url_protocol = "https://"
     start_url = "www.splunk.com"
     transactions {
-      name = "Synthetic transaction 1"
+      name = "First Synthetic transaction"
       steps {
-        name = "Go to URL"
-        type = "go_to_url"
-        url = "https://www.splunk.com"
-        action = "go_to_url"
-        wait_for_nav = true
-        options {
-          url = "https://www.splunk.com"
-        }
+        name                 = "01 Go to URL"
+        type                 = "go_to_url"
+        url                  = "https://www.splunk.com"
+        wait_for_nav         = true
       }
       steps {
-        name = "New step"
-        type = "click_element"
-        selector_type = "id"
-        wait_for_nav = false
-        selector = "\"free-splunk-click-mobile\""
+        name                 = "02 fill in fieldz"
+        selector             = "beep"
+        selector_type        = "id"
+        type                 = "enter_value"
+        value                = "{{env.beep-var}}"
+        wait_for_nav         = false
       }
       steps {
-        name = "New step"
-        type = "click_element"
-        selector_type = "id"
-        wait_for_nav = false
-        selector = "login-button"
+        name                 = "03 click"
+        selector             = "clicky"
+        selector_type        = "id"
+        type                 = "click_element"
+        wait_for_nav         = true
+      }
+      steps {
+        name                 = "04 accept---Alert"
+        type                 = "accept_alert"
+        wait_for_nav         = false
+      }
+      steps {
+        name                 = "05 Select-val-text"
+        option_selector      = "sdad"
+        option_selector_type = "text"
+        selector             = "textzz"
+        selector_type        = "id"
+        type                 = "select_option"
+        wait_for_nav         = false
+      }
+      steps {
+        name                 = "06 Select-Val-Val"
+        option_selector      = "{{env.beep-var}}"
+        option_selector_type = "value"
+        selector             = "valz"
+        selector_type        = "id"
+        type                 = "select_option"
+        wait_for_nav         = false
+      }
+      steps {
+        name                 = "07 Select-Val-Index"
+        option_selector      = "{{env.beep-var}}"
+        option_selector_type = "index"
+        selector             = "selectionz"
+        selector_type        = "id"
+        type                 = "select_option"
+        wait_for_nav         = false
+      }
+      steps {
+        name                 = "08 Save as text"
+        selector             = "beepval"
+        selector_type        = "link"
+        type                 = "store_variable_from_element"
+        variable_name        = "{{env.terraform-test-foo-301}}"
+        wait_for_nav         = false
+      }
+      steps {
+        name                 = "09 Save JS2 return Val"
+        type                 = "store_variable_from_javascript"
+        value                = "sdasds"
+        variable_name        = "{{env.terraform-test-foo-301}}"
+        wait_for_nav         = true
+      }
+      steps {
+        name                 = "010 Run JS"
+        type                 = "run_javascript"
+        value                = "beeeeeeep"
+        wait_for_nav         = true
       }
     }
     transactions {
-      name = "New synthetic transaction"
+      name = "2nd Synthetic transaction"
       steps {
-        name = "New step"
-        type = "go_to_url"
-        wait_for_nav = true
-        action = "go_to_url"
-        url = "https://www.batman.com"
+        name                 = "Go to other URL"
+        type                 = "go_to_url"
+        url                  = "https://www.splunk.com"
+        wait_for_nav         = true
+      }
+      steps {
+        name                 = "fill in more fields field"
+        selector             = "beep"
+        selector_type        = "id"
+        type                 = "enter_value"
+        value                = "{{env.beep-var}}"
+        wait_for_nav         = false
       }
     }
     advanced_settings {
@@ -117,7 +174,7 @@ Required:
 
 - `name` (String)
 - `start_url` (String)
-- `transactions` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--test--transactions))
+- `transactions` (Block List, Min: 1) (see [below for nested schema](#nestedblock--test--transactions))
 - `url_protocol` (String)
 
 Optional:
@@ -132,10 +189,13 @@ Optional:
 <a id="nestedblock--test--transactions"></a>
 ### Nested Schema for `test.transactions`
 
+Required:
+
+- `steps` (Block List, Min: 1) (see [below for nested schema](#nestedblock--test--transactions--steps))
+
 Optional:
 
 - `name` (String)
-- `steps` (Block Set) (see [below for nested schema](#nestedblock--test--transactions--steps))
 
 <a id="nestedblock--test--transactions--steps"></a>
 ### Nested Schema for `test.transactions.steps`
@@ -148,11 +208,15 @@ Optional:
 
 - `action` (String)
 - `name` (String)
+- `option_selector` (String)
+- `option_selector_type` (String)
 - `options` (Block Set) (see [below for nested schema](#nestedblock--test--transactions--steps--options))
 - `selector` (String)
 - `selector_type` (String)
 - `type` (String)
 - `url` (String)
+- `value` (String)
+- `variable_name` (String)
 
 <a id="nestedblock--test--transactions--steps--options"></a>
 ### Nested Schema for `test.transactions.steps.options`
