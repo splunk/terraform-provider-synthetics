@@ -33,3 +33,4 @@
 
 .terraform*
 terraform.tf*
+bin/*
