@@ -44,6 +44,37 @@ func flattenStringIdData(test interface{}) string {
 	return id.(string)
 }
 
+func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
+	apiV2 := make(map[string]interface{})
+
+	apiV2["active"] = checkApiV2.Test.Active
+
+	if checkApiV2.Test.Frequency != 0 {
+		apiV2["frequency"] = checkApiV2.Test.Frequency
+	}
+
+	if checkApiV2.Test.Name != "" {
+		apiV2["name"] = checkApiV2.Test.Name
+	}
+
+	if checkApiV2.Test.Schedulingstrategy != "" {
+		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
+	}
+
+	apiV2["device_id"] = checkApiV2.Test.Device.ID
+	
+
+	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
+	apiV2["location_ids"] = locationIds
+
+	requests := flattenRequestData(&checkApiV2.Test.Requests)
+	apiV2["requests"] = requests
+
+	log.Println("[DEBUG] apiv2 data: ", apiV2)
+
+	return []interface{}{apiV2}
+}
+
 func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
@@ -300,6 +331,51 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	log.Println("[DEBUG] browserv2 data: ", browserV2)
 
 	return []interface{}{browserV2}
+}
+
+func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
+	httpV2 := make(map[string]interface{})
+
+
+	if checkHttpV2.Test.Name != "" {
+		httpV2["name"] = checkHttpV2.Test.Name
+	}
+
+	httpV2["active"] = checkHttpV2.Test.Active
+
+	if checkHttpV2.Test.Frequency != 0 {
+		httpV2["frequency"] = checkHttpV2.Test.Frequency
+	}
+
+	if checkHttpV2.Test.SchedulingStrategy != "" {
+		httpV2["scheduling_strategy"] = checkHttpV2.Test.SchedulingStrategy
+	}
+
+	if checkHttpV2.Test.Type != "" {
+		httpV2["type"] = checkHttpV2.Test.Type
+	}
+
+	if checkHttpV2.Test.URL != "" {
+		httpV2["url"] = checkHttpV2.Test.URL
+	}
+
+	if checkHttpV2.Test.RequestMethod != "" {
+		httpV2["request_method"] = checkHttpV2.Test.RequestMethod
+	}
+
+	if checkHttpV2.Test.Body != "" {
+		httpV2["body"] = checkHttpV2.Test.Body
+	}
+
+	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
+	httpV2["location_ids"] = locationIds
+
+	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
+	httpV2["headers"] = httpHeaders
+
+	log.Println("[DEBUG] httpV2 data: ", httpV2)
+
+	return []interface{}{httpV2}
 }
 
 func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
