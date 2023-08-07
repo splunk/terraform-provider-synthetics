@@ -109,6 +109,9 @@ func resourceLocationV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 	log.Println("DEBUG] GET location response data: ", location)
+	if err := d.Set("location", flattenLocationV2Data(location.Location)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

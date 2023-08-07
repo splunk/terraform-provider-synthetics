@@ -210,8 +210,7 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET REQUEST BODY JSON: ", o)
-	apiCheck := flattenApiV2Read(o)
-	if err := d.Set("test", apiCheck); err != nil {
+	if err := d.Set("test", flattenApiV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
 

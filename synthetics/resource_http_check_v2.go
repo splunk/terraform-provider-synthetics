@@ -145,8 +145,7 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET HTTP BODY: ", o)
-	httpCheck:= flattenHttpV2Read(o)
-	if err := d.Set("test", httpCheck); err != nil {
+	if err := d.Set("test", flattenHttpV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
 
