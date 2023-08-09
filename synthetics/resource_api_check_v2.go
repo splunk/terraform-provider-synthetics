@@ -262,7 +262,7 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func processApiCheckV2Items(d *schema.ResourceData) sc2.ApiCheckV2Input {
-	
+
 	var check = buildApiV2Data(d)
 
 	log.Println("[DEBUG] API V2 CHECK OUTPUT: ", check)
