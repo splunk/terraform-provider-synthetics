@@ -44,37 +44,6 @@ func flattenStringIdData(test interface{}) string {
 	return id.(string)
 }
 
-func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
-	apiV2 := make(map[string]interface{})
-
-	apiV2["active"] = checkApiV2.Test.Active
-
-	if checkApiV2.Test.Frequency != 0 {
-		apiV2["frequency"] = checkApiV2.Test.Frequency
-	}
-
-	if checkApiV2.Test.Name != "" {
-		apiV2["name"] = checkApiV2.Test.Name
-	}
-
-	if checkApiV2.Test.Schedulingstrategy != "" {
-		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
-	}
-
-	apiV2["device_id"] = checkApiV2.Test.Device.ID
-	
-
-	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
-	apiV2["location_ids"] = locationIds
-
-	requests := flattenRequestData(&checkApiV2.Test.Requests)
-	apiV2["requests"] = requests
-
-	log.Println("[DEBUG] apiv2 data: ", apiV2)
-
-	return []interface{}{apiV2}
-}
-
 func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
@@ -292,44 +261,6 @@ func flattenLocationMetaV2Data(checkLocationV2 sc2.Meta) []interface{} {
 	log.Println("[DEBUG] Location Meta V2 data: ", locationMetaV2)
 
 	return []interface{}{locationMetaV2}
-}
-func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
-	browserV2 := make(map[string]interface{})
-
-	browserV2["active"] = checkBrowserV2.Test.Active
-
-	browserV2["device_id"] = checkBrowserV2.Test.Device.ID
-
-	if checkBrowserV2.Test.Frequency != 0 {
-		browserV2["frequency"] = checkBrowserV2.Test.Frequency
-	}
-
-	if checkBrowserV2.Test.Name != "" {
-		browserV2["name"] = checkBrowserV2.Test.Name
-	}
-
-	if checkBrowserV2.Test.Schedulingstrategy != "" {
-		browserV2["scheduling_strategy"] = checkBrowserV2.Test.Schedulingstrategy
-	}
-
-	if checkBrowserV2.Test.Type != "" {
-		browserV2["type"] = checkBrowserV2.Test.Type
-	}
-
-	browserV2["start_url"] = checkBrowserV2.Test.Transactions[0].StepsV2[0].URL
-
-	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
-	browserV2["location_ids"] = locationIds
-
-	advancedSettings := flattenAdvancedSettingsData(&checkBrowserV2.Test.Advancedsettings)
-	browserV2["advanced_settings"] = advancedSettings
-
-	transactions := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
-	browserV2["transactions"] = transactions
-
-	log.Println("[DEBUG] browserv2 data: ", browserV2)
-
-	return []interface{}{browserV2}
 }
 
 func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {

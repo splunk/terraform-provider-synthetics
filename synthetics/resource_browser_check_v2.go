@@ -295,9 +295,6 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET BROWSER BODY: ", o)
-	if err := d.Set("test", flattenBrowserV2Read(o)); err != nil {
-		return diag.FromErr(err)
-	}
 
 	return diags
 }
