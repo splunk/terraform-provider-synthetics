@@ -103,6 +103,9 @@ func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 	log.Println("DEBUG] GET variable response data: ", variable)
+	if err := d.Set("variable", flattenVariableV2Read(variable)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

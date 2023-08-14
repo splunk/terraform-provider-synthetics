@@ -93,6 +93,22 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	return []interface{}{apiV2}
 }
 
+func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{} {
+	variableV2 := make(map[string]interface{})
+
+	variableV2["name"] = checkVariableV2.Variable.Name
+
+	variableV2["description"] = checkVariableV2.Variable.Description
+
+	variableV2["value"] = checkVariableV2.Variable.Value
+
+	variableV2["secret"] = checkVariableV2.Variable.Secret
+
+	log.Println("[DEBUG] variable V2 read data: ", variableV2)
+
+	return []interface{}{variableV2}
+}
+
 func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{} {
 	variableV2 := make(map[string]interface{})
 
@@ -302,6 +318,51 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	return []interface{}{browserV2}
 }
 
+func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
+	httpV2 := make(map[string]interface{})
+
+
+	if checkHttpV2.Test.Name != "" {
+		httpV2["name"] = checkHttpV2.Test.Name
+	}
+
+	httpV2["active"] = checkHttpV2.Test.Active
+
+	if checkHttpV2.Test.Frequency != 0 {
+		httpV2["frequency"] = checkHttpV2.Test.Frequency
+	}
+
+	if checkHttpV2.Test.SchedulingStrategy != "" {
+		httpV2["scheduling_strategy"] = checkHttpV2.Test.SchedulingStrategy
+	}
+
+	if checkHttpV2.Test.Type != "" {
+		httpV2["type"] = checkHttpV2.Test.Type
+	}
+
+	if checkHttpV2.Test.URL != "" {
+		httpV2["url"] = checkHttpV2.Test.URL
+	}
+
+	if checkHttpV2.Test.RequestMethod != "" {
+		httpV2["request_method"] = checkHttpV2.Test.RequestMethod
+	}
+
+	if checkHttpV2.Test.Body != "" {
+		httpV2["body"] = checkHttpV2.Test.Body
+	}
+
+	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
+	httpV2["location_ids"] = locationIds
+
+	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
+	httpV2["headers"] = httpHeaders
+
+	log.Println("[DEBUG] httpV2 read data: ", httpV2)
+
+	return []interface{}{httpV2}
+}
+
 func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	httpV2 := make(map[string]interface{})
 
@@ -358,6 +419,47 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
+}
+
+func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} {
+	portV2 := make(map[string]interface{})
+
+	if checkPortV2.Test.Name != "" {
+		portV2["name"] = checkPortV2.Test.Name
+	}
+
+	portV2["active"] = checkPortV2.Test.Active
+
+	if checkPortV2.Test.Frequency != 0 {
+		portV2["frequency"] = checkPortV2.Test.Frequency
+	}
+
+	if checkPortV2.Test.SchedulingStrategy != "" {
+		portV2["scheduling_strategy"] = checkPortV2.Test.SchedulingStrategy
+	}
+
+	if checkPortV2.Test.Type != "" {
+		portV2["type"] = checkPortV2.Test.Type
+	}
+
+	if checkPortV2.Test.Protocol != "" {
+		portV2["protocol"] = checkPortV2.Test.Protocol
+	}
+
+	if checkPortV2.Test.Host != "" {
+		portV2["host"] = checkPortV2.Test.Host
+	}
+
+	if checkPortV2.Test.Port != 0 {
+		portV2["port"] = checkPortV2.Test.Port
+	}
+
+	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
+	portV2["location_ids"] = locationIds
+
+	log.Println("[DEBUG] portv2 read data: ", portV2)
+
+	return []interface{}{portV2}
 }
 
 func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} {

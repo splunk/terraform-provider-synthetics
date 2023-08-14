@@ -134,6 +134,9 @@ func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET PORT BODY: ", o)
+	if err := d.Set("test", flattenPortCheckV2Read(o)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }
