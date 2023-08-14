@@ -104,8 +104,6 @@ func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{
 
 	variableV2["secret"] = checkVariableV2.Variable.Secret
 
-	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
-
 	return []interface{}{variableV2}
 }
 
@@ -358,8 +356,6 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
 	httpV2["headers"] = httpHeaders
 
-	log.Println("[DEBUG] httpV2 data: ", httpV2)
-
 	return []interface{}{httpV2}
 }
 
@@ -456,8 +452,6 @@ func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
 	portV2["location_ids"] = locationIds
-
-	log.Println("[DEBUG] portv2 data: ", portV2)
 
 	return []interface{}{portV2}
 }
