@@ -313,12 +313,6 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 		browserV2["scheduling_strategy"] = checkBrowserV2.Test.Schedulingstrategy
 	}
 
-	// if checkBrowserV2.Test.Type != "" {
-	// 	browserV2["type"] = checkBrowserV2.Test.Type
-	// }
-
-	//browserV2["start_url"] = checkBrowserV2.Test.Transactions[0].StepsV2[0].URL
-
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
 	browserV2["location_ids"] = locationIds
 
@@ -367,10 +361,6 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	if checkBrowserV2.Test.Type != "" {
 		browserV2["type"] = checkBrowserV2.Test.Type
 	}
-
-	// if checkBrowserV2.Test.Type != "" {
-	// 	browserV2["type"] = checkBrowserV2.Test.Type
-	// }
 
 
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
@@ -727,10 +717,6 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 			if checkStep.URL != "" {
 				cl["url"] = checkStep.URL
 			}
-
-			// if checkStep.Action != "" {
-			// 	cl["action"] = checkStep.Action
-			// }
 
 			cl["wait_for_nav"] = checkStep.WaitForNav
 
