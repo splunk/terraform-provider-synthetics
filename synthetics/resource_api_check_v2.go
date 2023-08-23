@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -126,6 +126,14 @@ func resourceApiCheckV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
+												"code": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -151,6 +159,26 @@ func resourceApiCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"extractor": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"source": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"variable": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"code": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
@@ -211,6 +239,9 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET REQUEST BODY JSON: ", o)
+	if err := d.Set("test", flattenApiV2Read(o)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }
