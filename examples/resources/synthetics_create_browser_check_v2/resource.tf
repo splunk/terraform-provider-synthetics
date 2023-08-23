@@ -1,20 +1,17 @@
-resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
+resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
   test {
     active = true
     device_id = 1  
     frequency = 15
     location_ids = ["aws-us-east-1"]
-    name = "Terraform - Browser V2 Checkaroo"
+    name = "0011aTerraform-Browser V2 Checkaroo"
     scheduling_strategy = "round_robin"
-    url_protocol = "https://"
-    start_url = "www.splunk.com"
     transactions {
       name = "First Synthetic transaction"
       steps {
         name                 = "01 Go to URL"
         type                 = "go_to_url"
         url                  = "https://www.splunk.com"
-        wait_for_nav         = true
       }
       steps {
         name                 = "02 fill in fieldz"
@@ -22,7 +19,6 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector_type        = "id"
         type                 = "enter_value"
         value                = "{{env.beep-var}}"
-        wait_for_nav         = false
       }
       steps {
         name                 = "03 click"
@@ -72,6 +68,12 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         wait_for_nav         = false
       }
       steps {
+        name                 = "08.5 Wait"
+        duration             = 4234
+        type                 = "wait"
+        wait_for_nav         = false
+      }
+      steps {
         name                 = "09 Save JS2 return Val"
         type                 = "store_variable_from_javascript"
         value                = "sdasds"
@@ -91,7 +93,6 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         name                 = "Go to other URL"
         type                 = "go_to_url"
         url                  = "https://www.splunk.com"
-        wait_for_nav         = true
       }
       steps {
         name                 = "fill in more fields field"
@@ -99,12 +100,12 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector_type        = "id"
         type                 = "enter_value"
         value                = "{{env.beep-var}}"
-        wait_for_nav         = false
       }
     }
     advanced_settings {
-      verify_certificates = false
+      verify_certificates = true
       user_agent = "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+      collect_interactive_metrics = false
       authentication {
         username = "batmab"
         password = "{{env.beep-var}}"
@@ -112,7 +113,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       headers {
         name = "superstar-machine"
         value = "\"taking it too the staaaaars\""
-        domain = "asdasd.batman.com"
+        domain = "asdasd.batmab.com"
       }
       cookies {
         key = "sda"
