@@ -362,7 +362,6 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 		browserV2["type"] = checkBrowserV2.Test.Type
 	}
 
-
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
 	browserV2["location_ids"] = locationIds
 
@@ -748,9 +747,6 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 				cl["selector_type"] = checkStep.SelectorType
 			}
 
-			//options := flattenOptionsData(&checkStep.Options)
-			//cl["options"] = options
-
 			if checkStep.Duration != 0 {
 				cl["duration"] = checkStep.Duration
 			}
@@ -1097,8 +1093,6 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Active = browser["active"].(bool)
 			browserv2.Test.DeviceID = browser["device_id"].(int)
 			browserv2.Test.Frequency = browser["frequency"].(int)
-			//browserv2.Test.Urlprotocol = browser["url_protocol"].(string)
-			//browserv2.Test.Starturl = browser["start_url"].(string)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
 			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
@@ -1243,7 +1237,6 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 		st := sc2.StepsV2{
 			URL:          step["url"].(string),
 			Name:         step["name"].(string),
-			//Action:       step["action"].(string),
 			Type:         step["type"].(string),
 			WaitForNav:   step["wait_for_nav"].(bool),
 			SelectorType: step["selector_type"].(string),
@@ -1253,7 +1246,6 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 			VariableName: step["variable_name"].(string),
 			Value:     step["value"].(string),
 			Duration:     step["duration"].(int),
-			//Options:      buildOptionsData(step["options"].(*schema.Set)),
 		}
 		stepsList[i] = st
 
