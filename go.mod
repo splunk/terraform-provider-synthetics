@@ -5,8 +5,10 @@ go 1.18
 require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
 	github.com/splunk/syntheticsclient v1.0.3
-	github.com/splunk/syntheticsclient/v2 v2.0.2
+	github.com/splunk/syntheticsclient/v2 v2.0.3
 )
+
+// replace github.com/splunk/syntheticsclient/v2 => /Users/jeremyh/go/pkg/mod/github.com/splunk/syntheticsclient/v2@v2.0.2/
 
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect
