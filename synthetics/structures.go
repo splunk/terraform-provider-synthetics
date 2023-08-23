@@ -18,7 +18,7 @@ import (
 	"log"
 	"strings"
 
-	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sc "github.com/splunk/syntheticsclient/syntheticsclient"
@@ -42,6 +42,37 @@ func flattenStringIdData(test interface{}) string {
 	test_map := test_list[0].(map[string]interface{})
 	id := test_map["id"]
 	return id.(string)
+}
+
+func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
+	apiV2 := make(map[string]interface{})
+
+	apiV2["active"] = checkApiV2.Test.Active
+
+	if checkApiV2.Test.Frequency != 0 {
+		apiV2["frequency"] = checkApiV2.Test.Frequency
+	}
+
+	if checkApiV2.Test.Name != "" {
+		apiV2["name"] = checkApiV2.Test.Name
+	}
+
+	if checkApiV2.Test.Schedulingstrategy != "" {
+		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
+	}
+
+	apiV2["device_id"] = checkApiV2.Test.Device.ID
+	
+
+	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
+	apiV2["location_ids"] = locationIds
+
+	requests := flattenRequestData(&checkApiV2.Test.Requests)
+	apiV2["requests"] = requests
+
+	log.Println("[DEBUG] apiv2 data: ", apiV2)
+
+	return []interface{}{apiV2}
 }
 
 func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
@@ -104,7 +135,7 @@ func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{
 
 	variableV2["secret"] = checkVariableV2.Variable.Secret
 
-	log.Println("[DEBUG] variable V2 read data: ", variableV2)
+	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
 
 	return []interface{}{variableV2}
 }
@@ -263,6 +294,45 @@ func flattenLocationMetaV2Data(checkLocationV2 sc2.Meta) []interface{} {
 	return []interface{}{locationMetaV2}
 }
 
+func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
+	browserV2 := make(map[string]interface{})
+
+	browserV2["active"] = checkBrowserV2.Test.Active
+
+	browserV2["device_id"] = checkBrowserV2.Test.Device.ID
+
+	if checkBrowserV2.Test.Frequency != 0 {
+		browserV2["frequency"] = checkBrowserV2.Test.Frequency
+	}
+
+	if checkBrowserV2.Test.Name != "" {
+		browserV2["name"] = checkBrowserV2.Test.Name
+	}
+
+	if checkBrowserV2.Test.Schedulingstrategy != "" {
+		browserV2["scheduling_strategy"] = checkBrowserV2.Test.Schedulingstrategy
+	}
+
+	// if checkBrowserV2.Test.Type != "" {
+	// 	browserV2["type"] = checkBrowserV2.Test.Type
+	// }
+
+	//browserV2["start_url"] = checkBrowserV2.Test.Transactions[0].StepsV2[0].URL
+
+	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
+	browserV2["location_ids"] = locationIds
+
+	advancedSettings := flattenAdvancedSettingsData(&checkBrowserV2.Test.Advancedsettings)
+	browserV2["advanced_settings"] = advancedSettings
+
+	transactions := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
+	browserV2["transactions"] = transactions
+
+	log.Println("[DEBUG] read browserv2 data: ", browserV2)
+
+	return []interface{}{browserV2}
+}
+
 func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
 	browserV2 := make(map[string]interface{})
 
@@ -298,6 +368,11 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 		browserV2["type"] = checkBrowserV2.Test.Type
 	}
 
+	// if checkBrowserV2.Test.Type != "" {
+	// 	browserV2["type"] = checkBrowserV2.Test.Type
+	// }
+
+
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
 	browserV2["location_ids"] = locationIds
 
@@ -313,7 +388,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
 
-	log.Println("[DEBUG] browserv2 data: ", browserV2)
+	log.Println("[DEBUG] flatten browserv2 data: ", browserV2)
 
 	return []interface{}{browserV2}
 }
@@ -352,13 +427,17 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 		httpV2["body"] = checkHttpV2.Test.Body
 	}
 
+	httpV2["user_agent"] = checkHttpV2.Test.UserAgent
+
+	httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
+
 	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
 	httpV2["location_ids"] = locationIds
 
 	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
 	httpV2["headers"] = httpHeaders
 
-	log.Println("[DEBUG] httpV2 read data: ", httpV2)
+	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
 }
@@ -410,6 +489,12 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 		httpV2["body"] = checkHttpV2.Test.Body
 	}
 
+	if *checkHttpV2.Test.UserAgent != "" {
+		httpV2["user_agent"] = checkHttpV2.Test.UserAgent
+	}
+
+	httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
+
 	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
 	httpV2["location_ids"] = locationIds
 
@@ -457,7 +542,7 @@ func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
 	portV2["location_ids"] = locationIds
 
-	log.Println("[DEBUG] portv2 read data: ", portV2)
+	log.Println("[DEBUG] portv2 data: ", portV2)
 
 	return []interface{}{portV2}
 }
@@ -643,9 +728,9 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 				cl["url"] = checkStep.URL
 			}
 
-			if checkStep.Action != "" {
-				cl["action"] = checkStep.Action
-			}
+			// if checkStep.Action != "" {
+			// 	cl["action"] = checkStep.Action
+			// }
 
 			cl["wait_for_nav"] = checkStep.WaitForNav
 
@@ -677,8 +762,12 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 				cl["selector_type"] = checkStep.SelectorType
 			}
 
-			options := flattenOptionsData(&checkStep.Options)
-			cl["options"] = options
+			//options := flattenOptionsData(&checkStep.Options)
+			//cl["options"] = options
+
+			if checkStep.Duration != 0 {
+				cl["duration"] = checkStep.Duration
+			}
 
 			cls[i] = cl
 		}
@@ -714,6 +803,14 @@ func flattenSetupData(checkSetup *[]sc2.Setup) []interface{} {
 
 			if checkSetup.Variable != "" {
 				cl["variable"] = checkSetup.Variable
+			}
+
+			if checkSetup.Code != "" {
+				cl["code"] = checkSetup.Code
+			}
+
+			if checkSetup.Value != "" {
+				cl["value"] = checkSetup.Value
 			}
 
 			cls[i] = cl
@@ -840,6 +937,26 @@ func flattenValidationsData(checkValidations *[]sc2.Validations) []interface{} {
 				cl["comparator"] = checkValidations.Comparator
 			}
 
+			if checkValidations.Extractor != "" {
+				cl["extractor"] = checkValidations.Extractor
+			}
+
+			if checkValidations.Source != "" {
+				cl["source"] = checkValidations.Source
+			}
+
+			if checkValidations.Variable != "" {
+				cl["variable"] = checkValidations.Variable
+			}
+
+			if checkValidations.Value != "" {
+				cl["value"] = checkValidations.Value
+			}
+
+			if checkValidations.Code != "" {
+				cl["code"] = checkValidations.Code
+			}
+
 			cls[i] = cl
 		}
 
@@ -909,27 +1026,33 @@ func flattenDeviceData(checkDevice *sc2.Device) []interface{} {
 	return []interface{}{device}
 }
 
-func flattenAdvancedSettingsData(checkDevice *sc2.Advancedsettings) []interface{} {
+func flattenAdvancedSettingsData(advSettings *sc2.Advancedsettings) []interface{} {
 	advancedSettings := make(map[string]interface{})
 
-	if checkDevice.Verifycertificates {
-		advancedSettings["verify_certificates"] = checkDevice.Verifycertificates
+	if advSettings.Verifycertificates {
+		advancedSettings["verify_certificates"] = advSettings.Verifycertificates
 	}
 
-	if checkDevice.UserAgent != "" {
-		advancedSettings["user_agent"] = checkDevice.UserAgent
+	if advSettings.CollectInteractiveMetrics {
+		advancedSettings["collect_interactive_metrics"] = advSettings.CollectInteractiveMetrics
 	}
 
-	Authentication := flattenAuthenticationData(&checkDevice.Authentication)
-	advancedSettings["authentication"] = Authentication
+	if advSettings.UserAgent != nil {
+		advancedSettings["user_agent"] = advSettings.UserAgent
+	}
 
-	Cookies := flattenCookiesData(&checkDevice.Cookiesv2)
+	if advSettings.Authentication != nil {
+		Authentication := flattenAuthenticationData(advSettings.Authentication)
+		advancedSettings["authentication"] = Authentication
+	}
+
+	Cookies := flattenCookiesData(&advSettings.Cookiesv2)
 	advancedSettings["cookies"] = Cookies
 
-	BrowserHeaders := flattenBrowserHeadersData(&checkDevice.BrowserHeaders)
+	BrowserHeaders := flattenBrowserHeadersData(&advSettings.BrowserHeaders)
 	advancedSettings["headers"] = BrowserHeaders
 
-	HostOverRides := flattenHostOverridesData(&checkDevice.HostOverrides)
+	HostOverRides := flattenHostOverridesData(&advSettings.HostOverrides)
 	advancedSettings["host_overrides"] = HostOverRides
 
 	return []interface{}{advancedSettings}
@@ -950,8 +1073,12 @@ func flattenNetworkConnectionData(checkNetworkConnection *sc2.Networkconnection)
 func flattenAuthenticationData(checkAuthentications *sc2.Authentication) []interface{} {
 	authentication := make(map[string]interface{})
 
-	authentication["username"] = checkAuthentications.Username
-	authentication["password"] = checkAuthentications.Password
+	if checkAuthentications.Username != "" {
+		authentication["username"] = checkAuthentications.Username
+	}
+	if checkAuthentications.Password != "" {
+		authentication["password"] = checkAuthentications.Password
+	}
 
 	return []interface{}{authentication}
 }
@@ -959,10 +1086,9 @@ func flattenAuthenticationData(checkAuthentications *sc2.Authentication) []inter
 func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 	var apiv2 sc2.ApiCheckV2Input
 	apiv2Data := d.Get("test").(*schema.Set).List()
-	var i = 0
 	for _, api := range apiv2Data {
-		if i < 1 {
-			api := api.(map[string]interface{})
+		api := api.(map[string]interface{})
+		if api["name"].(string) != "" {
 			apiv2.Test.Active = api["active"].(bool)
 			apiv2.Test.Deviceid = api["device_id"].(int)
 			apiv2.Test.Frequency = api["frequency"].(int)
@@ -970,7 +1096,6 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Name = api["name"].(string)
 			apiv2.Test.Requests = buildRequestsData(api["requests"].(*schema.Set))
 			apiv2.Test.Schedulingstrategy = api["scheduling_strategy"].(string)
-			i++
 		}
 	}
 	log.Println("[DEBUG] build apiv2 data: ", apiv2)
@@ -980,21 +1105,19 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 	var browserv2 sc2.BrowserCheckV2Input
 	browserv2Data := d.Get("test").(*schema.Set).List()
-	var i = 0
 	for _, browser := range browserv2Data {
-		if i < 1 {
-			browser := browser.(map[string]interface{})
+		browser := browser.(map[string]interface{})
+		if browser["name"].(string) != "" {
 			browserv2.Test.Active = browser["active"].(bool)
 			browserv2.Test.DeviceID = browser["device_id"].(int)
 			browserv2.Test.Frequency = browser["frequency"].(int)
-			browserv2.Test.Urlprotocol = browser["url_protocol"].(string)
-			browserv2.Test.Starturl = browser["start_url"].(string)
+			//browserv2.Test.Urlprotocol = browser["url_protocol"].(string)
+			//browserv2.Test.Starturl = browser["start_url"].(string)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
 			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
-			i++
 		}
 	}
 	log.Println("[DEBUG] build browserv2 data:")
@@ -1017,6 +1140,9 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			httpv2.Test.Active = http["active"].(bool)
 			httpv2.Test.RequestMethod = http["request_method"].(string)
 			httpv2.Test.Body = http["body"].(string)
+			httpv2.Test.Verifycertificates = http["verify_certificates"].(bool)
+			userAgentString := http["user_agent"].(string)
+			httpv2.Test.UserAgent = &userAgentString
 			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
 			i++
 		}
@@ -1131,7 +1257,7 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 		st := sc2.StepsV2{
 			URL:          step["url"].(string),
 			Name:         step["name"].(string),
-			Action:       step["action"].(string),
+			//Action:       step["action"].(string),
 			Type:         step["type"].(string),
 			WaitForNav:   step["wait_for_nav"].(bool),
 			SelectorType: step["selector_type"].(string),
@@ -1140,7 +1266,8 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 			OptionSelector:     step["option_selector"].(string),
 			VariableName: step["variable_name"].(string),
 			Value:     step["value"].(string),
-			Options:      buildOptionsData(step["options"].(*schema.Set)),
+			Duration:     step["duration"].(int),
+			//Options:      buildOptionsData(step["options"].(*schema.Set)),
 		}
 		stepsList[i] = st
 
@@ -1159,6 +1286,8 @@ func buildSetupData(setups *schema.Set) []sc2.Setup {
 			Source:    setup["source"].(string),
 			Type:      setup["type"].(string),
 			Variable:  setup["variable"].(string),
+			Code:      setup["code"].(string),
+			Value:     setup["value"].(string),
 		}
 		setupsList[i] = set
 
@@ -1177,6 +1306,11 @@ func buildValidationsData(validations *schema.Set) []sc2.Validations {
 			Expected:   validation["expected"].(string),
 			Name:       validation["name"].(string),
 			Type:       validation["type"].(string),
+			Extractor:  validation["extractor"].(string),
+			Source:     validation["source"].(string),
+			Variable:   validation["variable"].(string),
+			Code:       validation["code"].(string),
+			Value:      validation["value"].(string),
 		}
 
 		validationsList[i] = val
@@ -1207,8 +1341,10 @@ func buildAdvancedSettingsData(advancedSettings *schema.Set) sc2.Advancedsetting
 	if len(as_list) > 0 {
 		as_map := as_list[0].(map[string]interface{})
 
+		userAgentString := as_map["user_agent"].(string)
+		advancedSettingsData.UserAgent = &userAgentString
 		advancedSettingsData.Verifycertificates = as_map["verify_certificates"].(bool)
-		advancedSettingsData.UserAgent = as_map["user_agent"].(string)
+		advancedSettingsData.CollectInteractiveMetrics = as_map["collect_interactive_metrics"].(bool)
 		advancedSettingsData.Authentication = buildAuthenticationData(as_map["authentication"].(*schema.Set))
 		advancedSettingsData.BrowserHeaders = buildBrowserHeadersData(as_map["headers"].(*schema.Set))
 		advancedSettingsData.Cookiesv2 = buildCookiesData(as_map["cookies"].(*schema.Set))
@@ -1269,16 +1405,18 @@ func buildHostOverridesData(hostOverrides *schema.Set) []sc2.HostOverrides {
 	return hostOverridesList
 }
 
-func buildAuthenticationData(authentication *schema.Set) sc2.Authentication {
-	var authenticationData sc2.Authentication
-
+func buildAuthenticationData(authentication *schema.Set) *sc2.Authentication {
 	authentication_list := authentication.List()
-	authentication_map := authentication_list[0].(map[string]interface{})
 
-	authenticationData.Username = authentication_map["username"].(string)
-	authenticationData.Password = authentication_map["password"].(string)
-
-	return authenticationData
+	if len(authentication_list) > 0 {
+		authentication_map := authentication_list[0].(map[string]interface{})
+		authenticationData := &sc2.Authentication{
+			Username: authentication_map["username"].(string),
+			Password: authentication_map["password"].(string),
+		}
+		return authenticationData
+	}
+	return nil
 }
 
 func buildOptionsData(options *schema.Set) sc2.Options {
