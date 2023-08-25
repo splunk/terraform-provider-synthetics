@@ -28,17 +28,18 @@ type Networkconnection struct {
 }
 
 type Advancedsettings struct {
-	Authentication     `json:"authentication"`
-	Cookiesv2          []Cookiesv2      `json:"cookies"`
-	BrowserHeaders     []BrowserHeaders `json:"headers,omitempty"`
-	HostOverrides      []HostOverrides  `json:"hostOverrides,omitempty"`
-	UserAgent          string           `json:"userAgent,omitempty"`
-	Verifycertificates bool             `json:"verifyCertificates,omitempty"`
+	Authentication            *Authentication  `json:"authentication"`
+	Cookiesv2                 []Cookiesv2      `json:"cookies"`
+	BrowserHeaders            []BrowserHeaders `json:"headers"`
+	HostOverrides             []HostOverrides  `json:"hostOverrides"`
+	UserAgent                 *string          `json:"userAgent"`
+	CollectInteractiveMetrics bool             `json:"collectInteractiveMetrics"`
+	Verifycertificates        bool             `json:"verifyCertificates"`
 }
 
 type Authentication struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
+	Password string `json:"password,omitempty"`
+	Username string `json:"username,omitempty"`
 }
 
 type Cookiesv2 struct {
@@ -83,6 +84,7 @@ type StepsV2 struct {
 	VariableName       string  `json:"variableName,omitempty"`
 	Value              string  `json:"value,omitempty"`
 	Options            Options `json:"options,omitempty"`
+	Duration           int     `json:"duration,omitempty"`
 }
 
 type Options struct {
@@ -100,14 +102,14 @@ type Device struct {
 
 type Requests struct {
 	Configuration `json:"configuration,omitempty"`
-	Setup         []Setup       `json:"setup,omitempty"`
-	Validations   []Validations `json:"validations,omitempty"`
+	Setup         []Setup       `json:"setup"`
+	Validations   []Validations `json:"validations"`
 }
 
 type Configuration struct {
 	Body          string `json:"body"`
-	Headers       `json:"headers,omitempty"`
-	Name          string `json:"name,omitempty"`
+	Headers       `json:"headers"`
+	Name          string `json:"name"`
 	RequestMethod string `json:"requestMethod,omitempty"`
 	URL           string `json:"url,omitempty"`
 }
@@ -120,14 +122,21 @@ type Setup struct {
 	Source    string `json:"source,omitempty"`
 	Type      string `json:"type,omitempty"`
 	Variable  string `json:"variable,omitempty"`
+	Code      string `json:"code,omitempty"`
+	Value     string `json:"value,omitempty"`
 }
 
 type Validations struct {
 	Actual     string `json:"actual,omitempty"`
 	Comparator string `json:"comparator,omitempty"`
 	Expected   string `json:"expected,omitempty"`
+	Extractor  string `json:"extractor,omitempty"`
 	Name       string `json:"name,omitempty"`
+	Source     string `json:"source,omitempty"`
 	Type       string `json:"type,omitempty"`
+	Variable   string `json:"variable,omitempty"`
+	Code       string `json:"code,omitempty"`
+	Value      string `json:"value,omitempty"`
 }
 
 type Tests []struct {
@@ -260,34 +269,40 @@ type PortCheckV2Input struct {
 
 type HttpCheckV2Response struct {
 	Test struct {
-		ID                 int           `json:"id"`
-		Name               string        `json:"name"`
-		Active             bool          `json:"active"`
-		Frequency          int           `json:"frequency"`
-		SchedulingStrategy string        `json:"schedulingStrategy"`
-		CreatedAt          time.Time     `json:"createdAt,omitempty"`
-		UpdatedAt          time.Time     `json:"updatedAt,omitempty"`
-		LocationIds        []string      `json:"locationIds"`
-		Type               string        `json:"type"`
-		URL                string        `json:"url"`
-		RequestMethod      string        `json:"requestMethod"`
-		Body               string        `json:"body,omitempty"`
-		HttpHeaders        []HttpHeaders `json:"headers,omitempty"`
+		ID                 int             `json:"id"`
+		Name               string          `json:"name"`
+		Active             bool            `json:"active"`
+		Frequency          int             `json:"frequency"`
+		SchedulingStrategy string          `json:"schedulingStrategy"`
+		CreatedAt          time.Time       `json:"createdAt,omitempty"`
+		UpdatedAt          time.Time       `json:"updatedAt,omitempty"`
+		LocationIds        []string        `json:"locationIds"`
+		Type               string          `json:"type"`
+		URL                string          `json:"url"`
+		RequestMethod      string          `json:"requestMethod"`
+		Body               string          `json:"body,omitempty"`
+		Authentication     *Authentication `json:"authentication"`
+		UserAgent          *string         `json:"userAgent"`
+		Verifycertificates bool            `json:"verifyCertificates"`
+		HttpHeaders        []HttpHeaders   `json:"headers"`
 	} `json:"test"`
 }
 
 type HttpCheckV2Input struct {
 	Test struct {
-		Name               string        `json:"name"`
-		Type               string        `json:"type"`
-		URL                string        `json:"url"`
-		LocationIds        []string      `json:"locationIds"`
-		Frequency          int           `json:"frequency"`
-		SchedulingStrategy string        `json:"schedulingStrategy"`
-		Active             bool          `json:"active"`
-		RequestMethod      string        `json:"requestMethod"`
-		Body               string        `json:"body,omitempty"`
-		HttpHeaders        []HttpHeaders `json:"headers,omitempty"`
+		Name               string          `json:"name"`
+		Type               string          `json:"type"`
+		URL                string          `json:"url"`
+		LocationIds        []string        `json:"locationIds"`
+		Frequency          int             `json:"frequency"`
+		SchedulingStrategy string          `json:"schedulingStrategy"`
+		Active             bool            `json:"active"`
+		RequestMethod      string          `json:"requestMethod"`
+		Body               string          `json:"body,omitempty"`
+		Authentication     *Authentication `json:"authentication"`
+		UserAgent          *string         `json:"userAgent"`
+		Verifycertificates bool            `json:"verifyCertificates"`
+		HttpHeaders        []HttpHeaders   `json:"headers"`
 	} `json:"test"`
 }
 
@@ -305,7 +320,7 @@ type ApiCheckV2Input struct {
 
 type ApiCheckV2Response struct {
 	Test struct {
-		Active             bool      `json:"active,omitempty"`
+		Active             bool      `json:"active"`
 		Createdat          time.Time `json:"createdAt"`
 		Device             `json:"device,omitempty"`
 		Frequency          int        `json:"frequency,omitempty"`
@@ -330,7 +345,7 @@ type BrowserCheckV2Input struct {
 		Frequency          int            `json:"frequency"`
 		Schedulingstrategy string         `json:"schedulingStrategy"`
 		Active             bool           `json:"active"`
-		Advancedsettings   `json:"advancedSettings"`
+		Advancedsettings   `json:"advancedSettings,omitempty"`
 	} `json:"test"`
 }
 

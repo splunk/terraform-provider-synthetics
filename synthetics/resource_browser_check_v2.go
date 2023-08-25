@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	sc2 "github.com/splunk/syntheticsclient/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -61,11 +61,11 @@ func resourceBrowserCheckV2() *schema.Resource {
 						},
 						"url_protocol": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"start_url": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"location_ids": {
 							Type:     schema.TypeList,
@@ -80,7 +80,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 						},
 						"advanced_settings": {
 							Type:     schema.TypeSet,
-							Optional: true,
+							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"user_agent": {
@@ -89,7 +89,12 @@ func resourceBrowserCheckV2() *schema.Resource {
 									},
 									"verify_certificates": {
 										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"collect_interactive_metrics": {
+										Type:     schema.TypeBool,
 										Optional: true,
+										Default: false,
 									},
 									"authentication": {
 										Type:     schema.TypeSet,
@@ -231,9 +236,14 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
+												"duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
 												"wait_for_nav": {
 													Type:     schema.TypeBool,
-													Required: true,
+													Optional: true,
+													Default: false,
 												},
 												"options": {
 													Type:     schema.TypeSet,
@@ -295,6 +305,9 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET BROWSER BODY: ", o)
+	if err := d.Set("test", flattenBrowserV2Read(o)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

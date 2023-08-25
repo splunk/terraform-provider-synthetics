@@ -33,6 +33,15 @@ func parseUpdateApiCheckV2Response(response string) (*ApiCheckV2Response, error)
 }
 
 func (c Client) UpdateApiCheckV2(id int, ApiCheckV2Details *ApiCheckV2Input) (*ApiCheckV2Response, *RequestDetails, error) {
+	if ApiCheckV2Details.Test.Requests[0].Setup == nil {
+		setup := make([]Setup, 0)
+		ApiCheckV2Details.Test.Requests[0].Setup = setup
+	}
+
+	if ApiCheckV2Details.Test.Requests[0].Validations == nil {
+		validation := make([]Validations, 0)
+		ApiCheckV2Details.Test.Requests[0].Validations = validation
+	}
 
 	body, err := json.Marshal(ApiCheckV2Details)
 	if err != nil {

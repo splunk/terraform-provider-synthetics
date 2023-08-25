@@ -22,7 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc "github.com/splunk/syntheticsclient/syntheticsclientv2"
+	sc "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newHttpCheckV2Config = `
