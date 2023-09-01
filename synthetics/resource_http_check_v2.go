@@ -120,6 +120,54 @@ func resourceHttpCheckV2() *schema.Resource {
 								},
 							},
 						},
+						"validations": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"actual": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"comparator": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"expected": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"extractor": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"source": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"variable": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"code": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
