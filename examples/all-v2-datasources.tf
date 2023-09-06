@@ -56,11 +56,11 @@
 #   value = data.synthetics_api_v2_check.datasource_check_api
 # }
 
-data "synthetics_browser_v2_check" "datasource_check_browser" {
-  test {
-    id = 5056
-  }
-}
+# data "synthetics_browser_v2_check" "datasource_check_browser" {
+#   test {
+#     id = 5056
+#   }
+# }
 
 # output "datasource_check_browser" {
 #   value = data.synthetics_browser_v2_check.datasource_check_browser

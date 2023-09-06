@@ -40,12 +40,9 @@ Required:
 
 - `label` (String)
 
-Optional:
-
-- `country` (String)
-
 Read-Only:
 
+- `country` (String)
 - `default` (Boolean)
 - `id` (String) The ID of this resource.
 - `type` (String)

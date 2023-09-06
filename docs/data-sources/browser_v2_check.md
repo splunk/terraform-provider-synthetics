@@ -178,6 +178,7 @@ Read-Only:
 Read-Only:
 
 - `action` (String)
+- `duration` (Number)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
