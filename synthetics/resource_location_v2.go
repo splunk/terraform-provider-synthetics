@@ -55,8 +55,7 @@ func resourceLocationV2() *schema.Resource {
 						},
 						"country": {
 							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Computed: true,
 						},
 						"default": {
 							Type:     schema.TypeBool,
