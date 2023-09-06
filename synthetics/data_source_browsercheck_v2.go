@@ -302,6 +302,10 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												"duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
 												"options": {
 													Type:     schema.TypeSet,
 													Computed: true,
