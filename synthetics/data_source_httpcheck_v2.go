@@ -62,12 +62,24 @@ func dataSourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"body": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"location_ids": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"user_agent": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"verify_certificates": {
+							Type:     schema.TypeBool,
+							Computed: true,
 						},
 						"type": {
 							Type:     schema.TypeString,
@@ -79,11 +91,6 @@ func dataSourceHttpCheckV2() *schema.Resource {
 						},
 						"request_method": {
 							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"body": {
-							Type:     schema.TypeString,
-							Optional: true,
 							Computed: true,
 						},
 						"headers": {
