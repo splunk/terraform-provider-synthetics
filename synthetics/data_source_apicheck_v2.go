@@ -173,7 +173,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 												},
 												"type": {
 													Type:     schema.TypeString,
-													Optional: true,
+													Computed: true,
 												},
 												"variable": {
 													Type:     schema.TypeString,
