@@ -426,6 +426,9 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
 	httpV2["headers"] = httpHeaders
 
+	validations := flattenValidationsData(&checkHttpV2.Test.Validations)
+	httpV2["validations"] = validations
+
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
@@ -491,6 +494,9 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	httpHeaders := flattenHttpHeadersData(&checkHttpV2.Test.HttpHeaders)
 	httpV2["headers"] = httpHeaders
+
+	validations := flattenValidationsData(&checkHttpV2.Test.Validations)
+	httpV2["validations"] = validations
 
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
@@ -1126,6 +1132,7 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			userAgentString := http["user_agent"].(string)
 			httpv2.Test.UserAgent = &userAgentString
 			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
+			httpv2.Test.Validations = buildValidationsData(http["validations"].(*schema.Set))
 			i++
 		}
 	}
