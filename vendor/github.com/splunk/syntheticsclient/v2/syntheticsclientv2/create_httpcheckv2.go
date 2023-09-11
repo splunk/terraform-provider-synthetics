@@ -33,6 +33,11 @@ func parseCreateHttpCheckV2Response(response string) (*HttpCheckV2Response, erro
 
 func (c Client) CreateHttpCheckV2(HttpCheckV2Details *HttpCheckV2Input) (*HttpCheckV2Response, *RequestDetails, error) {
 
+	if HttpCheckV2Details.Test.Validations == nil {
+		validation := make([]Validations, 0)
+		HttpCheckV2Details.Test.Validations = validation
+	}
+
 	body, err := json.Marshal(HttpCheckV2Details)
 	if err != nil {
 		return nil, nil, err
