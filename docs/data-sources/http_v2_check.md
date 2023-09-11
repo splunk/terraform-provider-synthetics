@@ -36,22 +36,25 @@ data "synthetics_http_v2_check" "datasource_check_http" {
 
 Optional:
 
-- `body` (String)
 - `frequency` (Number)
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))
-- `location_ids` (List of String)
+- `validations` (Block Set) (see [below for nested schema](#nestedblock--test--validations))
 
 Read-Only:
 
 - `active` (Boolean)
+- `body` (String)
 - `created_at` (String)
 - `id` (Number) The ID of this resource.
+- `location_ids` (List of String)
 - `name` (String)
 - `request_method` (String)
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
 - `url` (String)
+- `user_agent` (String)
+- `verify_certificates` (Boolean)
 
 <a id="nestedblock--test--headers"></a>
 ### Nested Schema for `test.headers`
@@ -60,5 +63,22 @@ Optional:
 
 - `name` (String)
 - `value` (String)
+
+
+<a id="nestedblock--test--validations"></a>
+### Nested Schema for `test.validations`
+
+Optional:
+
+- `actual` (String)
+- `code` (String)
+- `comparator` (String)
+- `expected` (String)
+- `extractor` (String)
+- `name` (String)
+- `source` (String)
+- `type` (String)
+- `value` (String)
+- `variable` (String)
 
 
