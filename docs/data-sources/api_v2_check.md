@@ -102,10 +102,12 @@ Read-Only:
 
 Read-Only:
 
+- `code` (String)
 - `extractor` (String)
 - `name` (String)
 - `source` (String)
 - `type` (String)
+- `value` (String)
 - `variable` (String)
 
 
@@ -115,9 +117,14 @@ Read-Only:
 Read-Only:
 
 - `actual` (String)
+- `code` (String)
 - `comparator` (String)
 - `expected` (String)
+- `extractor` (String)
 - `name` (String)
+- `source` (String)
 - `type` (String)
+- `value` (String)
+- `variable` (String)
 
 

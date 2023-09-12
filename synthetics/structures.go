@@ -481,11 +481,13 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 		httpV2["body"] = checkHttpV2.Test.Body
 	}
 
-	if *checkHttpV2.Test.UserAgent != "" {
+	if checkHttpV2.Test.UserAgent != nil {
 		httpV2["user_agent"] = checkHttpV2.Test.UserAgent
 	}
-
-	httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
+	
+	if checkHttpV2.Test.Verifycertificates {
+		httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
+	}
 
 	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
 	httpV2["location_ids"] = locationIds

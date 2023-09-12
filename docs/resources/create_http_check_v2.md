@@ -69,6 +69,7 @@ Optional:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `user_agent` (String)
+- `validations` (Block Set) (see [below for nested schema](#nestedblock--test--validations))
 
 Read-Only:
 
@@ -83,5 +84,22 @@ Optional:
 
 - `name` (String)
 - `value` (String)
+
+
+<a id="nestedblock--test--validations"></a>
+### Nested Schema for `test.validations`
+
+Optional:
+
+- `actual` (String)
+- `code` (String)
+- `comparator` (String)
+- `expected` (String)
+- `extractor` (String)
+- `name` (String)
+- `source` (String)
+- `type` (String)
+- `value` (String)
+- `variable` (String)
 
 

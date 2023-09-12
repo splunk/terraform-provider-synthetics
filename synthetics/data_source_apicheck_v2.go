@@ -156,7 +156,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 									},
 									"setup": {
 										Type:     schema.TypeSet,
-										Computed: true,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"extractor": {
@@ -173,9 +173,17 @@ func dataSourceApiCheckV2() *schema.Resource {
 												},
 												"type": {
 													Type:     schema.TypeString,
-													Optional: true,
+													Computed: true,
 												},
 												"variable": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"code": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
@@ -184,7 +192,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 									},
 									"validations": {
 										Type:     schema.TypeSet,
-										Computed: true,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"actual": {
@@ -204,6 +212,26 @@ func dataSourceApiCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"extractor": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"source": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"variable": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"code": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
