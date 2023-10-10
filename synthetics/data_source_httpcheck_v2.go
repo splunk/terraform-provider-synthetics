@@ -158,6 +158,23 @@ func dataSourceHttpCheckV2() *schema.Resource {
 								},
 							},
 						},
+						"customProperties": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
