@@ -70,6 +70,9 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	requests := flattenRequestData(&checkApiV2.Test.Requests)
 	apiV2["requests"] = requests
 
+	customProperties := flattenCustomProperties(&checkApiV2.Test.Customproperties)
+	apiV2["custom_properties"] = customProperties
+
 	log.Println("[DEBUG] apiv2 data: ", apiV2)
 
 	return []interface{}{apiV2}
@@ -118,6 +121,9 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 
 	requests := flattenRequestData(&checkApiV2.Test.Requests)
 	apiV2["requests"] = requests
+
+	customProperties := flattenCustomProperties(&checkApiV2.Test.Customproperties)
+	apiV2["custom_properties"] = customProperties
 
 	log.Println("[DEBUG] apiv2 data: ", apiV2)
 
@@ -322,6 +328,9 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	transactions := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transactions
 
+	customProperties := flattenCustomProperties(&checkBrowserV2.Test.Customproperties)
+	browserV2["custom_properties"] = customProperties
+
 	log.Println("[DEBUG] read browserv2 data: ", browserV2)
 
 	return []interface{}{browserV2}
@@ -373,6 +382,9 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 
 	businessTranscations := flattenBusinessTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = businessTranscations
+
+	customProperties := flattenCustomProperties(&checkBrowserV2.Test.Customproperties)
+	browserV2["custom_properties"] = customProperties
 
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
@@ -428,6 +440,9 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	validations := flattenValidationsData(&checkHttpV2.Test.Validations)
 	httpV2["validations"] = validations
+
+	customProperties := flattenCustomProperties(&checkHttpV2.Test.Customproperties)
+	httpV2["custom_properties"] = customProperties
 
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
@@ -498,6 +513,9 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	validations := flattenValidationsData(&checkHttpV2.Test.Validations)
 	httpV2["validations"] = validations
 
+	customProperties := flattenCustomProperties(&checkHttpV2.Test.Customproperties)
+	httpV2["custom_properties"] = customProperties
+
 	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
@@ -538,6 +556,9 @@ func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
 	portV2["location_ids"] = locationIds
+
+	customProperties := flattenCustomProperties(&checkPortV2.Test.Customproperties)
+	portV2["custom_properties"] = customProperties
 
 	log.Println("[DEBUG] portv2 data: ", portV2)
 
@@ -593,6 +614,9 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	locationIds := flattenLocationData(&checkPortV2.Test.LocationIds)
 	portV2["location_ids"] = locationIds
+
+	customProperties := flattenCustomProperties(&checkPortV2.Test.Customproperties)
+	portV2["custom_properties"] = customProperties
 
 	log.Println("[DEBUG] portv2 data: ", portV2)
 
@@ -653,6 +677,25 @@ func flattenHttpHeadersData(checkHttpHeaders *[]sc2.HttpHeaders) []interface{} {
 
 			cl["name"] = checkHttpHeaders.Name
 			cl["value"] = checkHttpHeaders.Value
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenCustomProperties(checkCustomProperties *[]sc2.CustomProperties) []interface{} {
+	if checkCustomProperties != nil {
+		cls := make([]interface{}, len(*checkCustomProperties))
+
+		for i, checkCustomProperties := range *checkCustomProperties {
+			cl := make(map[string]interface{})
+
+			cl["key"] = checkCustomProperties.Key
+			cl["value"] = checkCustomProperties.Value
 
 			cls[i] = cl
 		}
@@ -1238,23 +1281,22 @@ func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
 	return httpHeadersList
 }
 
-
 func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 	stepsList := make([]sc2.StepsV2, len(steps))
 	for i, step := range steps {
 		step := step.(map[string]interface{})
 		st := sc2.StepsV2{
-			URL:          step["url"].(string),
-			Name:         step["name"].(string),
-			Type:         step["type"].(string),
-			WaitForNav:   step["wait_for_nav"].(bool),
-			SelectorType: step["selector_type"].(string),
-			Selector:     step["selector"].(string),
+			URL:                step["url"].(string),
+			Name:               step["name"].(string),
+			Type:               step["type"].(string),
+			WaitForNav:         step["wait_for_nav"].(bool),
+			SelectorType:       step["selector_type"].(string),
+			Selector:           step["selector"].(string),
 			OptionSelectorType: step["option_selector_type"].(string),
 			OptionSelector:     step["option_selector"].(string),
-			VariableName: step["variable_name"].(string),
-			Value:     step["value"].(string),
-			Duration:     step["duration"].(int),
+			VariableName:       step["variable_name"].(string),
+			Value:              step["value"].(string),
+			Duration:           step["duration"].(int),
 		}
 		stepsList[i] = st
 
