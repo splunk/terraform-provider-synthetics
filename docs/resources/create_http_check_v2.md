@@ -69,7 +69,7 @@ Optional:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `user_agent` (String)
-- `validations` (Block Set) (see [below for nested schema](#nestedblock--test--validations))
+- `validations` (Block List) (see [below for nested schema](#nestedblock--test--validations))
 
 Read-Only:
 

@@ -163,7 +163,7 @@ Required:
 
 Optional:
 
-- `requests` (Block Set) (see [below for nested schema](#nestedblock--test--requests))
+- `requests` (Block List) (see [below for nested schema](#nestedblock--test--requests))
 - `scheduling_strategy` (String)
 
 <a id="nestedblock--test--requests"></a>
@@ -171,9 +171,9 @@ Optional:
 
 Optional:
 
-- `configuration` (Block Set) (see [below for nested schema](#nestedblock--test--requests--configuration))
-- `setup` (Block Set) (see [below for nested schema](#nestedblock--test--requests--setup))
-- `validations` (Block Set) (see [below for nested schema](#nestedblock--test--requests--validations))
+- `configuration` (Block List) (see [below for nested schema](#nestedblock--test--requests--configuration))
+- `setup` (Block List) (see [below for nested schema](#nestedblock--test--requests--setup))
+- `validations` (Block List) (see [below for nested schema](#nestedblock--test--requests--validations))
 
 <a id="nestedblock--test--requests--configuration"></a>
 ### Nested Schema for `test.requests.configuration`
