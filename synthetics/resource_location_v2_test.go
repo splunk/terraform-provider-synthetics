@@ -30,7 +30,7 @@ resource "synthetics_create_location_v2" "location_v2_foo" {
 }
 `
 
-func TestAccCreateUpdateLocationV2(t *testing.T) {
+func TestAccCreateLocationV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
