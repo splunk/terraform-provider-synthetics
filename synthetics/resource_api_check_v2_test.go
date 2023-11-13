@@ -15,14 +15,9 @@
 package synthetics
 
 import (
-	// "fmt"
-	// "os"
-	// "strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	// "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	// sc "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newApiCheckV2Config = `
@@ -277,7 +272,6 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 				ImportState:       true,
 				ImportStateIdFunc: testAccStateIdFunc("synthetics_create_api_check_v2.api_v2_foo_check"),
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"test.updated_at"},
 			},
 			// Update It
 			{
