@@ -32,7 +32,7 @@ func TestAccBrowserCheckBasic(t *testing.T) {
 		CheckDestroy: testAccBrowserCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBrowserCheckConfigBasic("ineffective browser test", "https://www.google.com", "real_browser", 15),
+				Config: rigorConfig + testAccBrowserCheckConfigBasic("ineffective browser test", "https://www.google.com", "real_browser", 15),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBrowserCheckExists("synthetics_create_browser_check.browser_check"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check.browser_check", "name", "ineffective browser test"),
@@ -47,7 +47,7 @@ func TestAccBrowserCheckBasic(t *testing.T) {
 				ImportStateIdFunc: testAccStateIdFunc("synthetics_create_browser_check.browser_check"),
 			},
 			{
-				Config: testAccBrowserCheckConfigBasic("updated test", "https://about.google/", "real_browser", 5),
+				Config: rigorConfig + testAccBrowserCheckConfigBasic("updated test", "https://about.google/", "real_browser", 5),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBrowserCheckExists("synthetics_create_browser_check.browser_check"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check.browser_check", "name", "updated test"),
@@ -63,6 +63,7 @@ func TestAccBrowserCheckBasic(t *testing.T) {
 func testAccBrowserCheckConfigBasic(name string, url string, checktype string, frequency int) string {
 	check := fmt.Sprintf(`
 resource "synthetics_create_browser_check" "browser_check" {
+	provider = synthetics.rigor
  	name = "%s"
  	url = "%s"	
  	type = "%s"

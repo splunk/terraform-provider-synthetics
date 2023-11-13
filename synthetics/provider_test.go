@@ -30,12 +30,26 @@ const (
   // It is also possible to use the HASHICUPS_ environment variables instead,
   // such as updating the Makefile and running the testing through that tool.
   providerConfig = `
+variable "observability_token" {
+	description = "API token for observability"
+}
 provider "synthetics" {
 	alias = "synthetics"
 	product = "observability"
 	realm = "us1"
-	# apikey = "exported as env var"
+	apikey = var.observability_token
 }
+`
+	rigorConfig = `
+variable "rigor_token" {
+	description = "API token for rigor"
+}
+provider "synthetics" {
+	alias = "rigor"
+	product = "rigor"
+	realm = "us1"
+	apikey = var.rigor_token
+}	
 `
 )
 
@@ -57,13 +71,13 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if err := os.Getenv("API_ACCESS_TOKEN"); err == "" {
-		t.Fatal("API_ACCESS_TOKEN must be set for acceptance tests. Set to empty string if not testing v1 rigor resources.")
+	if err := os.Getenv("TF_VAR_rigor_token"); err == "" {
+		t.Fatal("TF_VAR_rigor_token environment variable must be set for acceptance tests. Set to empty string if not testing v1 rigor resources.")
 	}
-	if err := os.Getenv("OBSERVABILITY_API_TOKEN"); err == "" {
-		t.Fatal("OBSERVABILITY_API_TOKEN must be set for acceptance tests")
+	if err := os.Getenv("TF_VAR_observability_token"); err == "" {
+		t.Fatal("TF_VAR_observability_token environment variable must be set for acceptance tests. Set to empty string if not testing v2 Observability resources")
 	}
 	if err := os.Getenv("REALM"); err == "" {
-		t.Fatal("REALM must be set for acceptance tests")
+		t.Fatal("REALM environment variable must be set for acceptance tests. If testing v1 rigor resources any value can be provided")
 	}
 }
