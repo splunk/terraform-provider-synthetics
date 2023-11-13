@@ -30,16 +30,6 @@ resource "synthetics_create_location_v2" "location_v2_foo" {
 }
 `
 
-const updatedLocationV2Config = `
-resource "synthetics_create_location_v2" "location_v2_foo" {
-	provider = synthetics.synthetics
-  location {
-    id = "private-bacon2"
-    label = "awesome aws bacon east location part2"
-  }    
-}
-`
-
 func TestAccCreateUpdateLocationV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
