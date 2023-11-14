@@ -1175,7 +1175,7 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			userAgentString := http["user_agent"].(string)
 			httpv2.Test.UserAgent = &userAgentString
 			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
-			httpv2.Test.Validations = buildValidationsData(http["validations"].(*schema.Set))
+			httpv2.Test.Validations = buildValidationsData(http["validations"].([]interface{}))
 			httpv2.Test.Customproperties = buildCustomPropertiesData(http["custom_properties"].(*schema.Set))
 			i++
 		}
