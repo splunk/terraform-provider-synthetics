@@ -84,7 +84,7 @@ func dataSourcePortCheckV2() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"customProperties": {
+						"custom_properties": {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Optional: true,

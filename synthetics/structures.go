@@ -62,7 +62,6 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	}
 
 	apiV2["device_id"] = checkApiV2.Test.Device.ID
-	
 
 	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
 	apiV2["location_ids"] = locationIds
@@ -397,7 +396,6 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	httpV2 := make(map[string]interface{})
 
-
 	if checkHttpV2.Test.Name != "" {
 		httpV2["name"] = checkHttpV2.Test.Name
 	}
@@ -499,7 +497,7 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	if checkHttpV2.Test.UserAgent != nil {
 		httpV2["user_agent"] = checkHttpV2.Test.UserAgent
 	}
-	
+
 	if checkHttpV2.Test.Verifycertificates {
 		httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
 	}
@@ -789,7 +787,7 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 			if checkStep.VariableName != "" {
 				cl["variable_name"] = checkStep.VariableName
 			}
-			
+
 			if checkStep.Value != "" {
 				cl["value"] = string(checkStep.Value)
 			}
@@ -1129,6 +1127,7 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Name = api["name"].(string)
 			apiv2.Test.Requests = buildRequestsData(api["requests"].(*schema.Set))
 			apiv2.Test.Schedulingstrategy = api["scheduling_strategy"].(string)
+			apiv2.Test.Customproperties = buildCustomPropertiesData(api["custom_properties"].(*schema.Set))
 		}
 	}
 	log.Println("[DEBUG] build apiv2 data: ", apiv2)
@@ -1149,6 +1148,7 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
+			browserv2.Test.Customproperties = buildCustomPropertiesData(browser["custom_properties"].(*schema.Set))
 		}
 	}
 	log.Println("[DEBUG] build browserv2 data:")
@@ -1176,6 +1176,7 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			httpv2.Test.UserAgent = &userAgentString
 			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
 			httpv2.Test.Validations = buildValidationsData(http["validations"].(*schema.Set))
+			httpv2.Test.Customproperties = buildCustomPropertiesData(http["custom_properties"].(*schema.Set))
 			i++
 		}
 	}
@@ -1200,6 +1201,7 @@ func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
 			portv2.Test.Frequency = port["frequency"].(int)
 			portv2.Test.SchedulingStrategy = port["scheduling_strategy"].(string)
 			portv2.Test.Active = port["active"].(bool)
+			portv2.Test.Customproperties = buildCustomPropertiesData(port["custom_properties"].(*schema.Set))
 			i++
 
 		}
@@ -1279,6 +1281,21 @@ func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
 
 	}
 	return httpHeadersList
+}
+
+func buildCustomPropertiesData(customProperties *schema.Set) []sc2.CustomProperties {
+	customPropertiesList := make([]sc2.CustomProperties, len(customProperties.List()))
+
+	for i, props := range customProperties.List() {
+		prop := props.(map[string]interface{})
+		propValues := sc2.CustomProperties{
+			Key:   strings.TrimSpace(prop["key"].(string)),
+			Value: strings.TrimSpace(prop["value"].(string)),
+		}
+		customPropertiesList[i] = propValues
+
+	}
+	return customPropertiesList
 }
 
 func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {

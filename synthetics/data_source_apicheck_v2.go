@@ -253,7 +253,7 @@ func dataSourceApiCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"customProperties": {
+						"custom_properties": {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Optional: true,

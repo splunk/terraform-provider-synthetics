@@ -380,7 +380,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 								},
 							},
 						},
-						"customProperties": {
+						"custom_properties": {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Optional: true,
