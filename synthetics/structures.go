@@ -1125,7 +1125,7 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Frequency = api["frequency"].(int)
 			apiv2.Test.Locationids = buildLocationIdData(api["location_ids"].([]interface{}))
 			apiv2.Test.Name = api["name"].(string)
-			apiv2.Test.Requests = buildRequestsData(api["requests"].(*schema.Set))
+			apiv2.Test.Requests = buildRequestsData(api["requests"].(([]interface{})))
 			apiv2.Test.Schedulingstrategy = api["scheduling_strategy"].(string)
 			apiv2.Test.Customproperties = buildCustomPropertiesData(api["custom_properties"].(*schema.Set))
 		}
@@ -1236,15 +1236,14 @@ func buildLocationIdData(d []interface{}) []string {
 	return locationsList
 }
 
-func buildRequestsData(requests *schema.Set) []sc2.Requests {
-	requestsList := make([]sc2.Requests, len(requests.List()))
-
-	for i, request := range requests.List() {
+func buildRequestsData(requests []interface{}) []sc2.Requests {
+	requestsList := make([]sc2.Requests, len(requests))
+	for i, request := range requests {
 		request := request.(map[string]interface{})
 		req := sc2.Requests{
-			Configuration: buildConfigurationData(request["configuration"].(*schema.Set)),
-			Setup:         buildSetupData(request["setup"].(*schema.Set)),
-			Validations:   buildValidationsData(request["validations"].(*schema.Set)),
+			Configuration: buildConfigurationData(request["configuration"].([]interface{})),
+			Setup:         buildSetupData(request["setup"].([]interface{})),
+			Validations:   buildValidationsData(request["validations"].([]interface{})),
 		}
 		requestsList[i] = req
 
@@ -1321,10 +1320,10 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 	return stepsList
 }
 
-func buildSetupData(setups *schema.Set) []sc2.Setup {
-	setupsList := make([]sc2.Setup, len(setups.List()))
+func buildSetupData(setups []interface{}) []sc2.Setup {
+	setupsList := make([]sc2.Setup, len(setups))
 
-	for i, setup := range setups.List() {
+	for i, setup := range setups {
 		setup := setup.(map[string]interface{})
 		set := sc2.Setup{
 			Extractor: setup["extractor"].(string),
@@ -1341,10 +1340,10 @@ func buildSetupData(setups *schema.Set) []sc2.Setup {
 	return setupsList
 }
 
-func buildValidationsData(validations *schema.Set) []sc2.Validations {
-	validationsList := make([]sc2.Validations, len(validations.List()))
+func buildValidationsData(validations []interface{}) []sc2.Validations {
+	validationsList := make([]sc2.Validations, len(validations))
 
-	for i, validation := range validations.List() {
+	for i, validation := range validations {
 		validation := validation.(map[string]interface{})
 		val := sc2.Validations{
 			Actual:     validation["actual"].(string),
@@ -1365,10 +1364,10 @@ func buildValidationsData(validations *schema.Set) []sc2.Validations {
 	return validationsList
 }
 
-func buildConfigurationData(configuration *schema.Set) sc2.Configuration {
+func buildConfigurationData(configuration []interface{}) sc2.Configuration {
 	var configurationData sc2.Configuration
 
-	config_list := configuration.List()
+	config_list := configuration
 	config_map := config_list[0].(map[string]interface{})
 
 	configurationData.Body = config_map["body"].(string)

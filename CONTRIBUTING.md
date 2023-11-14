@@ -13,7 +13,7 @@ If you are reporting a bug or issues, please include:
 
 -   Operating system name and version.
 -   Any details about your local setup that might be helpful
-    in troubleshooting (E.G. Python version if using a python script, Terraform version if you're using a Terraform script.).
+    in troubleshooting
 -   Detailed steps to reproduce the bug.
 
 ### Fix Bugs
@@ -23,17 +23,16 @@ a "bug" ticket type is open to whoever wants to implement it.
 
 ### Implement Features
 
-If you have a great set of dashboards, detectors, API scripts for sending metrics, or any other content 
-you believe will be of use to others, please contribute it!
-
-Or check the Issues for this repo on GitHub. Anything tagged with "enhancement"
+Please file an issue or check the issues for this repo on GitHub. Anything tagged with "enhancement"
 and "help wanted" is open to whoever wants to implement it.
+
+Once issues are posted and triaged please include their issue number in any PRs related to that work
 
 ### Write Documentation
 
 Submissions and `README.md` files could always use more documentation. Documentation can always use an update or tweak in the official docs, in docstrings of scripts, comments in configs, or anywhere a bit of clarity may be useful..
 
-### Submit Feedback
+### Submit Issues / Feedback
 
 If you are proposing a feature:
 
@@ -47,9 +46,5 @@ If you are proposing a feature:
 
 Before you submit a pull request, check that it meets these guidelines:
 
-1.  The pull request should include a `README.md` for any new submission.
-2.  If the pull request adds functionality, the `README.md` docs for that component or submission should be updated.
-    Put your new functionality into a function with a docstring, and add
-    the feature to the list in README.md.
-3.  Terraform submissions should work with the most current version of the included Terraform Provider.
-4.  Python submissions should work for Python3
+1.  The pull request should include documentation and example changes for any new functionality.
+2.  If the pull request adds functionality, the tests should be updated.

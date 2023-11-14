@@ -65,12 +65,12 @@ func resourceApiCheckV2() *schema.Resource {
 							Required: true,
 						},
 						"requests": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"configuration": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -102,7 +102,7 @@ func resourceApiCheckV2() *schema.Resource {
 										},
 									},
 									"setup": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -138,7 +138,7 @@ func resourceApiCheckV2() *schema.Resource {
 										},
 									},
 									"validations": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
