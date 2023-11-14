@@ -110,7 +110,12 @@ func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	variable, _, err := c.GetVariableV2(variableID)
+	variable, r, err := c.GetVariableV2(variableID)
+	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
+		d.SetId("")
+		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
+		return diags
+	}
 	if err != nil {
 		return diag.FromErr(err)
 	}
