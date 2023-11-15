@@ -271,12 +271,12 @@ func resourceBrowserCheckV2() *schema.Resource {
 									"key": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\S+\\w{1,128}\\S{1,}")),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\S+\w{1,128}\S{1,}`), "custom_properties key can only consist of alphanumeric and underscore characters with no whitespace"),
 									},
 									"value": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\w{1,256}")),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\w{1,256}`), "custom_properties value can only consist of alphanumeric and underscore characters with no whitespace"),
 									},
 								},
 							},
