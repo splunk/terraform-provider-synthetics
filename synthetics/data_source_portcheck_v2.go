@@ -84,6 +84,23 @@ func dataSourcePortCheckV2() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"custom_properties": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

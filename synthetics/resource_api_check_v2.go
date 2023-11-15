@@ -193,6 +193,25 @@ func resourceApiCheckV2() *schema.Resource {
 							Default:      "round_robin",
 							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
 						},
+						"custom_properties": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\S+\\w{1,128}\\S{1,}")),
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\w{1,256}")),
+									},
+								},
+							},
+						},
 					},
 				},
 			},
