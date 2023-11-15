@@ -33,7 +33,7 @@ func TestAccHttpCheckBasic(t *testing.T) {
 		CheckDestroy: testAccHttpCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHttpCheckConfigBasic("ineffective test", "https://www.google.com", 15),
+				Config: rigorConfig + testAccHttpCheckConfigBasic("ineffective test", "https://www.google.com", 15),
 				Check: resource.ComposeTestCheckFunc(
 					testAccHttpCheckExists("synthetics_create_http_check.http_check"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check.http_check", "name", "ineffective test"),
@@ -47,7 +47,7 @@ func TestAccHttpCheckBasic(t *testing.T) {
 				ImportStateIdFunc: testAccStateIdFunc("synthetics_create_http_check.http_check"),
 			},
 			{
-				Config: testAccHttpCheckConfigBasic("updated test", "https://about.google/", 5),
+				Config: rigorConfig + testAccHttpCheckConfigBasic("updated test", "https://about.google/", 5),
 				Check: resource.ComposeTestCheckFunc(
 					testAccHttpCheckExists("synthetics_create_http_check.http_check"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check.http_check", "name", "updated test"),
@@ -62,6 +62,7 @@ func TestAccHttpCheckBasic(t *testing.T) {
 func testAccHttpCheckConfigBasic(name string, url string, frequency int) string {
 	return fmt.Sprintf(`
 resource "synthetics_create_http_check" "http_check" {
+		provider = synthetics.rigor
     name = "%s"
     url = "%s"  
     frequency = %d

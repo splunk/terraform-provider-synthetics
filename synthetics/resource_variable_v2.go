@@ -18,7 +18,6 @@ import (
 	"context"
 	"log"
 	"strconv"
-	"time"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -169,8 +168,6 @@ func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	log.Println("[DEBUG] Update variable response data: ", o)
-	d.Set("variable.updated_at", time.Now().Format(time.RFC850))
-
 	return resourceVariableV2Read(ctx, d, meta)
 }
 

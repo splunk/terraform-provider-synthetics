@@ -19,7 +19,6 @@ import (
 	"log"
 	"regexp"
 	"strconv"
-	"time"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -359,8 +358,6 @@ func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] UPDATE BODY: ", o)
-
-	d.Set("test.updated_at", time.Now().Format(time.RFC850))
 
 	return resourceBrowserCheckV2Read(ctx, d, meta)
 }
