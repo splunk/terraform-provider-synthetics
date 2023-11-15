@@ -93,7 +93,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 									"collect_interactive_metrics": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default: false,
+										Default:  false,
 									},
 									"authentication": {
 										Type:     schema.TypeSet,
@@ -242,7 +242,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 												"wait_for_nav": {
 													Type:     schema.TypeBool,
 													Optional: true,
-													Default: false,
+													Default:  false,
 												},
 												"options": {
 													Type:     schema.TypeSet,
@@ -258,6 +258,25 @@ func resourceBrowserCheckV2() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"custom_properties": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\S+\\w{1,128}\\S{1,}")),
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\w{1,256}")),
 									},
 								},
 							},

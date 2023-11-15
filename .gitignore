@@ -34,3 +34,6 @@
 .terraform*
 terraform.tf*
 bin/*
+
+# JetBrains (IntelliJ/GoLand)
+.idea
