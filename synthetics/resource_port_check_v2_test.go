@@ -15,42 +15,39 @@
 package synthetics
 
 import (
-	"fmt"
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newPortCheckV2Config = `
 resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
+	provider = synthetics.synthetics
   test {
-    name = "Terraform - PORT V2 Checkaroo"
-    port = 8080
+    active = true 
+    frequency = 5
+    location_ids = ["aws-us-west-2", "aws-us-east-1"]
+    scheduling_strategy = "round_robin"
+    name = "acceptance-Terraform-PORT-V2"
+    port = 8081
     protocol = "udp"
     host = "www.splunk.com"
-    location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
-    frequency = 5
-    scheduling_strategy = "concurrent"
-    active = true 
   }    
 }
 `
 
 const updatedPortCheckV2Config = `
 resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
+	provider = synthetics.synthetics
   test {
-    name = "Terraform - PORT V2 Checkaroo"
-    port = 8080
-    protocol = "udp"
-    host = "www.splunk.com"
-    location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
+    active = false 
     frequency = 15
+    location_ids = ["aws-us-east-1"]
     scheduling_strategy = "concurrent"
-    active = true 
+    name = "acceptance-updated-Terraform-PORT-V2"
+    port = 8082
+    protocol = "tcp"
+    host = "www.duckduckgo.com"
   }    
 }
 `
@@ -60,14 +57,21 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPortCheckV2Destroy,
 		Steps: []resource.TestStep{
 			// Create It
 			{
-				Config: newPortCheckV2Config,
+				Config: providerConfig + newPortCheckV2Config,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateUpdatePortCheckV2ResourceExists,
-					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.#", "1"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.active", "true"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-west-2"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.1", "aws-us-east-1"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.name", "acceptance-Terraform-PORT-V2"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.port", "8081"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.protocol", "udp"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.host", "www.splunk.com"),
 				),
 			},
 			{
@@ -78,58 +82,19 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 			},
 			// Update It
 			{
-				Config: updatedPortCheckV2Config,
+				Config: providerConfig + updatedPortCheckV2Config,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateUpdatePortCheckV2ResourceExists,
-					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.#", "1"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.active", "false"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.name", "acceptance-updated-Terraform-PORT-V2"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.port", "8082"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.protocol", "tcp"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.host", "www.duckduckgo.com"),
 				),
 			},
 		},
 	})
 }
-
-func testAccCreateUpdatePortCheckV2ResourceExists(s *terraform.State) error {
-	token := os.Getenv("OBSERVABILITY_API_TOKEN")
-	realm := os.Getenv("REALM")
-	client := sc.NewClient(token, realm)
-	for _, rs := range s.RootModule().Resources {
-		switch rs.Type {
-		case "synthetics_create_port_check_v2":
-			checkId, err := strconv.Atoi(rs.Primary.ID)
-			if err != nil {
-				return fmt.Errorf("Error converting check id: %s", err)
-			}
-			check, _, err := client.GetPortCheckV2(checkId)
-			if strconv.Itoa(check.Test.ID) != rs.Primary.ID || err != nil {
-				return fmt.Errorf("Error finding port check v2 %s: %s", rs.Primary.ID, err)
-			}
-		default:
-			return fmt.Errorf("Unexpected resource of type: %s", rs.Type)
-		}
-	}
-	return nil
-}
-
-func testAccPortCheckV2Destroy(s *terraform.State) error {
-	token := os.Getenv("OBSERVABILITY_API_TOKEN")
-	realm := os.Getenv("REALM")
-	client := sc.NewClient(token, realm)
-	for _, rs := range s.RootModule().Resources {
-		switch rs.Type {
-		case "synthetics_create_port_check_v2":
-			checkId, err := strconv.Atoi(rs.Primary.ID)
-			if err != nil {
-				return fmt.Errorf("Error converting check id: %s", err)
-			}
-			check, _, err := client.GetPortCheckV2(checkId)
-			if check.Test.ID != checkId || err != nil {
-				return fmt.Errorf("Found deleted check %s", rs.Primary.ID)
-			}
-		default:
-			return fmt.Errorf("Unexpected resource of type: %s", rs.Type)
-		}
-	}
-
-	return nil
-}
-
