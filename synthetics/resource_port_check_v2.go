@@ -19,7 +19,6 @@ import (
 	"log"
 	"regexp"
 	"strconv"
-	"time"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -210,8 +209,6 @@ func resourcePortCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] UPDATE BODY: ", o)
-
-	d.Set("test.updated_at", time.Now().Format(time.RFC850))
 
 	return resourcePortCheckV2Read(ctx, d, meta)
 }
