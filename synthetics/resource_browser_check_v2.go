@@ -271,10 +271,12 @@ func resourceBrowserCheckV2() *schema.Resource {
 									"key": {
 										Type:     schema.TypeString,
 										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\S+\\w{1,128}\\S{1,}")),
 									},
 									"value": {
 										Type:     schema.TypeString,
 										Optional: true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile("^\\w{1,256}")),
 									},
 								},
 							},

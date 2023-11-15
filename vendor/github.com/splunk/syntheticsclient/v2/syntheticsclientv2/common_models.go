@@ -30,8 +30,8 @@ type Networkconnection struct {
 type Advancedsettings struct {
 	Authentication            *Authentication  `json:"authentication"`
 	Cookiesv2                 []Cookiesv2      `json:"cookies"`
-	BrowserHeaders            []BrowserHeaders `json:"headers,omitempty"`
-	HostOverrides             []HostOverrides  `json:"hostOverrides,omitempty"`
+	BrowserHeaders            []BrowserHeaders `json:"headers"`
+	HostOverrides             []HostOverrides  `json:"hostOverrides"`
 	UserAgent                 *string          `json:"userAgent"`
 	CollectInteractiveMetrics bool             `json:"collectInteractiveMetrics"`
 	Verifycertificates        bool             `json:"verifyCertificates"`
