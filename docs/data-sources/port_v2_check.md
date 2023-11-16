@@ -36,6 +36,7 @@ data "synthetics_port_v2_check" "datasource_check_port" {
 
 Optional:
 
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `location_ids` (List of String)
 
 Read-Only:
@@ -51,5 +52,13 @@ Read-Only:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
 
 

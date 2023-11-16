@@ -36,6 +36,7 @@ data "synthetics_http_v2_check" "datasource_check_http" {
 
 Optional:
 
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `frequency` (Number)
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))
 - `validations` (Block Set) (see [below for nested schema](#nestedblock--test--validations))
@@ -55,6 +56,15 @@ Read-Only:
 - `url` (String)
 - `user_agent` (String)
 - `verify_certificates` (Boolean)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
+
 
 <a id="nestedblock--test--headers"></a>
 ### Nested Schema for `test.headers`

@@ -6,6 +6,10 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
     location_ids = ["aws-us-east-1"]
     name = "0011aTerraform-Browser V2 Checkaroo"
     scheduling_strategy = "round_robin"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     transactions {
       name = "First Synthetic transaction"
       steps {
