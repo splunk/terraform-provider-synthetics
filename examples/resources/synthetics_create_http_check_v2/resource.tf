@@ -7,6 +7,10 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     type = "http"
     url = "https://www.splunk.com"
     scheduling_strategy = "round_robin"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     request_method = "GET"
     verify_certificates = true
     user_agent = "Another User of Agents"

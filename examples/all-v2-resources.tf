@@ -1,7 +1,7 @@
 # terraform {
 #   required_providers {
 #     synthetics = {
-#       version = "2.0.0"
+#       version = "2.0.3"
 #       source  = "splunk/synthetics"
 #     }
 #   }
@@ -48,6 +48,10 @@
 #     verify_certificates = true
 #     user_agent = "Another User of Agents"
 #     body = null
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     headers {
 #       name = "Synthetic_transaction_1"
 #       value = "batman is the man"
@@ -70,6 +74,10 @@
 #     location_ids = ["aws-us-west-2"]
 #     frequency = 5
 #     scheduling_strategy = "concurrent"
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     active = true 
 #   }    
 # }
@@ -83,6 +91,10 @@
 #     location_ids = ["aws-us-east-1"]
 #     name = "0011aTerraform-Browser V2 Checkaroo"
 #     scheduling_strategy = "round_robin"
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     transactions {
 #       name = "First Synthetic transaction"
 #       steps {
@@ -226,6 +238,10 @@
 #     location_ids = ["aws-us-east-1"]
 #     name = "22aTerraform-Browser V2 Checkaroo"
 #     scheduling_strategy = "round_robin"
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     advanced_settings {
 #       verify_certificates = true
 #     }
@@ -256,6 +272,10 @@
 #     location_ids = ["aws-us-east-1"]
 #     name = "1 Terraform-Api V2 Checkaroo"
 #     scheduling_strategy = "round_robin"
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     requests {
 #         configuration {
 #           name = "Get products"
@@ -274,6 +294,10 @@
 #     location_ids = ["aws-us-east-1"]
 #     name = "2 Terraform-Api V2 Checkaroo"
 #     scheduling_strategy = "round_robin"
+#     custom_properties {
+# 			key = "key"
+# 			value = "value"
+# 		}
 #     requests {
 #       configuration {
 #         body = "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"

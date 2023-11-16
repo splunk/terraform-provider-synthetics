@@ -22,6 +22,10 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     type = "http"
     url = "https://www.splunk.com"
     scheduling_strategy = "round_robin"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     request_method = "GET"
     verify_certificates = true
     user_agent = "Another User of Agents"
@@ -65,6 +69,7 @@ Required:
 Optional:
 
 - `body` (String)
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))
 - `scheduling_strategy` (String)
 - `type` (String)
@@ -76,6 +81,15 @@ Read-Only:
 - `created_at` (String)
 - `id` (Number) The ID of this resource.
 - `updated_at` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
+
 
 <a id="nestedblock--test--headers"></a>
 ### Nested Schema for `test.headers`

@@ -23,6 +23,10 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
     location_ids = ["aws-us-west-2"]
     frequency = 5
     scheduling_strategy = "concurrent"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     active = true 
   }    
 }
@@ -54,6 +58,7 @@ Required:
 
 Optional:
 
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `scheduling_strategy` (String)
 - `type` (String)
 - `url` (String)
@@ -63,5 +68,13 @@ Read-Only:
 - `created_at` (String)
 - `id` (Number) The ID of this resource.
 - `updated_at` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
 
 

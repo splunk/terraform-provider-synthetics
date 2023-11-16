@@ -36,6 +36,7 @@ data "synthetics_api_v2_check" "datasource_check_api" {
 
 Optional:
 
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `frequency` (Number)
 - `location_ids` (List of String)
 
@@ -50,6 +51,15 @@ Read-Only:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
+
 
 <a id="nestedatt--test--device"></a>
 ### Nested Schema for `test.device`

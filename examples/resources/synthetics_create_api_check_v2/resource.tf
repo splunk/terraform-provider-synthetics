@@ -6,6 +6,10 @@ resource "synthetics_create_api_check_v2" "full_api_v2_foo_check" {
     location_ids = ["aws-us-east-1"]
     name = "2 Terraform-Api V2 Checkaroo"
     scheduling_strategy = "round_robin"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     requests {
       configuration {
         body = "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"
