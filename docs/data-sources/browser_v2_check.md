@@ -34,6 +34,10 @@ data "synthetics_browser_v2_check" "datasource_check_browser" {
 <a id="nestedblock--test"></a>
 ### Nested Schema for `test`
 
+Optional:
+
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
+
 Read-Only:
 
 - `active` (Boolean)
@@ -49,6 +53,15 @@ Read-Only:
 - `transactions` (Set of Object) (see [below for nested schema](#nestedatt--test--transactions))
 - `type` (String)
 - `updated_at` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
+
 
 <a id="nestedatt--test--advanced_settings"></a>
 ### Nested Schema for `test.advanced_settings`

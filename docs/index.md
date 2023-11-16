@@ -16,7 +16,7 @@ description: |-
 terraform {
   required_providers {
     synthetics = {
-      version = "2.0.2"
+      version = "2.0.3"
       source  = "splunk/synthetics"
     }
   }
@@ -34,8 +34,9 @@ provider "synthetics" {
 
 ### Required
 
-- `apikey` (String) Splunk Observability API Key. Will pull from `OBSERVABILITY_API_TOKEN` environment variable if available.
 - `product` (String) One of: `observability` or `rigor`
+
+### Optional
+
+- `apikey` (String) Splunk Observability API Key. Will pull from `OBSERVABILITY_API_TOKEN` environment variable if available.
 - `realm` (String) Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available. For Rigor use realm rigor
-
-

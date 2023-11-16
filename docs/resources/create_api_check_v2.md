@@ -21,6 +21,10 @@ resource "synthetics_create_api_check_v2" "full_api_v2_foo_check" {
     location_ids = ["aws-us-east-1"]
     name = "2 Terraform-Api V2 Checkaroo"
     scheduling_strategy = "round_robin"
+    custom_properties {
+			key = "key"
+			value = "value"
+		}
     requests {
       configuration {
         body = "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"
@@ -163,8 +167,18 @@ Required:
 
 Optional:
 
+- `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `requests` (Block List) (see [below for nested schema](#nestedblock--test--requests))
 - `scheduling_strategy` (String)
+
+<a id="nestedblock--test--custom_properties"></a>
+### Nested Schema for `test.custom_properties`
+
+Optional:
+
+- `key` (String)
+- `value` (String)
+
 
 <a id="nestedblock--test--requests"></a>
 ### Nested Schema for `test.requests`
