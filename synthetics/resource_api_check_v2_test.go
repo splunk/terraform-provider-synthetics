@@ -30,6 +30,10 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 		location_ids = ["aws-us-east-1"]
 		name = "2 Terraform-Api V2 Acceptance Checkaroo"
 		scheduling_strategy = "round_robin"
+		custom_properties {
+			key = "key"
+			value = "value"
+		}
 		requests {
 			configuration {
 				name = "Get products"
@@ -119,6 +123,10 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 		location_ids = ["aws-us-west-1"]
 		name = "2 Terraform-Api V2 Acceptance Checkaroo Updated"
 		scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
 		requests {
 			configuration {
 				name = "Get productz"
@@ -215,6 +223,8 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.name", "2 Terraform-Api V2 Acceptance Checkaroo"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.custom_properties.0.key", "key"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.custom_properties.0.value", "value"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.name", "Get products"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.body", "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.headers.Accept", "application/json"),
@@ -284,6 +294,8 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.name", "2 Terraform-Api V2 Acceptance Checkaroo Updated"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.name", "Get productz"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.body", "\\'{\"alert_name\":\"the service is down\",\"url\":\"https://foo.com/bar\"}\\'\n"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.requests.0.configuration.0.headers.Accept", "application/xml"),

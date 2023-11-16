@@ -31,6 +31,10 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     type = "http"
     url = "https://www.splunk.com"
     scheduling_strategy = "round_robin"
+		custom_properties {
+			key = "key"
+			value = "value"
+		}
     request_method = "POST"
     verify_certificates = true
     user_agent = "Another User of Agents"
@@ -72,6 +76,10 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     type = "http"
     url = "https://www.duckduckgo.com"
     scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
     request_method = "PUT"
     verify_certificates = false
     user_agent = "Another User of Agents and snake oil"
@@ -121,6 +129,8 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.splunk.com"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "key"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "value"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.request_method", "POST"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.verify_certificates", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.user_agent", "Another User of Agents"),
@@ -159,6 +169,8 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.duckduckgo.com"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.request_method", "PUT"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.verify_certificates", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.user_agent", "Another User of Agents and snake oil"),

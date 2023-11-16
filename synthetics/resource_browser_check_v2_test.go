@@ -30,6 +30,10 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
     location_ids = ["aws-us-east-1"]
     name = "01-acceptance-Terraform-Browser-V2"
     scheduling_strategy = "round_robin"
+		custom_properties {
+			key = "key"
+			value = "value"
+		}
     advanced_settings {
       verify_certificates = true
       user_agent = "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
@@ -131,6 +135,10 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
     location_ids = ["aws-us-west-1"]
     name = "01-acceptance-updated-Terraform-Browser-V2"
     scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
     advanced_settings {
       verify_certificates = false
       user_agent = "Jozilla/5.0"
@@ -256,6 +264,8 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.name", "01-acceptance-Terraform-Browser-V2"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.custom_properties.0.key", "key"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.custom_properties.0.value", "value"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "true"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),
@@ -330,6 +340,8 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.name", "01-acceptance-updated-Terraform-Browser-V2"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "false"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Jozilla/5.0"),
           resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),

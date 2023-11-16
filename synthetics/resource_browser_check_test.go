@@ -16,20 +16,16 @@ package synthetics
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc "github.com/splunk/syntheticsclient/syntheticsclient"
 )
 
 func TestAccBrowserCheckBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccBrowserCheckDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: rigorConfig + testAccBrowserCheckConfigBasic("ineffective browser test", "https://www.google.com", "real_browser", 15),
@@ -87,26 +83,4 @@ func testAccBrowserCheckExists(n string) resource.TestCheckFunc {
 		}
 		return nil
 	}
-}
-
-func testAccBrowserCheckDestroy(s *terraform.State) error {
-	token := os.Getenv("API_ACCESS_TOKEN")
-	client := sc.NewClient(token)
-	for _, rs := range s.RootModule().Resources {
-		switch rs.Type {
-		case "synthetics_create_browser_check":
-			checkId, err := strconv.Atoi(rs.Primary.ID)
-			if err != nil {
-				return fmt.Errorf("Error converting check id: %s", err)
-			}
-			check, _, err := client.GetCheck(checkId)
-			if check.ID != checkId || err != nil {
-				return fmt.Errorf("Found deleted check %s", rs.Primary.ID)
-			}
-		default:
-			return fmt.Errorf("Unexpected resource of type: %s", rs.Type)
-		}
-	}
-
-	return nil
 }
