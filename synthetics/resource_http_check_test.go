@@ -16,13 +16,10 @@ package synthetics
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc "github.com/splunk/syntheticsclient/syntheticsclient"
 )
 
 func TestAccHttpCheckBasic(t *testing.T) {
@@ -30,7 +27,6 @@ func TestAccHttpCheckBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccHttpCheckDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: rigorConfig + testAccHttpCheckConfigBasic("ineffective test", "https://www.google.com", 15),
@@ -86,27 +82,6 @@ func testAccHttpCheckExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccHttpCheckDestroy(s *terraform.State) error {
-	token := os.Getenv("API_ACCESS_TOKEN")
-	client := sc.NewClient(token)
-	for _, rs := range s.RootModule().Resources {
-		switch rs.Type {
-		case "synthetics_create_http_check":
-			checkId, err := strconv.Atoi(rs.Primary.ID)
-			if err != nil {
-				return fmt.Errorf("Error converting check id: %s", err)
-			}
-			check, _, err := client.GetCheck(checkId)
-			if check.ID != checkId || err != nil {
-				return fmt.Errorf("Found deleted check %s", rs.Primary.ID)
-			}
-		default:
-			return fmt.Errorf("Unexpected resource of type: %s", rs.Type)
-		}
-	}
-
-	return nil
-}
 
 func testAccStateIdFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {

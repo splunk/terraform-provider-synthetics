@@ -28,6 +28,10 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
     frequency = 5
     location_ids = ["aws-us-west-2", "aws-us-east-1"]
     scheduling_strategy = "round_robin"
+		custom_properties {
+			key = "key"
+			value = "value"
+		}
     name = "acceptance-Terraform-PORT-V2"
     port = 8081
     protocol = "udp"
@@ -44,6 +48,10 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
     frequency = 15
     location_ids = ["aws-us-east-1"]
     scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
     name = "acceptance-updated-Terraform-PORT-V2"
     port = 8082
     protocol = "tcp"
@@ -68,6 +76,8 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-west-2"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.1", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.custom_properties.0.key", "key"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.custom_properties.0.value", "value"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.name", "acceptance-Terraform-PORT-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.port", "8081"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.protocol", "udp"),
@@ -89,6 +99,8 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.frequency", "15"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.name", "acceptance-updated-Terraform-PORT-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.port", "8082"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.protocol", "tcp"),
