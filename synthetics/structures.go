@@ -1009,14 +1009,6 @@ func flattenHeaderData(checkHeaders *sc2.Headers) map[string]interface{} {
 	return make(map[string]interface{}, 0)
 }
 
-func flattenOptionsData(checkAuthentications *sc2.Options) []interface{} {
-	authentication := make(map[string]interface{})
-
-	authentication["url"] = checkAuthentications.URL
-
-	return []interface{}{authentication}
-}
-
 func flattenLocationData(checkLocations *[]string) []interface{} {
 	if checkLocations != nil {
 		cls := make([]interface{}, len(*checkLocations))
@@ -1462,19 +1454,6 @@ func buildAuthenticationData(authentication *schema.Set) *sc2.Authentication {
 		return authenticationData
 	}
 	return nil
-}
-
-func buildOptionsData(options *schema.Set) sc2.Options {
-	var optionsData sc2.Options
-
-	options_list := options.List()
-	if len(options_list) > 0 {
-		options_map := options_list[0].(map[string]interface{})
-
-		optionsData.URL = options_map["url"].(string)
-	}
-
-	return optionsData
 }
 
 func flattenLinkData(checkLinks *sc.Links) []interface{} {

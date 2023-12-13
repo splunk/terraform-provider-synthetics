@@ -48,8 +48,8 @@ resource "synthetics_create_variable_v2" "variable_v2_foo" {
 func TestAccCreateUpdateVariableV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create It
 			{

@@ -24,8 +24,8 @@ import (
 
 func TestAccBrowserCheckBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: rigorConfig + testAccBrowserCheckConfigBasic("ineffective browser test", "https://www.google.com", "real_browser", 15),

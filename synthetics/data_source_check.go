@@ -831,20 +831,48 @@ func dataSourceChecksRead(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", check.Name)
-	d.Set("frequency", check.Frequency)
-	d.Set("muted", check.Muted)
-	d.Set("paused", check.Paused)
-	d.Set("created_at", check.CreatedAt)
-	d.Set("type", check.Type)
-	d.Set("updated_at", check.UpdatedAt)
-	d.Set("response_time_monitor_milliseconds", check.ResponseTimeMonitorMilliseconds)
-	d.Set("round_robin", check.RoundRobin)
-	d.Set("auto_retry", check.AutoRetry)
-	d.Set("enabled", check.Enabled)
-	d.Set("url", check.URL)
-	d.Set("http_request_body", check.HTTPRequestBody)
-	d.Set("http_method", check.HTTPMethod)
+	if err := d.Set("name", check.Name); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("frequency", check.Frequency); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("muted", check.Muted); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("paused", check.Paused); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("created_at", check.CreatedAt); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("type", check.Type); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("updated_at", check.UpdatedAt); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("response_time_monitor_milliseconds", check.ResponseTimeMonitorMilliseconds); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("round_robin", check.RoundRobin); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("auto_retry", check.AutoRetry); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("enabled", check.Enabled); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("url", check.URL); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("http_request_body", check.HTTPRequestBody); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("http_method", check.HTTPMethod); err != nil {
+		return diag.FromErr(err)
+	}
 
 	checkLinks := flattenLinkData(&check.Links)
 	if err := d.Set("links", checkLinks); err != nil {
