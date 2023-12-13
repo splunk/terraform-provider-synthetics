@@ -7,7 +7,27 @@ VERSION=2.0.3
 
 default: install
 
-build:
+tools:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.1
+
+fmt:
+	@echo "==> Fixing source code with gofmt..."
+	gofmt -s -w ./${NAME}/*.go
+
+lint:
+	@echo "==> Checking source code against linters..."
+	golangci-lint run ./...
+
+vet:
+	@echo "go vet ."
+	@go vet $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
+		echo ""; \
+		echo "Vet found suspicious constructs. Please check the reported constructs"; \
+		echo "and fix them if necessary before submitting the code for review."; \
+		exit 1; \
+	fi
+
+build: 
 	go build -o ${BINARY}
 
 release:
@@ -33,4 +53,4 @@ test:
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4                    
 
 testacc: 
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   | sed '/X-Sf-Token/d'
+	TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 120m   | sed '/X-Sf-Token/d'
