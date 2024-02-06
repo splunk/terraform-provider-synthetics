@@ -33,8 +33,8 @@ resource "synthetics_create_location_v2" "location_v2_foo" {
 func TestAccCreateLocationV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create It
 			{

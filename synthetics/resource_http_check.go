@@ -495,7 +495,9 @@ func resourceHttpCheckUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] Update check response data: ", o)
-	d.Set("last_updated", time.Now().Format(time.RFC850))
+	if err := d.Set("last_updated", time.Now().Format(time.RFC850)); err != nil {
+		return diag.FromErr(err)
+	}
 
 	// return nil
 	return resourceHttpCheckRead(ctx, d, meta)

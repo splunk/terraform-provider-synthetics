@@ -25,8 +25,8 @@ import (
 func TestAccHttpCheckBasic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: rigorConfig + testAccHttpCheckConfigBasic("ineffective test", "https://www.google.com", 15),
@@ -81,7 +81,6 @@ func testAccHttpCheckExists(n string) resource.TestCheckFunc {
 		return nil
 	}
 }
-
 
 func testAccStateIdFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {

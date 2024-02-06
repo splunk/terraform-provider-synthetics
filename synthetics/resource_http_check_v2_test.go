@@ -113,8 +113,8 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create It
 			{
@@ -189,7 +189,6 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.comparator", "does_not_equal"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.expected", "400"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.type", "assert_numeric"),
-
 				),
 			},
 		},
