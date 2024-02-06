@@ -25,18 +25,22 @@ var testAccProvider *schema.Provider
 var testAccProviders map[string]*schema.Provider
 
 const (
-  // providerConfig is a shared configuration to combine with the actual
-  // test configuration so the HashiCups client is properly configured.
-  // It is also possible to use the HASHICUPS_ environment variables instead,
-  // such as updating the Makefile and running the testing through that tool.
-  providerConfig = `
+	// providerConfig is a shared configuration to combine with the actual
+	// test configuration so the HashiCups client is properly configured.
+	// It is also possible to use the HASHICUPS_ environment variables instead,
+	// such as updating the Makefile and running the testing through that tool.
+	providerConfig = `
 variable "observability_token" {
 	description = "API token for observability"
 }
+variable "realm" {
+	description = "Splunk Observability realm"
+}
+
 provider "synthetics" {
 	alias = "synthetics"
 	product = "observability"
-	realm = "us1"
+	realm = var.realm
 	apikey = var.observability_token
 }
 `
@@ -47,7 +51,7 @@ variable "rigor_token" {
 provider "synthetics" {
 	alias = "rigor"
 	product = "rigor"
-	realm = "us1"
+	realm = "none"
 	apikey = var.rigor_token
 }	
 `
@@ -77,7 +81,7 @@ func testAccPreCheck(t *testing.T) {
 	if err := os.Getenv("TF_VAR_observability_token"); err == "" {
 		t.Fatal("TF_VAR_observability_token environment variable must be set for acceptance tests. Set to empty string if not testing v2 Observability resources")
 	}
-	if err := os.Getenv("REALM"); err == "" {
-		t.Fatal("REALM environment variable must be set for acceptance tests. If testing v1 rigor resources any value can be provided")
+	if err := os.Getenv("TF_VAR_realm"); err == "" {
+		t.Fatal("TF_VAR_realm environment variable must be set for acceptance tests. If testing v1 rigor resources any value can be provided")
 	}
 }

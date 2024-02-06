@@ -209,8 +209,8 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create It
 			{
@@ -350,4 +350,3 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 		},
 	})
 }
-

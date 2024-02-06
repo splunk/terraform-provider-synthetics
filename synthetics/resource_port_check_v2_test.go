@@ -63,8 +63,8 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
 func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create It
 			{
