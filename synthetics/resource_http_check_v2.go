@@ -226,7 +226,12 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.GetHttpCheckV2(checkID)
+	o, r, err := c.GetHttpCheckV2(checkID)
+	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
+		d.SetId("")
+		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
+		return diags
+	}
 	if err != nil {
 		return diag.FromErr(err)
 	}
