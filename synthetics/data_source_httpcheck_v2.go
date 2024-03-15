@@ -62,6 +62,14 @@ func dataSourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"last_run_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"last_run_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"body": {
 							Type:     schema.TypeString,
 							Computed: true,
