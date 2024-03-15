@@ -61,6 +61,14 @@ func dataSourcePortCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"last_run_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"last_run_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"location_ids": {
 							Type:     schema.TypeList,
 							Optional: true,
