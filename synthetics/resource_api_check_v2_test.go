@@ -30,6 +30,7 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 		location_ids = ["aws-us-east-1"]
 		name = "2 Terraform-Api V2 Acceptance Checkaroo"
 		scheduling_strategy = "round_robin"
+		automatic_retries = 1
 		custom_properties {
 			key = "key"
 			value = "value"
@@ -123,6 +124,7 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 		location_ids = ["aws-us-west-1"]
 		name = "2 Terraform-Api V2 Acceptance Checkaroo Updated"
 		scheduling_strategy = "concurrent"
+		automatic_retries = 0
 		custom_properties {
 			key = "beepkey"
 			value = "boopvalue"
@@ -220,6 +222,7 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.active", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.device_id", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.automatic_retries", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.name", "2 Terraform-Api V2 Acceptance Checkaroo"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
@@ -291,6 +294,7 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.active", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.device_id", "2"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.automatic_retries", "0"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.name", "2 Terraform-Api V2 Acceptance Checkaroo Updated"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),

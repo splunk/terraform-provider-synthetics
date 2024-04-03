@@ -48,6 +48,7 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
 	apiV2["active"] = checkApiV2.Test.Active
+	apiV2["automatic_retries"] = checkApiV2.Test.Automaticretries
 
 	if checkApiV2.Test.Frequency != 0 {
 		apiV2["frequency"] = checkApiV2.Test.Frequency
@@ -81,6 +82,7 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	apiV2 := make(map[string]interface{})
 
 	apiV2["active"] = checkApiV2.Test.Active
+	apiV2["automatic_retries"] = checkApiV2.Test.Automaticretries
 
 	if checkApiV2.Test.Createdat.IsZero() {
 	} else {
@@ -303,6 +305,7 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	browserV2 := make(map[string]interface{})
 
 	browserV2["active"] = checkBrowserV2.Test.Active
+	browserV2["automatic_retries"] = checkBrowserV2.Test.Automaticretries
 
 	browserV2["device_id"] = checkBrowserV2.Test.Device.ID
 
@@ -339,6 +342,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	browserV2 := make(map[string]interface{})
 
 	browserV2["active"] = checkBrowserV2.Test.Active
+	browserV2["automatic_retries"] = checkBrowserV2.Test.Automaticretries
 
 	if checkBrowserV2.Test.Createdat.IsZero() {
 	} else {
@@ -401,6 +405,7 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	}
 
 	httpV2["active"] = checkHttpV2.Test.Active
+	httpV2["automatic_retries"] = checkHttpV2.Test.Automaticretries
 
 	if checkHttpV2.Test.Frequency != 0 {
 		httpV2["frequency"] = checkHttpV2.Test.Frequency
@@ -459,6 +464,7 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	}
 
 	httpV2["active"] = checkHttpV2.Test.Active
+	httpV2["automatic_retries"] = checkHttpV2.Test.Automaticretries
 
 	if checkHttpV2.Test.Frequency != 0 {
 		httpV2["frequency"] = checkHttpV2.Test.Frequency
@@ -527,6 +533,7 @@ func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 	}
 
 	portV2["active"] = checkPortV2.Test.Active
+	portV2["automatic_retries"] = checkPortV2.Test.Automaticretries
 
 	if checkPortV2.Test.Frequency != 0 {
 		portV2["frequency"] = checkPortV2.Test.Frequency
@@ -575,6 +582,7 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 	}
 
 	portV2["active"] = checkPortV2.Test.Active
+	portV2["automatic_retries"] = checkPortV2.Test.Automaticretries
 
 	if checkPortV2.Test.Frequency != 0 {
 		portV2["frequency"] = checkPortV2.Test.Frequency
@@ -1115,6 +1123,7 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Active = api["active"].(bool)
 			apiv2.Test.Deviceid = api["device_id"].(int)
 			apiv2.Test.Frequency = api["frequency"].(int)
+			apiv2.Test.Automaticretries = api["automatic_retries"].(int)
 			apiv2.Test.Locationids = buildLocationIdData(api["location_ids"].([]interface{}))
 			apiv2.Test.Name = api["name"].(string)
 			apiv2.Test.Requests = buildRequestsData(api["requests"].(([]interface{})))
@@ -1135,6 +1144,7 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Active = browser["active"].(bool)
 			browserv2.Test.DeviceID = browser["device_id"].(int)
 			browserv2.Test.Frequency = browser["frequency"].(int)
+			browserv2.Test.Automaticretries = browser["automatic_retries"].(int)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
 			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
@@ -1159,6 +1169,7 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			httpv2.Test.URL = http["url"].(string)
 			httpv2.Test.LocationIds = buildLocationIdData(http["location_ids"].([]interface{}))
 			httpv2.Test.Frequency = http["frequency"].(int)
+			httpv2.Test.Automaticretries = http["automatic_retries"].(int)
 			httpv2.Test.SchedulingStrategy = http["scheduling_strategy"].(string)
 			httpv2.Test.Active = http["active"].(bool)
 			httpv2.Test.RequestMethod = http["request_method"].(string)
@@ -1191,6 +1202,7 @@ func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
 			portv2.Test.Host = port["host"].(string)
 			portv2.Test.LocationIds = buildLocationIdData(port["location_ids"].([]interface{}))
 			portv2.Test.Frequency = port["frequency"].(int)
+			portv2.Test.Automaticretries = port["automatic_retries"].(int)
 			portv2.Test.SchedulingStrategy = port["scheduling_strategy"].(string)
 			portv2.Test.Active = port["active"].(bool)
 			portv2.Test.Customproperties = buildCustomPropertiesData(port["custom_properties"].(*schema.Set))

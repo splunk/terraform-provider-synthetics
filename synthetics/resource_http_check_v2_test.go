@@ -30,6 +30,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "01-acceptance-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.splunk.com"
+    automatic_retries = 1
     scheduling_strategy = "round_robin"
 		custom_properties {
 			key = "key"
@@ -75,6 +76,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "01-acceptance-updated-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.duckduckgo.com"
+    automatic_retries = 0
     scheduling_strategy = "concurrent"
 		custom_properties {
 			key = "beepkey"
@@ -123,6 +125,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.#", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.active", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.automatic_retries", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.1", "aws-us-west-1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-Terraform-HTTP-V2"),
@@ -164,6 +167,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.#", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.active", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.automatic_retries", "0"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-updated-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
