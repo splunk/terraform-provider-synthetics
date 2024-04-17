@@ -94,11 +94,11 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 
 	if checkApiV2.Test.Lastrunat.IsZero() {
 	} else {
-		apiV2["last_run_at"] = checkApiV2.Test.Updatedat.String()
+		apiV2["last_run_at"] = checkApiV2.Test.Lastrunat.String()
 	}
 
 	if checkApiV2.Test.Lastrunstatus != "" {
-		apiV2["last_run_status"] = checkApiV2.Test.Updatedat.String()
+		apiV2["last_run_status"] = checkApiV2.Test.Lastrunstatus.String()
 	}
 
 	if checkApiV2.Test.Frequency != 0 {
@@ -361,11 +361,11 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 
 	if checkBrowserV2.Test.Lastrunat.IsZero() {
 	} else {
-		browserV2["last_run_at"] = checkBrowserV2.Test.Updatedat.String()
+		browserV2["last_run_at"] = checkBrowserV2.Test.Lastrunat.String()
 	}
 
 	if checkBrowserV2.Test.Lastrunstatus != "" {
-		browserV2["last_run_status"] = checkBrowserV2.Test.Updatedat.String()
+		browserV2["last_run_status"] = checkBrowserV2.Test.Lastrunstatus.String()
 	}
 
 	if checkBrowserV2.Test.Frequency != 0 {
@@ -494,11 +494,11 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	if checkHttpV2.Test.Lastrunat.IsZero() {
 	} else {
-		httpV2["last_run_at"] = checkHttpV2.Test.Updatedat.String()
+		httpV2["last_run_at"] = checkHttpV2.Test.Lastrunat.String()
 	}
 
 	if checkHttpV2.Test.Lastrunstatus != "" {
-		httpV2["last_run_status"] = checkHttpV2.Test.Updatedat.String()
+		httpV2["last_run_status"] = checkHttpV2.Test.Lastrunstatus.String()
 	}
 
 	if checkHttpV2.Test.SchedulingStrategy != "" {
@@ -619,11 +619,11 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	if checkPortV2.Test.Lastrunat.IsZero() {
 	} else {
-		portV2["last_run_at"] = checkPortV2.Test.Updatedat.String()
+		portV2["last_run_at"] = checkPortV2.Test.Lastrunat.String()
 	}
 
 	if checkPortV2.Test.Lastrunstatus != "" {
-		portV2["last_run_status"] = checkPortV2.Test.Updatedat.String()
+		portV2["last_run_status"] = checkPortV2.Test.Lastrunstatus.String()
 	}
 
 	if checkPortV2.Test.SchedulingStrategy != "" {
