@@ -97,7 +97,7 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 		apiV2["last_run_at"] = checkApiV2.Test.Lastrunat.String()
 	}
 
-	if checkApiV2.Test.Lastrunstatus != "" {
+	if checkApiV2.Test.Lastrunstatus.IsZero() {
 		apiV2["last_run_status"] = checkApiV2.Test.Lastrunstatus.String()
 	}
 
@@ -364,7 +364,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 		browserV2["last_run_at"] = checkBrowserV2.Test.Lastrunat.String()
 	}
 
-	if checkBrowserV2.Test.Lastrunstatus != "" {
+	if checkBrowserV2.Test.Lastrunstatus.IsZero() {
 		browserV2["last_run_status"] = checkBrowserV2.Test.Lastrunstatus.String()
 	}
 
@@ -497,7 +497,7 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 		httpV2["last_run_at"] = checkHttpV2.Test.Lastrunat.String()
 	}
 
-	if checkHttpV2.Test.Lastrunstatus != "" {
+	if checkHttpV2.Test.Lastrunstatus.IsZero() {
 		httpV2["last_run_status"] = checkHttpV2.Test.Lastrunstatus.String()
 	}
 
@@ -622,7 +622,7 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 		portV2["last_run_at"] = checkPortV2.Test.Lastrunat.String()
 	}
 
-	if checkPortV2.Test.Lastrunstatus != "" {
+	if checkPortV2.Test.Lastrunstatus.IsZero() {
 		portV2["last_run_status"] = checkPortV2.Test.Lastrunstatus.String()
 	}
 
