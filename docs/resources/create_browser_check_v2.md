@@ -254,7 +254,7 @@ Optional:
 
 Required:
 
-- `steps` (Block List, Min: 1) (see [below for nested schema](#nestedblock--test--transactions--steps))
+- `steps` (Block List, Min: 1) Unique steps for the transaction. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_browser/latest#endpoint-createbrowsertest) as the source of truth for descriptions and options for these values. (see [below for nested schema](#nestedblock--test--transactions--steps))
 
 Optional:
 
