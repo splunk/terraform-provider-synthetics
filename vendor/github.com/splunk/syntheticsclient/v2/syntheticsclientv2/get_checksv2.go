@@ -18,6 +18,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 func parseChecksV2Response(response string) (*ChecksV2Response, error) {
@@ -46,11 +48,27 @@ func (c Client) GetChecksV2(params *GetChecksV2Options) (*ChecksV2Response, *Req
 	if params.PerPage == 0 {
 		params.PerPage = int(50)
 	}
+	if params.SchedulingStrategy == "" {
+		params.SchedulingStrategy = ""
+	}
 
 	// Make the request
 	details, err := c.makePublicAPICall(
 		"GET",
-		fmt.Sprintf("/tests?testType=%s&page=%d&perPage=%d&orderBy=%s&search=%s", params.TestType, params.Page, params.PerPage, params.OrderBy, params.Search),
+		fmt.Sprintf("/tests?testType=%s&page=%d&perPage=%d&orderBy=%s&search=%s%s&schedulingStrategy=%s%s%s%s%s%s",
+			params.TestType,
+			params.Page,
+			params.PerPage,
+			params.OrderBy,
+			params.Search,
+			activeQueryParam(params.Active),
+			params.SchedulingStrategy,
+			customPropsQueryParam(params.CustomProperties),
+			stringsQueryParam(params.LastRunStatus, "&lastRunStatus[]="),
+			stringsQueryParam(params.LocationIds, "&locationIds[]="),
+			stringsQueryParam(params.TestTypes, "&testTypes[]="),
+			integersQueryParam(params.Frequencies, "&frequencies[]="),
+		),
 		bytes.NewBufferString("{}"),
 		nil)
 
@@ -65,4 +83,37 @@ func (c Client) GetChecksV2(params *GetChecksV2Options) (*ChecksV2Response, *Req
 	}
 
 	return check, details, nil
+}
+
+func activeQueryParam(param *bool) (string) {
+	if param != nil {
+		boolString := strconv.FormatBool(*param)
+		return fmt.Sprintf("&active=%s", boolString)
+	}
+	return ""
+}
+
+func customPropsQueryParam(params []CustomProperties) (string) {
+	if len(params) == 0 {
+		return ""
+	}
+	var result string
+	for _, customProp := range params {
+		result += "&customProperties[]=" + customProp.Key + ":" + customProp.Value
+	}
+	return result
+}
+
+func integersQueryParam(params []int, queryParamName string) (string) {
+	if len(params) == 0 {
+		return ""
+	}
+	return queryParamName + strings.Trim(strings.Replace(fmt.Sprint(params), " ", queryParamName, -1), "[]")
+}
+
+func stringsQueryParam(params []string, queryParamName string) (string) {
+	if len(params) == 0 {
+		return ""
+	}
+	return queryParamName + strings.Join(params, queryParamName)
 }
