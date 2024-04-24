@@ -150,23 +150,14 @@ type Tests []struct {
 	Type               string             `json:"type"`
 	Updatedat          time.Time          `json:"updatedAt"`
 	Customproperties   []CustomProperties `json:"customProperties"`
-	Lastrunstatus      string             `json:"lastRunStatus"`
-	Lastrunat          time.Time          `json:"lastRunAt"`
 }
 
 type GetChecksV2Options struct {
-	TestType           string             `json:"testType"`
-	PerPage            int                `json:"perPage"`
-	Page               int                `json:"page"`
-	Search             string             `json:"search"`
-	OrderBy            string             `json:"orderBy"`
-	Active             *bool              `json:"active"`
-	CustomProperties   []CustomProperties `json:"customProperties"`
-	Frequencies        []int              `json:"frequencies"`
-	LastRunStatus      []string           `json:"lastRunStatus"`
-	LocationIds        []string           `json:"locationIds"`
-	SchedulingStrategy string             `json:"schedulingStrategy"`
-	TestTypes          []string           `json:"testTypes"`
+	TestType string `json:"testType"`
+	PerPage  int    `json:"perPage"`
+	Page     int    `json:"page"`
+	Search   string `json:"search"`
+	OrderBy  string `json:"orderBy"`
 }
 
 type Errors []struct {
@@ -260,8 +251,6 @@ type PortCheckV2Response struct {
 		Host               string             `json:"host"`
 		Port               int                `json:"port"`
 		Customproperties   []CustomProperties `json:"customProperties"`
-		Lastrunstatus      string             `json:"lastRunStatus"`
-		Lastrunat          time.Time          `json:"lastRunAt"`
 	} `json:"test"`
 }
 
@@ -301,8 +290,6 @@ type HttpCheckV2Response struct {
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
-		Lastrunstatus      string             `json:"lastRunStatus"`
-		Lastrunat          time.Time          `json:"lastRunAt"`
 	} `json:"test"`
 }
 
@@ -353,8 +340,6 @@ type ApiCheckV2Response struct {
 		Type               string             `json:"type,omitempty"`
 		Updatedat          time.Time          `json:"updatedAt,omitempty"`
 		Customproperties   []CustomProperties `json:"customProperties"`
-		Lastrunstatus      string             `json:"lastRunStatus"`
-		Lastrunat          time.Time          `json:"lastRunAt"`
 	}
 }
 
@@ -389,8 +374,6 @@ type BrowserCheckV2Response struct {
 		Type               string             `json:"type"`
 		Updatedat          time.Time          `json:"updatedAt"`
 		Customproperties   []CustomProperties `json:"customProperties"`
-		Lastrunstatus      string             `json:"lastRunStatus"`
-		Lastrunat          time.Time          `json:"lastRunAt"`
 	} `json:"test"`
 }
 
