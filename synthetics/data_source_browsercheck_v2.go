@@ -173,6 +173,10 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 										Type:     schema.TypeBool,
 										Computed: true,
 									},
+									"collect_interactive_metrics": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
 								},
 							},
 						},
