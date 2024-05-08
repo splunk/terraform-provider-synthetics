@@ -3,7 +3,7 @@
 page_title: "synthetics_browser_v2_check Data Source - synthetics"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # synthetics_browser_v2_check (Data Source)
@@ -74,6 +74,7 @@ Read-Only:
 - `host_overrides` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--host_overrides))
 - `user_agent` (String)
 - `verify_certificates` (Boolean)
+- `collect_interactive_metrics` (Boolean)
 
 <a id="nestedobjatt--test--advanced_settings--authentication"></a>
 ### Nested Schema for `test.advanced_settings.authentication`
@@ -210,5 +211,3 @@ Read-Only:
 Read-Only:
 
 - `url` (String)
-
-
