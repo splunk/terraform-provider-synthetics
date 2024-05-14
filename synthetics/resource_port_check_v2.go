@@ -113,7 +113,7 @@ func resourcePortCheckV2() *schema.Resource {
 									"value": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9](\w|_){1,128}$`), "custom_properties value can only consist of alphanumeric and underscore characters with no whitespace"),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9](\w|-|_){1,128}$`), "custom_properties value can only consist of alphanumeric and underscore characters with no whitespace"),
 									},
 								},
 							},
