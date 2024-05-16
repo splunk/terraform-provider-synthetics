@@ -253,6 +253,14 @@ func dataSourceApiCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"last_run_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"last_run_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"custom_properties": {
 							Type:     schema.TypeSet,
 							Computed: true,

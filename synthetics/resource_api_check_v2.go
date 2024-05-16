@@ -66,6 +66,7 @@ func resourceApiCheckV2() *schema.Resource {
 						"requests": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: "Unique elements of a given request. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_api_tests/latest#endpoint-createapitest) as the source of truth for descriptions and options for these values.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"configuration": {
@@ -202,12 +203,12 @@ func resourceApiCheckV2() *schema.Resource {
 									"key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z]\w{1,128}$`), "custom_properties key must start with a letter and only consist of alphanumeric and underscore characters with no whitespace"),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z](\w|-|_){1,128}$`), "custom_properties key must start with a letter and only consist of alphanumeric and underscore characters with no whitespace"),
 									},
 									"value": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\w{1,256}$`), "custom_properties value can only consist of alphanumeric and underscore characters with no whitespace"),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9](\w|_){1,128}$`), "custom_properties value can only consist of alphanumeric and underscore characters with no whitespace"),
 									},
 								},
 							},

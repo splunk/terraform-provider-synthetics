@@ -61,6 +61,14 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"last_run_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"last_run_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"location_ids": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -162,6 +170,10 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 										Computed: true,
 									},
 									"verify_certificates": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"collect_interactive_metrics": {
 										Type:     schema.TypeBool,
 										Computed: true,
 									},
