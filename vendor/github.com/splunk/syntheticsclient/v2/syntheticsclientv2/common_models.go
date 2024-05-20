@@ -152,6 +152,7 @@ type Tests []struct {
 	Customproperties   []CustomProperties `json:"customProperties"`
 	Lastrunstatus      string             `json:"lastRunStatus"`
 	Lastrunat          time.Time          `json:"lastRunAt"`
+	Automaticretries   int                `json:"automaticRetries"`
 }
 
 type GetChecksV2Options struct {
@@ -262,6 +263,7 @@ type PortCheckV2Response struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
+		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
 }
 
@@ -278,6 +280,7 @@ type PortCheckV2Input struct {
 		SchedulingStrategy string             `json:"schedulingStrategy"`
 		Active             bool               `json:"active"`
 		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
 }
 
@@ -303,6 +306,8 @@ type HttpCheckV2Response struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
+		Automaticretries   int                `json:"automaticRetries"`
+    Port               int                `json:"port"`
 	} `json:"test"`
 }
 
@@ -323,6 +328,8 @@ type HttpCheckV2Input struct {
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
+    Port               int                `json:"port"`
 	} `json:"test"`
 }
 
@@ -336,6 +343,7 @@ type ApiCheckV2Input struct {
 		Requests           []Requests         `json:"requests"`
 		Schedulingstrategy string             `json:"schedulingStrategy"`
 		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
 }
 
@@ -355,6 +363,7 @@ type ApiCheckV2Response struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
+		Automaticretries   int                `json:"automaticRetries"`
 	}
 }
 
@@ -371,6 +380,7 @@ type BrowserCheckV2Input struct {
 		Active             bool           `json:"active"`
 		Advancedsettings   `json:"advancedSettings,omitempty"`
 		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
 }
 
@@ -391,6 +401,7 @@ type BrowserCheckV2Response struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
+		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
 }
 

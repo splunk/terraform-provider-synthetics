@@ -27,6 +27,7 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
     active = true 
     frequency = 5
     location_ids = ["aws-us-west-2", "aws-us-east-1"]
+    automatic_retries = 1
     scheduling_strategy = "round_robin"
 		custom_properties {
 			key = "key"
@@ -47,6 +48,7 @@ resource "synthetics_create_port_check_v2" "port_v2_foo_check" {
     active = false 
     frequency = 15
     location_ids = ["aws-us-east-1"]
+    automatic_retries = 0
     scheduling_strategy = "concurrent"
 		custom_properties {
 			key = "beepkey"
@@ -73,6 +75,7 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.#", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.active", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.automatic_retries", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-west-2"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.1", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
@@ -97,6 +100,7 @@ func TestAccCreateUpdatePortCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.#", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.active", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.automatic_retries", "0"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
 					resource.TestCheckResourceAttr("synthetics_create_port_check_v2.port_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),

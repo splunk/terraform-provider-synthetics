@@ -28,6 +28,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
     device_id = 1  
     frequency = 5
     location_ids = ["aws-us-east-1"]
+    automatic_retries = 1
     name = "01-acceptance-Terraform-Browser-V2"
     scheduling_strategy = "round_robin"
 		custom_properties {
@@ -133,6 +134,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
     device_id = 2  
     frequency = 15
     location_ids = ["aws-us-west-1"]
+    automatic_retries = 0
     name = "01-acceptance-updated-Terraform-Browser-V2"
     scheduling_strategy = "concurrent"
 		custom_properties {
@@ -261,6 +263,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.active", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.device_id", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.frequency", "5"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.automatic_retries", "1"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.name", "01-acceptance-Terraform-Browser-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
@@ -337,6 +340,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.active", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.device_id", "2"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.frequency", "15"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.automatic_retries", "0"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.name", "01-acceptance-updated-Terraform-Browser-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
