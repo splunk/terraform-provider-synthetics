@@ -58,6 +58,7 @@ func Provider() *schema.Provider {
 			"synthetics_create_port_check_v2":    resourcePortCheckV2(),
 			"synthetics_create_variable_v2":      resourceVariableV2(),
 			"synthetics_create_location_v2":      resourceLocationV2(),
+			"synthetics_create_downtime_configuration_v2":      resourceDowntimeConfigurationV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"synthetics_check":              dataSourceCheck(),
@@ -70,6 +71,8 @@ func Provider() *schema.Provider {
 			"synthetics_location_v2_check":  dataSourceLocationV2(),
 			"synthetics_locations_v2_check": dataSourceLocationsV2(),
 			"synthetics_devices_v2_check":   dataSourceDevicesV2(),
+			"synthetics_downtime_configuration_v2_check":  dataSourceDowntimeConfigurationV2(),
+			"synthetics_downtime_configurations_v2_check": dataSourceDowntimeConfigurationsV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
