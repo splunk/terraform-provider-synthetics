@@ -49,7 +49,7 @@ func resourceDowntimeConfigurationV2() *schema.Resource {
 						},
 						"description": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Optional: true,
 						},
 						"rule": {
 							Type:     schema.TypeString,
