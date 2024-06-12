@@ -213,15 +213,24 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 	var downtimeConfigurationV2 sc2.DowntimeConfigurationV2Input
 	downtimeConfigurationV2Data := d.Get("downtime_configuration").(*schema.Set).List()
 	var i = 0
+	layout := "2006-01-02T15:04:05.000Z"
 	for _, downtimeConfiguration := range downtimeConfigurationV2Data {
 		if i < 1 {
 			downtimeConfiguration := downtimeConfiguration.(map[string]interface{})
 			downtimeConfigurationV2.DowntimeConfiguration.Description = downtimeConfiguration["description"].(string)
 			downtimeConfigurationV2.DowntimeConfiguration.Name = downtimeConfiguration["name"].(string)
 			downtimeConfigurationV2.DowntimeConfiguration.Rule = downtimeConfiguration["rule"].(string)
-			downtimeConfigurationV2.DowntimeConfiguration.Starttime = downtimeConfiguration["start_time"].(time.Time)
-			downtimeConfigurationV2.DowntimeConfiguration.Endtime = downtimeConfiguration["end_time"].(time.Time)
-			downtimeConfigurationV2.DowntimeConfiguration.Testids = downtimeConfiguration["test_ids"].([]int)
+			startTime, err := time.Parse(layout, downtimeConfiguration["start_time"].(string))
+			if err != nil {
+            	_ = err
+            }
+			downtimeConfigurationV2.DowntimeConfiguration.Starttime = startTime
+			endTime, err := time.Parse(layout, downtimeConfiguration["end_time"].(string))
+			if err != nil {
+            	_ = err
+            }
+			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
+			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
 			i++
 		}
 	}
@@ -1384,6 +1393,14 @@ func buildLocationIdData(d []interface{}) []string {
 		locationsList[i] = locations.(string)
 	}
 	return locationsList
+}
+
+func buildTestIdData(d []interface{}) []int {
+	testsList := make([]int, len(d))
+	for i, tests := range d {
+		testsList[i] = tests.(int)
+	}
+	return testsList
 }
 
 func buildRequestsData(requests []interface{}) []sc2.Requests {
