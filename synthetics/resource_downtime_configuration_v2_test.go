@@ -48,10 +48,10 @@ func TestAccCreateDowntimeConfigurationV2(t *testing.T) {
 				Config: providerConfig + newDowntimeConfigurationV2Config,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.description", "The most awesome downtime_configuration. Full of snakes."),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.rule", "pause_tests"),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.name", "acceptance-downtime_configuration-terraform-test"),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.start_time", "2024-07-01T17:13:00.000Z"),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.end_time", "2024-08-01T17:13:00.000Z"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.rule", "augment_data"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.name", "acceptance-downtime-configuration-terraform-test"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.start_time", "2024-07-01 17:13:00 +0000 UTC"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.end_time", "2024-08-01 17:13:00 +0000 UTC"),
 				),
 			},
 			{

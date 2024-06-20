@@ -122,12 +122,12 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	DowntimeConfigurationID, err := strconv.Atoi(d.Id())
+	downtimeConfigurationID, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	DowntimeConfiguration, r, err := c.GetDowntimeConfigurationV2(DowntimeConfigurationID)
+	downtimeConfiguration, r, err := c.GetDowntimeConfigurationV2(downtimeConfigurationID)
 	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
@@ -136,8 +136,8 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] GET downtime_configuration response data: ", DowntimeConfiguration)
-	if err := d.Set("downtime_configuration", flattenDowntimeConfigurationV2Read(DowntimeConfiguration)); err != nil {
+	log.Println("DEBUG] GET downtime_configuration response data: ", downtimeConfiguration)
+	if err := d.Set("downtime_configuration", flattenDowntimeConfigurationV2Read(downtimeConfiguration)); err != nil {
 		return diag.FromErr(err)
 	}
 

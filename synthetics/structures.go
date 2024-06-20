@@ -257,7 +257,7 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
-	return []interface{}{downtimeConfigurationV2}
+	return []interface{}{DowntimeConfigurationV2}
 }
 
 func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeConfigurationV2Response) []interface{} {
@@ -296,7 +296,7 @@ func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeCon
 
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
-	return []interface{}{downtimeConfigurationV2}
+	return []interface{}{DowntimeConfigurationV2}
 }
 
 func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeConfiguration) []interface{} {
