@@ -64,8 +64,8 @@ func resourceApiCheckV2() *schema.Resource {
 							Required: true,
 						},
 						"requests": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Optional:    true,
 							Description: "Unique elements of a given request. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_api_tests/latest#endpoint-createapitest) as the source of truth for descriptions and options for these values.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -214,10 +214,10 @@ func resourceApiCheckV2() *schema.Resource {
 							},
 						},
 						"automatic_retries": {
-                            Type:     schema.TypeInt,
-                            Computed: true,
+							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
-                        },
+						},
 					},
 				},
 			},

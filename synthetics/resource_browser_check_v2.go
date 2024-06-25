@@ -191,8 +191,8 @@ func resourceBrowserCheckV2() *schema.Resource {
 										Optional: true,
 									},
 									"steps": {
-										Type:     schema.TypeList,
-										Required: true,
+										Type:        schema.TypeList,
+										Required:    true,
 										Description: "Unique steps for the transaction. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_browser/latest#endpoint-createbrowsertest) as the source of truth for descriptions and options for these values.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -283,10 +283,10 @@ func resourceBrowserCheckV2() *schema.Resource {
 							},
 						},
 						"automatic_retries": {
-                            Type:     schema.TypeInt,
-                            Computed: true,
+							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
-                        },
+						},
 					},
 				},
 			},

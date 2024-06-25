@@ -87,14 +87,14 @@ func dataSourceDowntimeConfigurationsV2() *schema.Resource {
 func dataSourceDowntimeConfigurationsV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	c := m.(*sc2.Client)
-	
+
 	downtimeOptions := sc2.GetDowntimeConfigurationsV2Options{
 		PerPage: 0,
-    	Page:    0,
-    	Search:  "",
-    	OrderBy: "",
-    	Rule:    []string{},
-    	Status:  []string{},
+		Page:    0,
+		Search:  "",
+		OrderBy: "",
+		Rule:    []string{},
+		Status:  []string{},
 	}
 
 	// Warning or errors can be collected in a slice type

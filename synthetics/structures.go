@@ -16,8 +16,8 @@ package synthetics
 
 import (
 	"log"
-	"time"
 	"strings"
+	"time"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -242,7 +242,7 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 	DowntimeConfigurationV2 := make(map[string]interface{})
 
 	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.DowntimeConfiguration.Name
-	
+
 	if DowntimeConfigurationV2["description"] != "" {
 		DowntimeConfigurationV2["description"] = downtimeConfigurationV2.DowntimeConfiguration.Description
 	}

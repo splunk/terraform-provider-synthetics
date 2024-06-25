@@ -84,7 +84,7 @@ func resourceDowntimeConfigurationV2() *schema.Resource {
 							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeInt,
-							}, 
+							},
 						},
 					},
 				},
