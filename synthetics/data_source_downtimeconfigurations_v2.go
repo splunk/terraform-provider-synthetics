@@ -1,4 +1,4 @@
-// Copyright 2021 Splunk, Inc.
+// Copyright 2024 Splunk, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package synthetics
 
 import (
 	"context"
-	"fmt"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -24,13 +23,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourcePortCheckV2() *schema.Resource {
+func dataSourceDowntimeConfigurationsV2() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourcePortCheckV2Read,
+		ReadContext: dataSourceDowntimeConfigurationsV2Read,
 		Schema: map[string]*schema.Schema{
-			"test": {
+			"downtime_configurations": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -41,15 +40,24 @@ func dataSourcePortCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"active": {
-							Type:     schema.TypeBool,
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+						},
+						"rule": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"frequency": {
-							Type:     schema.TypeInt,
+						"start_time": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"scheduling_strategy": {
+						"end_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -61,55 +69,11 @@ func dataSourcePortCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"last_run_at": {
+						"tests_updated_at": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"last_run_status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"location_ids": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"protocol": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"host": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"custom_properties": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"automatic_retries": {
+						"test_count": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -120,27 +84,34 @@ func dataSourcePortCheckV2() *schema.Resource {
 	}
 }
 
-func dataSourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceDowntimeConfigurationsV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	c := m.(*sc2.Client)
+
+	downtimeOptions := sc2.GetDowntimeConfigurationsV2Options{
+		PerPage: 0,
+		Page:    0,
+		Search:  "",
+		OrderBy: "",
+		Rule:    []string{},
+		Status:  []string{},
+	}
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	checkID := flattenIdData(d.Get("test"))
-
-	check, _, err := c.GetPortCheckV2(checkID)
-	println(check)
+	downtime_configs, _, err := c.GetDowntimeConfigurationsV2(&downtimeOptions)
+	println(downtime_configs)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	checkTest := flattenPortCheckV2Data(check)
-	if err := d.Set("test", checkTest); err != nil {
+	downtimeConfigurations := flattenDowntimeConfigurationsV2Data(&downtime_configs.Downtimeconfigurations)
+	if err := d.Set("downtime_configurations", downtimeConfigurations); err != nil {
 		return diag.FromErr(err)
 	}
 
-	id := fmt.Sprint(check.Test.ID)
+	id := "downtime_configurations_synthetics"
 	d.SetId(id)
 	return diags
 }

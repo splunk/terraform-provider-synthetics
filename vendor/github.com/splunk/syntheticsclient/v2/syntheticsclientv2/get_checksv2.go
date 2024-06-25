@@ -18,8 +18,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 func parseChecksV2Response(response string) (*ChecksV2Response, error) {
@@ -85,7 +85,7 @@ func (c Client) GetChecksV2(params *GetChecksV2Options) (*ChecksV2Response, *Req
 	return check, details, nil
 }
 
-func activeQueryParam(param *bool) (string) {
+func activeQueryParam(param *bool) string {
 	if param != nil {
 		boolString := strconv.FormatBool(*param)
 		return fmt.Sprintf("&active=%s", boolString)
@@ -93,7 +93,7 @@ func activeQueryParam(param *bool) (string) {
 	return ""
 }
 
-func customPropsQueryParam(params []CustomProperties) (string) {
+func customPropsQueryParam(params []CustomProperties) string {
 	if len(params) == 0 {
 		return ""
 	}
@@ -104,14 +104,14 @@ func customPropsQueryParam(params []CustomProperties) (string) {
 	return result
 }
 
-func integersQueryParam(params []int, queryParamName string) (string) {
+func integersQueryParam(params []int, queryParamName string) string {
 	if len(params) == 0 {
 		return ""
 	}
 	return queryParamName + strings.Trim(strings.Replace(fmt.Sprint(params), " ", queryParamName, -1), "[]")
 }
 
-func stringsQueryParam(params []string, queryParamName string) (string) {
+func stringsQueryParam(params []string, queryParamName string) string {
 	if len(params) == 0 {
 		return ""
 	}

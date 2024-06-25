@@ -119,10 +119,10 @@ func resourcePortCheckV2() *schema.Resource {
 							},
 						},
 						"automatic_retries": {
-                            Type:     schema.TypeInt,
-                            Computed: true,
+							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
-                        },
+						},
 					},
 				},
 			},

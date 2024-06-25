@@ -17,6 +17,7 @@ package synthetics
 import (
 	"log"
 	"strings"
+	"time"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -198,6 +199,124 @@ func flattenVariablesV2Data(variables *[]sc2.Variable) []interface{} {
 			cl["description"] = variable.Description
 			cl["created_at"] = variable.Createdat.String()
 			cl["updated_at"] = variable.Updatedat.String()
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfigurationV2Input {
+	var downtimeConfigurationV2 sc2.DowntimeConfigurationV2Input
+	downtimeConfigurationV2Data := d.Get("downtime_configuration").(*schema.Set).List()
+	var i = 0
+	layout := "2006-01-02T15:04:05.000Z"
+	for _, downtimeConfiguration := range downtimeConfigurationV2Data {
+		if i < 1 {
+			downtimeConfiguration := downtimeConfiguration.(map[string]interface{})
+			downtimeConfigurationV2.DowntimeConfiguration.Description = downtimeConfiguration["description"].(string)
+			downtimeConfigurationV2.DowntimeConfiguration.Name = downtimeConfiguration["name"].(string)
+			downtimeConfigurationV2.DowntimeConfiguration.Rule = downtimeConfiguration["rule"].(string)
+			startTime, err := time.Parse(layout, downtimeConfiguration["start_time"].(string))
+			if err != nil {
+				_ = err
+			}
+			downtimeConfigurationV2.DowntimeConfiguration.Starttime = startTime
+			endTime, err := time.Parse(layout, downtimeConfiguration["end_time"].(string))
+			if err != nil {
+				_ = err
+			}
+			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
+			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
+			i++
+		}
+	}
+	log.Println("[DEBUG]] build downtimeConfigurationV2 data: ", downtimeConfigurationV2)
+	return downtimeConfigurationV2
+}
+
+func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeConfigurationV2Response) []interface{} {
+	DowntimeConfigurationV2 := make(map[string]interface{})
+
+	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.DowntimeConfiguration.Name
+
+	if DowntimeConfigurationV2["description"] != "" {
+		DowntimeConfigurationV2["description"] = downtimeConfigurationV2.DowntimeConfiguration.Description
+	}
+
+	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
+
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
+
+	DowntimeConfigurationV2["test_ids"] = downtimeConfigurationV2.DowntimeConfiguration.Testids
+
+	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
+
+	return []interface{}{DowntimeConfigurationV2}
+}
+
+func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeConfigurationV2Response) []interface{} {
+	DowntimeConfigurationV2 := make(map[string]interface{})
+
+	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.DowntimeConfiguration.Name
+
+	DowntimeConfigurationV2["id"] = downtimeConfigurationV2.DowntimeConfiguration.ID
+
+	DowntimeConfigurationV2["description"] = downtimeConfigurationV2.DowntimeConfiguration.Description
+
+	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
+
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
+
+	DowntimeConfigurationV2["status"] = downtimeConfigurationV2.DowntimeConfiguration.Status
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Createdat.IsZero() {
+	} else {
+		DowntimeConfigurationV2["created_at"] = downtimeConfigurationV2.DowntimeConfiguration.Createdat.String()
+	}
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Updatedat.IsZero() {
+	} else {
+		DowntimeConfigurationV2["updated_at"] = downtimeConfigurationV2.DowntimeConfiguration.Updatedat.String()
+	}
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Testsupdatedat.IsZero() {
+	} else {
+		DowntimeConfigurationV2["tests_updated_at"] = downtimeConfigurationV2.DowntimeConfiguration.Testsupdatedat.String()
+	}
+
+	DowntimeConfigurationV2["test_count"] = downtimeConfigurationV2.DowntimeConfiguration.Testcount
+
+	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
+
+	return []interface{}{DowntimeConfigurationV2}
+}
+
+func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeConfiguration) []interface{} {
+	if downtimeConfigurations != nil {
+		cls := make([]interface{}, len(*downtimeConfigurations))
+
+		for i, downtimeConfiguration := range *downtimeConfigurations {
+			cl := make(map[string]interface{})
+
+			cl["id"] = downtimeConfiguration.ID
+			cl["name"] = downtimeConfiguration.Name
+			cl["description"] = downtimeConfiguration.Description
+			cl["rule"] = downtimeConfiguration.Rule
+			cl["start_time"] = downtimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+			cl["end_time"] = downtimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
+			cl["status"] = downtimeConfiguration.Status
+			cl["created_at"] = downtimeConfiguration.Createdat.String()
+			cl["updated_at"] = downtimeConfiguration.Updatedat.String()
+			cl["tests_updated_at"] = downtimeConfiguration.Testsupdatedat.String()
+			cl["test_count"] = downtimeConfiguration.Testcount
 
 			cls[i] = cl
 		}
@@ -1274,6 +1393,14 @@ func buildLocationIdData(d []interface{}) []string {
 		locationsList[i] = locations.(string)
 	}
 	return locationsList
+}
+
+func buildTestIdData(d []interface{}) []int {
+	testsList := make([]int, len(d))
+	for i, tests := range d {
+		testsList[i] = tests.(int)
+	}
+	return testsList
 }
 
 func buildRequestsData(requests []interface{}) []sc2.Requests {

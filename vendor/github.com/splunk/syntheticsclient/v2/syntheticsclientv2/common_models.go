@@ -170,6 +170,15 @@ type GetChecksV2Options struct {
 	TestTypes          []string           `json:"testTypes"`
 }
 
+type GetDowntimeConfigurationsV2Options struct {
+	PerPage int      `json:"perPage"`
+	Page    int      `json:"page"`
+	Search  string   `json:"search"`
+	OrderBy string   `json:"orderBy"`
+	Rule    []string `json:"rule"`
+	Status  []string `json:"status"`
+}
+
 type Errors []struct {
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -188,6 +197,21 @@ type Variable struct {
 	Secret      bool      `json:"secret"`
 	Updatedat   time.Time `json:"updatedAt,omitempty"`
 	Value       string    `json:"value"`
+}
+
+type DowntimeConfiguration struct {
+	Createdat      time.Time `json:"createdAt,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	ID             int       `json:"id,omitempty"`
+	Name           string    `json:"name"`
+	Updatedat      time.Time `json:"updatedAt,omitempty"`
+	Rule           string    `json:"rule"`
+	Starttime      time.Time `json:"startTime"`
+	Endtime        time.Time `json:"endTime"`
+	Status         string    `json:"status,omitempty"`
+	Testsupdatedat time.Time `json:"testsUpdatedAt,omitempty"`
+	Testcount      int       `json:"testCount,omitempty"`
+	Testids        []int     `json:"testIds,omitempty"`
 }
 
 type DeleteCheck struct {
@@ -211,6 +235,21 @@ type Meta struct {
 
 type DevicesV2Response struct {
 	Devices []Device `json:"devices"`
+}
+
+type DowntimeConfigurationV2Response struct {
+	DowntimeConfiguration `json:"downtimeConfiguration"`
+}
+
+type DowntimeConfigurationV2Input struct {
+	DowntimeConfiguration `json:"downtimeConfiguration"`
+}
+
+type DowntimeConfigurationsV2Response struct {
+	Page                   int                     `json:"nextPageLink"`
+	Pagelimt               int                     `json:"perPage"`
+	Totalcount             int                     `json:"totalCount"`
+	Downtimeconfigurations []DowntimeConfiguration `json:"downtimeConfigurations"`
 }
 
 type VariableV2Response struct {
@@ -307,7 +346,7 @@ type HttpCheckV2Response struct {
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
 		Automaticretries   int                `json:"automaticRetries"`
-    Port               int                `json:"port"`
+		Port               int                `json:"port"`
 	} `json:"test"`
 }
 
@@ -329,7 +368,7 @@ type HttpCheckV2Input struct {
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Automaticretries   int                `json:"automaticRetries"`
-    Port               int                `json:"port"`
+		Port               int                `json:"port"`
 	} `json:"test"`
 }
 
