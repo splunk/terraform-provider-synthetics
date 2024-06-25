@@ -249,9 +249,9 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 
 	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
 
-	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.String()
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.String()
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
 
 	DowntimeConfigurationV2["test_ids"] = downtimeConfigurationV2.DowntimeConfiguration.Testids
 
@@ -271,9 +271,9 @@ func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeCon
 
 	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
 
-	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.String()
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.String()
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
 
 	DowntimeConfigurationV2["status"] = downtimeConfigurationV2.DowntimeConfiguration.Status
 
@@ -310,8 +310,8 @@ func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeC
 			cl["name"] = downtimeConfiguration.Name
 			cl["description"] = downtimeConfiguration.Description
 			cl["rule"] = downtimeConfiguration.Rule
-			cl["start_time"] = downtimeConfiguration.Starttime.String()
-			cl["end_time"] = downtimeConfiguration.Endtime.String()
+			cl["start_time"] = downtimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+			cl["end_time"] = downtimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
 			cl["status"] = downtimeConfiguration.Status
 			cl["created_at"] = downtimeConfiguration.Createdat.String()
 			cl["updated_at"] = downtimeConfiguration.Updatedat.String()
