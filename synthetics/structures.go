@@ -222,13 +222,13 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 			downtimeConfigurationV2.DowntimeConfiguration.Rule = downtimeConfiguration["rule"].(string)
 			startTime, err := time.Parse(layout, downtimeConfiguration["start_time"].(string))
 			if err != nil {
-            	_ = err
-            }
+				_ = err
+			}
 			downtimeConfigurationV2.DowntimeConfiguration.Starttime = startTime
 			endTime, err := time.Parse(layout, downtimeConfiguration["end_time"].(string))
 			if err != nil {
-            	_ = err
-            }
+				_ = err
+			}
 			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
 			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
 			i++
