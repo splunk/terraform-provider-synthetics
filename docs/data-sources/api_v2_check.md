@@ -43,9 +43,12 @@ Optional:
 Read-Only:
 
 - `active` (Boolean)
+- `automatic_retries` (Number)
 - `created_at` (String)
 - `device` (Set of Object) (see [below for nested schema](#nestedatt--test--device))
 - `id` (Number) The ID of this resource.
+- `last_run_at` (String)
+- `last_run_status` (String)
 - `name` (String)
 - `requests` (Set of Object) (see [below for nested schema](#nestedatt--test--requests))
 - `scheduling_strategy` (String)

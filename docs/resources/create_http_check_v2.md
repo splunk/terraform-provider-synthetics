@@ -68,6 +68,7 @@ Required:
 
 Optional:
 
+- `automatic_retries` (Number)
 - `body` (String)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))

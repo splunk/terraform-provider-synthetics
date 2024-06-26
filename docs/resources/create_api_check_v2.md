@@ -167,6 +167,7 @@ Required:
 
 Optional:
 
+- `automatic_retries` (Number)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `requests` (Block List) Unique elements of a given request. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_api_tests/latest#endpoint-createapitest) as the source of truth for descriptions and options for these values. (see [below for nested schema](#nestedblock--test--requests))
 - `scheduling_strategy` (String)

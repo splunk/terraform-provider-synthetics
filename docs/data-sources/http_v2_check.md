@@ -44,9 +44,12 @@ Optional:
 Read-Only:
 
 - `active` (Boolean)
+- `automatic_retries` (Number)
 - `body` (String)
 - `created_at` (String)
 - `id` (Number) The ID of this resource.
+- `last_run_at` (String)
+- `last_run_status` (String)
 - `location_ids` (List of String)
 - `name` (String)
 - `request_method` (String)

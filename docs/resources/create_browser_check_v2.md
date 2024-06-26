@@ -184,6 +184,7 @@ Required:
 Optional:
 
 - `active` (Boolean)
+- `automatic_retries` (Number)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `device_id` (Number)
 - `frequency` (Number)
