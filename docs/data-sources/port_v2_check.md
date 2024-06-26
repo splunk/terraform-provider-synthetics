@@ -42,10 +42,13 @@ Optional:
 Read-Only:
 
 - `active` (Boolean)
+- `automatic_retries` (Number)
 - `created_at` (String)
 - `frequency` (Number)
 - `host` (String)
 - `id` (Number) The ID of this resource.
+- `last_run_at` (String)
+- `last_run_status` (String)
 - `name` (String)
 - `port` (Number)
 - `protocol` (String)

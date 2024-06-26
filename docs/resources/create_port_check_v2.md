@@ -58,6 +58,7 @@ Required:
 
 Optional:
 
+- `automatic_retries` (Number)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `scheduling_strategy` (String)
 - `type` (String)

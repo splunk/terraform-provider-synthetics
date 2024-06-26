@@ -3,7 +3,7 @@
 page_title: "synthetics_browser_v2_check Data Source - synthetics"
 subcategory: ""
 description: |-
-
+  
 ---
 
 # synthetics_browser_v2_check (Data Source)
@@ -42,11 +42,14 @@ Read-Only:
 
 - `active` (Boolean)
 - `advanced_settings` (Set of Object) (see [below for nested schema](#nestedatt--test--advanced_settings))
+- `automatic_retries` (Number)
 - `business_transactions` (Set of Object) (see [below for nested schema](#nestedatt--test--business_transactions))
 - `created_at` (String)
 - `device` (Set of Object) (see [below for nested schema](#nestedatt--test--device))
 - `frequency` (Number)
 - `id` (Number) The ID of this resource.
+- `last_run_at` (String)
+- `last_run_status` (String)
 - `location_ids` (List of String)
 - `name` (String)
 - `scheduling_strategy` (String)
@@ -69,12 +72,12 @@ Optional:
 Read-Only:
 
 - `authentication` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--authentication))
+- `collect_interactive_metrics` (Boolean)
 - `cookies` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--cookies))
 - `headers` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--headers))
 - `host_overrides` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--host_overrides))
 - `user_agent` (String)
 - `verify_certificates` (Boolean)
-- `collect_interactive_metrics` (Boolean)
 
 <a id="nestedobjatt--test--advanced_settings--authentication"></a>
 ### Nested Schema for `test.advanced_settings.authentication`
@@ -211,3 +214,5 @@ Read-Only:
 Read-Only:
 
 - `url` (String)
+
+
