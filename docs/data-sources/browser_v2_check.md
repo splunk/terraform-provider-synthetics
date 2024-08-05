@@ -145,16 +145,8 @@ Read-Only:
 - `value` (String)
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
-
-<a id="nestedobjatt--test--business_transactions--steps--options"></a>
-### Nested Schema for `test.business_transactions.steps.wait_for_nav`
-
-Read-Only:
-
-- `url` (String)
-
-
-
+- `wait_for_nav_timeout` (Number)
+- `max_wait_time` (Number)
 
 <a id="nestedatt--test--device"></a>
 ### Nested Schema for `test.device`
@@ -207,12 +199,5 @@ Read-Only:
 - `value` (String)
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
-
-<a id="nestedobjatt--test--transactions--steps--options"></a>
-### Nested Schema for `test.transactions.steps.wait_for_nav`
-
-Read-Only:
-
-- `url` (String)
-
-
+- `wait_for_nav_timeout` (Number)
+- `max_wait_time` (Number)
