@@ -238,6 +238,14 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												"wait_for_nav_timeout": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"max_wait_time": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
 												"options": {
 													Type:     schema.TypeSet,
 													Computed: true,
@@ -315,6 +323,14 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 													Optional: true,
 												},
 												"duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"wait_for_nav_timeout": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"max_wait_time": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
