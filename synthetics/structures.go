@@ -96,11 +96,11 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	}
 
 	if checkApiV2.Test.Createdby != "" {
-		apiV2["created_by"] = checkApiV2.Test.Createdby.String()
+		apiV2["created_by"] = checkApiV2.Test.Createdby
 	}
 
 	if checkApiV2.Test.Updatedby != "" {
-		apiV2["updated_by"] = checkApiV2.Test.Updatedby.String()
+		apiV2["updated_by"] = checkApiV2.Test.Updatedby
 	}
 
 	if checkApiV2.Test.Lastrunat.IsZero() {
@@ -491,11 +491,11 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	}
 
 	if checkBrowserV2.Test.Createdby != "" {
-		browserV2["created_by"] = checkBrowserV2.Test.Createdby.String()
+		browserV2["created_by"] = checkBrowserV2.Test.Createdby
 	}
 
 	if checkBrowserV2.Test.Updatedby != "" {
-		browserV2["updated_by"] = checkBrowserV2.Test.Updatedby.String()
+		browserV2["updated_by"] = checkBrowserV2.Test.Updatedby
 	}
 
 	if checkBrowserV2.Test.Lastrunat.IsZero() {
@@ -634,11 +634,11 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	}
 
 	if checkHttpV2.Test.Createdby != "" {
-		httpV2["created_by"] = checkHttpV2.Test.Createdby.String()
+		httpV2["created_by"] = checkHttpV2.Test.Createdby
 	}
 
 	if checkHttpV2.Test.Updatedby != "" {
-		httpV2["updated_by"] = checkHttpV2.Test.Updatedby.String()
+		httpV2["updated_by"] = checkHttpV2.Test.Updatedby
 	}
 
 	if checkHttpV2.Test.Lastrunat.IsZero() {
@@ -769,11 +769,11 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 	}
 
 	if checkPortV2.Test.Createdby != "" {
-		portV2["created_by"] = checkPortV2.Test.Createdby.String()
+		portV2["created_by"] = checkPortV2.Test.Createdby
 	}
 
 	if checkPortV2.Test.Updatedby != "" {
-		portV2["updated_by"] = checkPortV2.Test.Updatedby.String()
+		portV2["updated_by"] = checkPortV2.Test.Updatedby
 	}
 
 	if checkPortV2.Test.Lastrunat.IsZero() {
