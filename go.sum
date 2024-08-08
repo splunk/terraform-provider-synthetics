@@ -182,6 +182,8 @@ github.com/splunk/syntheticsclient/v2 v2.0.8 h1:QkliQW7Z+u7YIYsVc0JgudZQ/SItoMXB
 github.com/splunk/syntheticsclient/v2 v2.0.8/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
 github.com/splunk/syntheticsclient/v2 v2.0.9 h1:bqc43RIZzYOL5IajdJmmw4ck3clHuVy3/rZyH1H11d4=
 github.com/splunk/syntheticsclient/v2 v2.0.9/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
+github.com/splunk/syntheticsclient/v2 v2.0.10 h1:Hv8nlP2WIXDNQzhRz0L6gcsUDoB5mKptdOHQyakAkEw=
+github.com/splunk/syntheticsclient/v2 v2.0.10/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=

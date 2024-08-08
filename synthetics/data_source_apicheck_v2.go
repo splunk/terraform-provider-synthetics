@@ -45,6 +45,10 @@ func dataSourceApiCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"created_by": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"device": {
 							Type:     schema.TypeSet,
 							Computed: true,
@@ -250,6 +254,10 @@ func dataSourceApiCheckV2() *schema.Resource {
 							Computed: true,
 						},
 						"updated_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"updated_by": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
