@@ -155,6 +155,8 @@ type Tests []struct {
 	Lastrunstatus      string             `json:"lastRunStatus"`
 	Lastrunat          time.Time          `json:"lastRunAt"`
 	Automaticretries   int                `json:"automaticRetries"`
+	Createdby          string             `json:"createdBy"`
+	Updatedby          string             `json:"updatedBy"`
 }
 
 type GetChecksV2Options struct {
@@ -305,6 +307,8 @@ type PortCheckV2Response struct {
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
 		Automaticretries   int                `json:"automaticRetries"`
+		Createdby          string             `json:"createdBy"`
+		Updatedby          string             `json:"updatedBy"`
 	} `json:"test"`
 }
 
@@ -349,6 +353,8 @@ type HttpCheckV2Response struct {
 		Lastrunat          time.Time          `json:"lastRunAt"`
 		Automaticretries   int                `json:"automaticRetries"`
 		Port               int                `json:"port"`
+		Createdby          string             `json:"createdBy"`
+		Updatedby          string             `json:"updatedBy"`
 	} `json:"test"`
 }
 
@@ -405,6 +411,8 @@ type ApiCheckV2Response struct {
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
 		Automaticretries   int                `json:"automaticRetries"`
+		Createdby          string             `json:"createdBy"`
+		Updatedby          string             `json:"updatedBy"`
 	}
 }
 
@@ -443,6 +451,8 @@ type BrowserCheckV2Response struct {
 		Lastrunstatus      string             `json:"lastRunStatus"`
 		Lastrunat          time.Time          `json:"lastRunAt"`
 		Automaticretries   int                `json:"automaticRetries"`
+		Createdby          string             `json:"createdBy"`
+		Updatedby          string             `json:"updatedBy"`
 	} `json:"test"`
 }
 
