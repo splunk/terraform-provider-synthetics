@@ -21,11 +21,21 @@ import (
 )
 
 const newBrowserCheckV2Config = `
+resource "synthetics_create_variable_v2" "variable_v2_foo" {
+    provider = synthetics.synthetics
+  variable {
+    description = "The most awesome variable. Full of snakes."
+    value = "barv3v3"
+    name = "acceptance-variable-terraform-test"
+    secret = false
+  }
+}
+
 resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
   provider = synthetics.synthetics
   test {
     active = true
-    device_id = 1  
+    device_id = 1
     frequency = 5
     location_ids = ["aws-us-east-1"]
     automatic_retries = 1
@@ -41,7 +51,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       collect_interactive_metrics = false
       authentication {
         username = "batmab"
-        password = "{{env.beep-var}}"
+        password = "{{env.acceptance-variable-terraform-test}}"
       }
       headers {
         name = "superstar-machine"
@@ -83,7 +93,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector             = "beep"
         selector_type        = "id"
         type                 = "enter_value"
-        value                = "{{env.beep-var}}"
+        value                = "{{env.acceptance-variable-terraform-test}}"
         wait_for_nav_timeout = 50
       }
       steps {
@@ -123,20 +133,30 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector             = "beep"
         selector_type        = "id"
         type                 = "enter_value"
-        value                = "{{env.beep-var}}"
+        value                = "{{env.acceptance-variable-terraform-test}}"
         wait_for_nav_timeout = 50
       }
     }
-  }    
+  }
 }
 `
 
 const updatedBrowserCheckV2Config = `
+resource "synthetics_create_variable_v2" "variable_v2_foo" {
+  provider = synthetics.synthetics
+  variable {
+    description = "The most awesome variable. Full of snakes."
+    value = "barv3v3"
+    name = "acceptance-variable-terraform-test"
+    secret = false
+  }
+}
+
 resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
   provider = synthetics.synthetics
   test {
     active = false
-    device_id = 2  
+    device_id = 2
     frequency = 15
     location_ids = ["aws-us-west-1"]
     automatic_retries = 0
@@ -152,7 +172,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       collect_interactive_metrics = false
       authentication {
         username = "batmantis"
-        password = "{{env.beep-var}}"
+        password = "{{env.acceptance-variable-terraform-test}}"
       }
       headers {
         name = "superstar-machine-show"
@@ -191,7 +211,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       }
       steps {
         name                 = "06 Select-Val-Val"
-        option_selector      = "{{env.beep-var}}"
+        option_selector      = "{{env.acceptance-variable-terraform-test}}"
         option_selector_type = "value"
         selector             = "valz"
         selector_type        = "id"
@@ -201,7 +221,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       }
       steps {
         name                 = "07 Select-Val-Index"
-        option_selector      = "{{env.beep-var}}"
+        option_selector      = "{{env.acceptance-variable-terraform-test}}"
         option_selector_type = "index"
         selector             = "selectionz"
         selector_type        = "id"
@@ -252,11 +272,11 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector             = "beep"
         selector_type        = "id"
         type                 = "enter_value"
-        value                = "{{env.beep-var}}"
+        value                = "{{env.acceptance-variable-terraform-test}}"
         wait_for_nav_timeout = 50
       }
     }
-  }    
+  }
 }
 `
 
@@ -284,7 +304,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.username", "batmab"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.name", "superstar-machine"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.value", "\"taking it too the staaaaars\""),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.domain", "asdasd.batman.com"),
@@ -310,7 +330,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.selector", "beep"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.selector_type", "id"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.type", "enter_value"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.value", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.value", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.name", "03 click"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.selector", "clicky"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.selector_type", "id"),
@@ -337,7 +357,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.selector", "beep"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.selector_type", "id"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.type", "enter_value"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.value", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.value", "{{env.acceptance-variable-terraform-test}}"),
 				),
 			},
 			{
@@ -364,7 +384,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Jozilla/5.0"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.username", "batmantis"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.name", "superstar-machine-show"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.value", "\"taking it too the stars\""),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.domain", "davidcrossed.batman.com"),
@@ -387,7 +407,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.0.type", "go_to_url"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.0.url", "https://www.splunk.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.name", "06 Select-Val-Val"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.option_selector", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.option_selector", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.option_selector_type", "value"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.selector", "valz"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.selector_type", "id"),
@@ -395,7 +415,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.wait_for_nav", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.1.wait_for_nav_timeout", "50"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.name", "07 Select-Val-Index"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.option_selector", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.option_selector", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.option_selector_type", "index"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.selector", "selectionz"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.selector_type", "id"),
@@ -433,7 +453,7 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.selector", "beep"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.selector_type", "id"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.type", "enter_value"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.value", "{{env.beep-var}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.value", "{{env.acceptance-variable-terraform-test}}"),
 				),
 			},
 		},
