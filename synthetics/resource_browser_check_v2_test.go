@@ -107,8 +107,6 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       steps {
         name                 = "04 accept---Alert"
         type                 = "accept_alert"
-        wait_for_nav         = false
-        wait_for_nav_timeout = 50
       }
       steps {
         name                 = "05 Select-val-text"
@@ -136,6 +134,13 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         value                = "{{env.acceptance-variable-terraform-test}}"
         wait_for_nav_timeout = 50
       }
+      steps {
+        name                 = "assert element visible"
+        type                 = "assert_element_visible"
+        selector             = "beep"
+        selector_type        = "id"
+        max_wait_time        = 1000
+      }
     }
   }
 }
@@ -143,7 +148,7 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
 
 const updatedBrowserCheckV2Config = `
 resource "synthetics_create_variable_v2" "variable_v2_foo" {
-  provider = synthetics.synthetics
+    provider = synthetics.synthetics
   variable {
     description = "The most awesome variable. Full of snakes."
     value = "barv3v3"
@@ -151,7 +156,6 @@ resource "synthetics_create_variable_v2" "variable_v2_foo" {
     secret = false
   }
 }
-
 resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
   provider = synthetics.synthetics
   test {
@@ -235,14 +239,11 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         selector_type        = "link"
         type                 = "store_variable_from_element"
         variable_name        = "{{env.terraform-test-foo-301}}"
-        wait_for_nav         = false
-        wait_for_nav_timeout = 50
       }
       steps {
         name                 = "08.5 Wait"
         duration             = 4234
         type                 = "wait"
-        wait_for_nav         = false
       }
       steps {
         name                 = "09 Save JS2 return Val"
@@ -274,6 +275,13 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         type                 = "enter_value"
         value                = "{{env.acceptance-variable-terraform-test}}"
         wait_for_nav_timeout = 50
+      }
+      steps {
+        name                 = "assert element visible"
+        type                 = "assert_element_visible"
+        selector             = "beep"
+        selector_type        = "id"
+        max_wait_time        = 1000
       }
     }
   }
@@ -339,8 +347,6 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.2.wait_for_nav_timeout", "2000"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.name", "04 accept---Alert"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.type", "accept_alert"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.wait_for_nav", "false"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.wait_for_nav_timeout", "50"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.name", "05 Select-val-text"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.option_selector", "sdad"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.option_selector_type", "text"),
@@ -358,6 +364,11 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.selector_type", "id"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.type", "enter_value"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.1.value", "{{env.acceptance-variable-terraform-test}}"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.2.name", "assert element visible"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.2.type", "assert_element_visible"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.2.selector", "beep"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.2.selector_type", "id"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.2.max_wait_time", "1000"),
 				),
 			},
 			{
@@ -427,13 +438,9 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.selector_type", "link"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.type", "store_variable_from_element"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.variable_name", "{{env.terraform-test-foo-301}}"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.wait_for_nav", "false"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.3.wait_for_nav_timeout", "50"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.name", "08.5 Wait"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.duration", "4234"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.type", "wait"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.wait_for_nav", "false"),
-					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.4.wait_for_nav_timeout", "50"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.5.name", "09 Save JS2 return Val"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.5.type", "store_variable_from_javascript"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.0.steps.5.value", "sdasds"),
