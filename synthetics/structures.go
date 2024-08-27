@@ -963,6 +963,14 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			cl["wait_for_nav"] = checkStep.WaitForNav
 
+			if checkStep.WaitForNavTimeout != 0 {
+				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
+			}
+
+			if checkStep.MaxWaitTime != 0 {
+				cl["max_wait_time"] = checkStep.MaxWaitTime
+			}
+
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
 			}
@@ -1505,6 +1513,8 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 			Name:               step["name"].(string),
 			Type:               step["type"].(string),
 			WaitForNav:         step["wait_for_nav"].(bool),
+			WaitForNavTimeout:  step["wait_for_nav_timeout"].(int),
+			MaxWaitTime:        step["max_wait_time"].(int),
 			SelectorType:       step["selector_type"].(string),
 			Selector:           step["selector"].(string),
 			OptionSelectorType: step["option_selector_type"].(string),
