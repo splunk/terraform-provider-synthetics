@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceBrowserCheckV2() *schema.Resource {
@@ -249,6 +250,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 												"wait_for_nav_timeout": {
 													Type:     schema.TypeInt,
 													Optional: true,
+                          ValidateFunc: validation.IntAtLeast(1),
 												},
 												"max_wait_time": {
 													Type:     schema.TypeInt,
