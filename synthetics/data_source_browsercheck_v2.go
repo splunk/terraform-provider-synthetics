@@ -250,6 +250,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 												"wait_for_nav_timeout": {
 													Type:     schema.TypeInt,
 													Optional: true,
+                          Computed: true,
                           ValidateFunc: validation.IntAtLeast(1),
 												},
 												"max_wait_time": {
@@ -338,6 +339,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 												},
 												"wait_for_nav_timeout": {
 													Type:     schema.TypeInt,
+                          Computed: true,
 													Optional: true,
 												},
 												"max_wait_time": {
