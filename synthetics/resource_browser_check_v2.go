@@ -248,6 +248,8 @@ func resourceBrowserCheckV2() *schema.Resource {
 												"wait_for_nav_timeout": {
 													Type:     schema.TypeInt,
 													Optional: true,
+													Default: 1000,
+													ValidateFunc: validation.IntAtLeast(1),
 												},
 												"max_wait_time": {
 													Type:     schema.TypeInt,
