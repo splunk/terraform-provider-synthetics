@@ -965,6 +965,8 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			if checkStep.WaitForNavTimeout != 0 {
 				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
+			} else {
+				cl["wait_for_nav_timeout"] = 50
 			}
 
 			if checkStep.MaxWaitTime != 0 {
