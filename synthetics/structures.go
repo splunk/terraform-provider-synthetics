@@ -971,7 +971,9 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			if checkStep.MaxWaitTime != 0 {
 				cl["max_wait_time"] = checkStep.MaxWaitTime
-			}
+			} else {
+				cl["max_wait_time"] = 10000
+      }
 
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
