@@ -254,6 +254,8 @@ func resourceBrowserCheckV2() *schema.Resource {
 												"max_wait_time": {
 													Type:     schema.TypeInt,
 													Optional: true,
+                          Default: 10000,
+                          ValidateFunc: validation.IntAtLeast(1),
 												},
 												"options": {
 													Type:     schema.TypeSet,
