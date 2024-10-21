@@ -19,6 +19,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -26,6 +27,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+// TODO: Use the default flags from the API and avoid hardcoding them here
+const BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT = "10000"
+const BROWSER_CHECK_V2_NO_WAIT_FOR_NAV_TIMEOUT_DEFAULT = "50"
+const BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT = "2000"
 
 func resourceBrowserCheckV2() *schema.Resource {
 	return &schema.Resource{
@@ -36,7 +42,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"test": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -262,16 +268,16 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Default:  false,
 												},
 												"wait_for_nav_timeout": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default: 50,
-													ValidateFunc: validation.IntAtLeast(1),
+													Type:             schema.TypeInt,
+													Optional:         true,
+													ValidateFunc:     validation.IntAtLeast(1),
+													DiffSuppressFunc: supressWaitForNavTimeoutDefaultValueDiff,
 												},
 												"max_wait_time": {
-													Type:     schema.TypeInt,
-													Optional: true,
-                          Default: 10000,
-                          ValidateFunc: validation.IntAtLeast(1),
+													Type:             schema.TypeInt,
+													Optional:         true,
+													ValidateFunc:     validation.IntAtLeast(1),
+													DiffSuppressFunc: supressMaxWaitTimeDefaultValueDiff,
 												},
 												"options": {
 													Type:     schema.TypeSet,
@@ -420,4 +426,19 @@ func processBrowserCheckV2Items(d *schema.ResourceData) sc2.BrowserCheckV2Input 
 	var check = buildBrowserV2Data(d)
 	log.Println("[DEBUG] BROWSER V2 CHECK OUTPUT: ", check)
 	return check
+}
+
+func supressWaitForNavTimeoutDefaultValueDiff(key, old, new string, d *schema.ResourceData) bool {
+	waitForNav := d.Get(strings.Replace(key, ".wait_for_nav_timeout", ".wait_for_nav", -1)).(bool)
+	// do not override the default value, default is different based on the waitForNav value
+	return (waitForNav && old == BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT ||
+		!waitForNav && old == BROWSER_CHECK_V2_NO_WAIT_FOR_NAV_TIMEOUT_DEFAULT) &&
+		new == "0"
+}
+
+func supressMaxWaitTimeDefaultValueDiff(_, old, new string, d *schema.ResourceData) bool {
+	if old == BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT && new == "0" {
+		return true
+	}
+	return false
 }

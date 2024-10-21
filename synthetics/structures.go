@@ -965,15 +965,11 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			if checkStep.WaitForNavTimeout != 0 {
 				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
-			} else {
-				cl["wait_for_nav_timeout"] = 50
 			}
 
 			if checkStep.MaxWaitTime != 0 {
 				cl["max_wait_time"] = checkStep.MaxWaitTime
-			} else {
-				cl["max_wait_time"] = 10000
-      }
+			}
 
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
@@ -1356,7 +1352,7 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 
 func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 	var browserv2 sc2.BrowserCheckV2Input
-	browserv2Data := d.Get("test").(*schema.Set).List()
+	browserv2Data := d.Get("test").([]interface{})
 	for _, browser := range browserv2Data {
 		browser := browser.(map[string]interface{})
 		if browser["name"].(string) != "" {
@@ -1372,7 +1368,8 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Customproperties = buildCustomPropertiesData(browser["custom_properties"].(*schema.Set))
 		}
 	}
-	log.Println("[DEBUG] build browserv2 data:")
+
+	log.Println("[DEBUG] build browserv2 data:", browserv2)
 	return browserv2
 }
 
