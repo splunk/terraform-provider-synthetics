@@ -963,17 +963,20 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			cl["wait_for_nav"] = checkStep.WaitForNav
 
-			if checkStep.WaitForNavTimeout != 0 {
-				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
+			// ignore default values
+			if (!checkStep.WaitForNav && checkStep.WaitForNavTimeout == BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT1) ||
+				(checkStep.WaitForNav && checkStep.WaitForNavTimeout == BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT2) {
+				cl["wait_for_nav_timeout"] = 0
 			} else {
-				cl["wait_for_nav_timeout"] = 50
+				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
 			}
 
-			if checkStep.MaxWaitTime != 0 {
-				cl["max_wait_time"] = checkStep.MaxWaitTime
+			// ignore default value
+			if checkStep.MaxWaitTime == BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT {
+				cl["max_wait_time"] = 0
 			} else {
-				cl["max_wait_time"] = 10000
-      }
+				cl["max_wait_time"] = checkStep.MaxWaitTime
+			}
 
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
