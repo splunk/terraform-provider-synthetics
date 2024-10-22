@@ -279,6 +279,8 @@ Optional:
 - `value` (String)
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
+- `wait_for_nav_timeout` (Number)
+- `max_wait_time` (Number)
 
 <a id="nestedblock--test--transactions--steps--options"></a>
 ### Nested Schema for `test.transactions.steps.options`
