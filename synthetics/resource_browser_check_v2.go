@@ -16,7 +16,6 @@ package synthetics
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -253,49 +252,18 @@ func resourceBrowserCheckV2() *schema.Resource {
 												"wait_for_nav_timeout": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													ValidateFunc: func(i interface{}, k string) (warnings []string, errors []error) {
-														v, ok := i.(int)
-														if !ok {
-															errors = append(errors, fmt.Errorf("expected type of %s to be integer", k))
-															return warnings, errors
-														}
-
-														if v < 1 {
-															errors = append(errors, fmt.Errorf("expected %s to be at least (%d), got %d", k, 1, v))
-															return warnings, errors
-														}
-
-														if v == BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT1 || v == BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT2 {
-															errors = append(errors, fmt.Errorf("expected %s to be different than the default values (%d, %d), got %d", k,
-																BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT1, BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT2, v))
-															return warnings, errors
-														}
-
-														return warnings, errors
-													},
+													ValidateFunc: validation.All(
+														validation.IntAtLeast(1),
+														validation.IntNotInSlice([]int{BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT1, BROWSER_CHECK_V2_WAIT_FOR_NAV_TIMEOUT_DEFAULT2}),
+													),
 												},
 												"max_wait_time": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													ValidateFunc: func(i interface{}, k string) (warnings []string, errors []error) {
-														v, ok := i.(int)
-														if !ok {
-															errors = append(errors, fmt.Errorf("expected type of %s to be integer", k))
-															return warnings, errors
-														}
-
-														if v < 1 {
-															errors = append(errors, fmt.Errorf("expected %s to be at least (%d), got %d", k, 1, v))
-															return warnings, errors
-														}
-
-														if v == BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT {
-															errors = append(errors, fmt.Errorf("expected %s to be different than the default value (%d), got %d", k, BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT, v))
-															return warnings, errors
-														}
-
-														return warnings, errors
-													},
+													ValidateFunc: validation.All(
+														validation.IntAtLeast(1),
+														validation.IntNotInSlice([]int{BROWSER_CHECK_V2_MAX_WAIT_TIME_DEFAULT}),
+													),
 												},
 												"options": {
 													Type:     schema.TypeSet,
