@@ -35,6 +35,7 @@ type Advancedsettings struct {
 	UserAgent                 *string          `json:"userAgent"`
 	CollectInteractiveMetrics bool             `json:"collectInteractiveMetrics"`
 	Verifycertificates        bool             `json:"verifyCertificates"`
+  ChromeFlags               []ChromeFlag     `json:"chromeFlags"` // Add this line
 }
 
 type Authentication struct {
@@ -181,6 +182,15 @@ type GetDowntimeConfigurationsV2Options struct {
 	OrderBy string   `json:"orderBy"`
 	Rule    []string `json:"rule"`
 	Status  []string `json:"status"`
+}
+
+type ChromeFlag struct {
+    Name         string `json:"name"`
+    Value        string `json:"value"`
+}
+
+type ChromeFlagsResponse struct {
+    ChromeFlags []ChromeFlag `json:"chromeFlags"`
 }
 
 type Errors []struct {
