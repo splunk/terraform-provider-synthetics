@@ -963,13 +963,17 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			cl["wait_for_nav"] = checkStep.WaitForNav
 
-			if checkStep.WaitForNavTimeout != 0 {
+			if checkStep.WaitForNavTimeout != 0 && !checkStep.WaitForNavTimeoutDefault {
 				cl["wait_for_nav_timeout"] = checkStep.WaitForNavTimeout
 			}
 
-			if checkStep.MaxWaitTime != 0 {
+			cl["wait_for_nav_timeout_default"] = checkStep.WaitForNavTimeoutDefault
+
+			if checkStep.MaxWaitTime != 0 && !checkStep.MaxWaitTimeDefault {
 				cl["max_wait_time"] = checkStep.MaxWaitTime
 			}
+
+			cl["max_wait_time_default"] = checkStep.MaxWaitTimeDefault
 
 			if checkStep.Selector != "" {
 				cl["selector"] = checkStep.Selector
