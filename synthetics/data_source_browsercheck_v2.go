@@ -109,6 +109,22 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 											},
 										},
 									},
+                  "chrome_flags": {
+                    Type:     schema.TypeSet,
+                    Computed: true,
+                    Elem: &schema.Resource{
+                      Schema: map[string]*schema.Schema{
+                        "name": {
+                          Type:     schema.TypeString,
+                          Computed: true,
+                        },
+                        "value": {
+                          Type:     schema.TypeString,
+                          Computed: true,
+                        },
+                      },
+                    },
+                  },
 									"cookies": {
 										Type:     schema.TypeSet,
 										Computed: true,

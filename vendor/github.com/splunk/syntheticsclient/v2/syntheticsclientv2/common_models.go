@@ -35,6 +35,16 @@ type Advancedsettings struct {
 	UserAgent                 *string          `json:"userAgent"`
 	CollectInteractiveMetrics bool             `json:"collectInteractiveMetrics"`
 	Verifycertificates        bool             `json:"verifyCertificates"`
+	ChromeFlags               []ChromeFlag     `json:"chromeFlags"`
+}
+
+type ChromeFlag struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type ChromeFlagsResponse struct {
+	ChromeFlags []ChromeFlag `json:"chromeFlags"`
 }
 
 type Authentication struct {
@@ -77,8 +87,8 @@ type StepsV2 struct {
 	URL                string  `json:"url,omitempty"`
 	Action             string  `json:"action,omitempty"`
 	WaitForNav         bool    `json:"waitForNav"`
-	WaitForNavTimeout  int     `json:"waitForNavTimeout"`
-	MaxWaitTime        int     `json:"maxWaitTime"`
+	WaitForNavTimeout  int     `json:"waitForNavTimeout,omitempty"`
+	MaxWaitTime        int     `json:"maxWaitTime,omitempty"`
 	SelectorType       string  `json:"selectorType,omitempty"`
 	Selector           string  `json:"selector,omitempty"`
 	OptionSelectorType string  `json:"optionSelectorType,omitempty"`

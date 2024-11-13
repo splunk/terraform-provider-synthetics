@@ -111,6 +111,22 @@ func resourceBrowserCheckV2() *schema.Resource {
 											},
 										},
 									},
+                  "chrome_flags": {
+                    Type:     schema.TypeSet,
+                    Optional: true,
+                    Elem: &schema.Resource{
+                      Schema: map[string]*schema.Schema{
+                        "name": {
+                          Type:     schema.TypeString,
+                          Optional: true,
+                        },
+                        "value": {
+                          Type:     schema.TypeString,
+                          Optional: true,
+                        },
+                      },
+                    },
+                  },
 									"cookies": {
 										Type:     schema.TypeSet,
 										Optional: true,

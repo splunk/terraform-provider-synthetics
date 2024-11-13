@@ -70,6 +70,14 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         domain = "zodiak.com"
         path = "/Edlesley"
       }
+      chrome_flags {
+        name = "--proxy-server"
+        value = "my-proxy-server:80"
+      }
+      chrome_flags {
+        name = "--proxy-bypass-list"
+        value = "127.0.0.1:8080"
+      }
       host_overrides {
         source = "asdasd.com"
         target = "whost.com"
@@ -200,6 +208,14 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
         domain = "zodiak.com"
         path = "/Edlesley"
       }
+      chrome_flags {
+        name = "--proxy-server"
+        value = "foo:80"
+      }
+      chrome_flags {
+        name = "--proxy-bypass-list"
+        value = "*google.com"
+      }
       host_overrides {
         source = "asdasd.com"
         target = "whost.com"
@@ -329,6 +345,10 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.value", "no"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.domain", "zodiak.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.path", "/Edlesley"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.0.name", "--proxy-bypass-list"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.0.value", "127.0.0.1:8080"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.1.name", "--proxy-server"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.1.value", "my-proxy-server:80"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.source", "asdasd.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.target", "whost.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.keep_host_header", "false"),
@@ -419,6 +439,10 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.value", "no"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.domain", "zodiak.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.cookies.1.path", "/Edlesley"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.0.name", "--proxy-bypass-list"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.0.value", "*google.com"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.1.name", "--proxy-server"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.1.value", "foo:80"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.source", "asdasd.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.target", "whost.com"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.host_overrides.0.keep_host_header", "false"),
