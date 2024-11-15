@@ -446,26 +446,28 @@ type BrowserCheckV2Input struct {
 }
 
 type BrowserCheckV2Response struct {
-	Test struct {
-		Active             bool `json:"active"`
-		Advancedsettings   `json:"advancedSettings"`
-		Createdat          time.Time `json:"createdAt"`
-		Device             `json:"device"`
-		Frequency          int                `json:"frequency"`
-		ID                 int                `json:"id"`
-		Locationids        []string           `json:"locationIds"`
-		Name               string             `json:"name"`
-		Schedulingstrategy string             `json:"schedulingStrategy"`
-		Transactions       []Transactions     `json:"transactions"`
-		Type               string             `json:"type"`
-		Updatedat          time.Time          `json:"updatedAt"`
-		Customproperties   []CustomProperties `json:"customProperties"`
-		Lastrunstatus      string             `json:"lastRunStatus"`
-		Lastrunat          time.Time          `json:"lastRunAt"`
-		Automaticretries   int                `json:"automaticRetries"`
-		Createdby          string             `json:"createdBy"`
-		Updatedby          string             `json:"updatedBy"`
-	} `json:"test"`
+	Test BrowserCheckV2ResponseTest `json:"test"`
+}
+
+type BrowserCheckV2ResponseTest struct {
+	Active             bool `json:"active"`
+	Advancedsettings   `json:"advancedSettings"`
+	Createdat          time.Time `json:"createdAt"`
+	Device             `json:"device"`
+	Frequency          int                `json:"frequency"`
+	ID                 int                `json:"id"`
+	Locationids        []string           `json:"locationIds"`
+	Name               string             `json:"name"`
+	Schedulingstrategy string             `json:"schedulingStrategy"`
+	Transactions       []Transactions     `json:"transactions"`
+	Type               string             `json:"type"`
+	Updatedat          time.Time          `json:"updatedAt"`
+	Customproperties   []CustomProperties `json:"customProperties"`
+	Lastrunstatus      string             `json:"lastRunStatus"`
+	Lastrunat          time.Time          `json:"lastRunAt"`
+	Automaticretries   int                `json:"automaticRetries"`
+	Createdby          string             `json:"createdBy"`
+	Updatedby          string             `json:"updatedBy"`
 }
 
 type CustomProperties struct {
