@@ -36,7 +36,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"test": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -262,16 +262,22 @@ func resourceBrowserCheckV2() *schema.Resource {
 													Default:  false,
 												},
 												"wait_for_nav_timeout": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default: 50,
-													ValidateFunc: validation.IntAtLeast(1),
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.All(validation.IntAtLeast(1), validation.IntAtMost(20000)),
+												},
+												"wait_for_nav_timeout_default": {
+													Type:     schema.TypeBool,
+													Computed: true,
 												},
 												"max_wait_time": {
-													Type:     schema.TypeInt,
-													Optional: true,
-                          Default: 10000,
-                          ValidateFunc: validation.IntAtLeast(1),
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.All(validation.IntAtLeast(1), validation.IntAtMost(90000)),
+												},
+												"max_wait_time_default": {
+													Type:     schema.TypeBool,
+													Computed: true,
 												},
 												"options": {
 													Type:     schema.TypeSet,
