@@ -165,8 +165,15 @@ func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	o, r, err := c.GetPortCheckV2(checkID)
+
+	if err != nil || r.StatusCode == 404 || r.StatusCode == 0 {
+		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode, r.StatusCode)
+		o, r, err = c.GetPortCheckV2(checkID)
+	}
+	
 	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
 		d.SetId("")
+		log.Println("[WARN] Synthetics API error.", err.Error(), r.StatusCode, r.StatusCode)
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
