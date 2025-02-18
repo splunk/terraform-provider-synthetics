@@ -234,14 +234,13 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 
 	o, r, err := c.GetHttpCheckV2(checkID)
 
-	if err != nil || r.StatusCode == 404 || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode, r.StatusCode)
-		o, r, err = c.GetHttpCheckV2(checkID)
+	if err != nil || r.StatusCode == 0 {
+		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode)
+		o, _, err = c.GetHttpCheckV2(checkID)
 	}
 
 	if err != nil && strings.Contains(err.Error(), "Status Code: 404 Not Found") {
 		d.SetId("")
-		log.Println("[WARN] Synthetics API error.", err.Error(), r.StatusCode, r.StatusCode)
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}

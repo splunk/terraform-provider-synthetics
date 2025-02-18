@@ -112,22 +112,22 @@ func resourceBrowserCheckV2() *schema.Resource {
 											},
 										},
 									},
-                  "chrome_flags": {
-                    Type:     schema.TypeSet,
-                    Optional: true,
-                    Elem: &schema.Resource{
-                      Schema: map[string]*schema.Schema{
-                        "name": {
-                          Type:     schema.TypeString,
-                          Optional: true,
-                        },
-                        "value": {
-                          Type:     schema.TypeString,
-                          Optional: true,
-                        },
-                      },
-                    },
-                  },
+									"chrome_flags": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
 									"cookies": {
 										Type:     schema.TypeSet,
 										Optional: true,
@@ -361,14 +361,13 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 
 	o, r, err := c.GetBrowserCheckV2(checkID)
 
-	if err != nil || r.StatusCode == 404 || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode, r.StatusCode)
-		o, r, err = c.GetBrowserCheckV2(checkID)
+	if err != nil || r.StatusCode == 0 {
+		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode)
+		o, _, err = c.GetBrowserCheckV2(checkID)
 	}
 
 	if err != nil && strings.Contains(err.Error(), "Status Code: 404 Not Found") {
 		d.SetId("")
-		log.Println("[WARN] Synthetics API error.", err.Error(), r.StatusCode, r.StatusCode)
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}

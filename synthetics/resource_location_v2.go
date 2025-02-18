@@ -18,6 +18,7 @@ import (
 	"context"
 	"log"
 	"regexp"
+	"strings"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -104,7 +105,13 @@ func resourceLocationV2Read(ctx context.Context, d *schema.ResourceData, meta in
 	var locationID = d.Id()
 
 	location, r, err := c.GetLocationV2(locationID)
-	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
+
+	if err != nil || r.StatusCode == 0 {
+		log.Println("[WARN] Synthetics API error. Retrying.", locationID, err.Error(), r.StatusCode)
+		location, _, err = c.GetLocationV2(locationID)
+	}
+
+	if err != nil && strings.Contains(err.Error(), "Status Code: 404 Not Found") {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
