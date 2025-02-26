@@ -17,8 +17,8 @@ package synthetics
 import (
 	"context"
 	"log"
+	"net/http"
 	"strconv"
-	"strings"
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
@@ -135,7 +135,7 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 		downtimeConfiguration, _, err = c.GetDowntimeConfigurationV2(downtimeConfigurationID)
 	}
 
-	if err != nil && strings.Contains(err.Error(), "Status Code: 404 Not Found") {
+	if err != nil && r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags

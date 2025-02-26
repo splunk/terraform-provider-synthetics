@@ -3,7 +3,7 @@ HOSTNAME=github.com
 NAMESPACE=splunk
 NAME=synthetics
 BINARY=terraform-provider-${NAME}
-VERSION=2.0.3
+VERSION=2.0.13
 
 default: install
 

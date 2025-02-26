@@ -96,6 +96,9 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 		return &details, err
 	}
 
+	details.StatusCode = resp.StatusCode
+	details.RawResponse = resp
+
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
 		var errRes errorResponse
 		if err = json.NewDecoder(resp.Body).Decode(&errRes); err == nil {
@@ -113,9 +116,7 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 		return &details, err
 	}
 
-	details.StatusCode = resp.StatusCode
 	details.ResponseBody = string(responseBody)
-	details.RawResponse = resp
 
 	return &details, nil
 }
