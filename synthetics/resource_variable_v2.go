@@ -112,17 +112,13 @@ func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta in
 
 	variable, r, err := c.GetVariableV2(variableID)
 
-	if err != nil || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", variableID, err.Error(), r.StatusCode)
-		variable, _, err = c.GetVariableV2(variableID)
-	}
-
-	if err != nil && r.StatusCode == http.StatusNotFound {
+	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
 	if err != nil {
+		log.Println("[WARN] Synthetics API error.", variableID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
 	log.Println("DEBUG] GET variable response data: ", variable)

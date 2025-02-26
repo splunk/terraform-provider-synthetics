@@ -130,17 +130,13 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 
 	downtimeConfiguration, r, err := c.GetDowntimeConfigurationV2(downtimeConfigurationID)
 
-	if err != nil || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", downtimeConfigurationID, err.Error(), r.StatusCode)
-		downtimeConfiguration, _, err = c.GetDowntimeConfigurationV2(downtimeConfigurationID)
-	}
-
-	if err != nil && r.StatusCode == http.StatusNotFound {
+	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
 	if err != nil {
+		log.Println("[WARN] Synthetics API error.", downtimeConfigurationID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
 	log.Println("DEBUG] GET downtime_configuration response data: ", downtimeConfiguration)

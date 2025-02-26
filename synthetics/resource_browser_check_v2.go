@@ -361,18 +361,14 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 
 	o, r, err := c.GetBrowserCheckV2(checkID)
 
-	if err != nil || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", checkID, err.Error(), r.StatusCode)
-		o, _, err = c.GetBrowserCheckV2(checkID)
-	}
-
-	if err != nil && r.StatusCode == http.StatusNotFound {
+	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
 
 	if err != nil {
+		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET BROWSER BODY: ", o)

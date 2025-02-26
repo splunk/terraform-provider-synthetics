@@ -106,17 +106,13 @@ func resourceLocationV2Read(ctx context.Context, d *schema.ResourceData, meta in
 
 	location, r, err := c.GetLocationV2(locationID)
 
-	if err != nil || r.StatusCode == 0 {
-		log.Println("[WARN] Synthetics API error. Retrying.", locationID, err.Error(), r.StatusCode)
-		location, _, err = c.GetLocationV2(locationID)
-	}
-
-	if err != nil && r.StatusCode == http.StatusNotFound {
+	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
 	if err != nil {
+		log.Println("[WARN] Synthetics API error.", locationID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
 	log.Println("DEBUG] GET location response data: ", location)
