@@ -1017,20 +1017,20 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 }
 
 func flattenChromeFlagsData(chromeFlags []sc2.ChromeFlag) []interface{} {
-  if chromeFlags == nil {
-    return []interface{}{}
-  }
+	if chromeFlags == nil {
+		return []interface{}{}
+	}
 
-  var result []interface{}
-  for _, flag := range chromeFlags {
-    flagData := map[string]interface{}{
-      "name":  flag.Name,
-      "value": flag.Value,
-    }
-    result = append(result, flagData)
-  }
+	var result []interface{}
+	for _, flag := range chromeFlags {
+		flagData := map[string]interface{}{
+			"name":  flag.Name,
+			"value": flag.Value,
+		}
+		result = append(result, flagData)
+	}
 
-  return result
+	return result
 }
 
 func flattenSetupData(checkSetup *[]sc2.Setup) []interface{} {
@@ -1302,8 +1302,8 @@ func flattenAdvancedSettingsData(advSettings *sc2.Advancedsettings) []interface{
 	HostOverRides := flattenHostOverridesData(&advSettings.HostOverrides)
 	advancedSettings["host_overrides"] = HostOverRides
 
-  ChromeFlags := flattenChromeFlagsData(advSettings.ChromeFlags)
-  advancedSettings["chrome_flags"] = ChromeFlags
+	ChromeFlags := flattenChromeFlagsData(advSettings.ChromeFlags)
+	advancedSettings["chrome_flags"] = ChromeFlags
 
 	return []interface{}{advancedSettings}
 }
@@ -1628,7 +1628,7 @@ func buildAdvancedSettingsData(advancedSettings *schema.Set) sc2.Advancedsetting
 		advancedSettingsData.BrowserHeaders = buildBrowserHeadersData(as_map["headers"].(*schema.Set))
 		advancedSettingsData.Cookiesv2 = buildCookiesData(as_map["cookies"].(*schema.Set))
 		advancedSettingsData.HostOverrides = buildHostOverridesData(as_map["host_overrides"].(*schema.Set))
-    advancedSettingsData.ChromeFlags = buildChromeFlagsData(as_map["chrome_flags"].(*schema.Set))
+		advancedSettingsData.ChromeFlags = buildChromeFlagsData(as_map["chrome_flags"].(*schema.Set))
 
 	}
 	return advancedSettingsData
@@ -1651,15 +1651,15 @@ func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {
 }
 
 func buildChromeFlagsData(d *schema.Set) []sc2.ChromeFlag {
-  var flags []sc2.ChromeFlag
-  for _, item := range d.List() {
-    data := item.(map[string]interface{})
-    flags = append(flags, sc2.ChromeFlag{
-      Name:  data["name"].(string),
-      Value: data["value"].(string),
-    })
-  }
-  return flags
+	var flags []sc2.ChromeFlag
+	for _, item := range d.List() {
+		data := item.(map[string]interface{})
+		flags = append(flags, sc2.ChromeFlag{
+			Name:  data["name"].(string),
+			Value: data["value"].(string),
+		})
+	}
+	return flags
 }
 
 func buildCookiesData(cookies *schema.Set) []sc2.Cookiesv2 {

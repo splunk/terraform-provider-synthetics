@@ -17,6 +17,7 @@ package synthetics
 import (
 	"context"
 	"log"
+	"net/http"
 	"regexp"
 	"strconv"
 
@@ -111,22 +112,22 @@ func resourceBrowserCheckV2() *schema.Resource {
 											},
 										},
 									},
-                  "chrome_flags": {
-                    Type:     schema.TypeSet,
-                    Optional: true,
-                    Elem: &schema.Resource{
-                      Schema: map[string]*schema.Schema{
-                        "name": {
-                          Type:     schema.TypeString,
-                          Optional: true,
-                        },
-                        "value": {
-                          Type:     schema.TypeString,
-                          Optional: true,
-                        },
-                      },
-                    },
-                  },
+									"chrome_flags": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
 									"cookies": {
 										Type:     schema.TypeSet,
 										Optional: true,
@@ -359,12 +360,15 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	o, r, err := c.GetBrowserCheckV2(checkID)
-	if err != nil && (err.Error() == "Status Code: 404 Not Found" || r.StatusCode == 0) {
+
+	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
 		log.Println("[WARN] Resource exists in state but not in API. Removing resource from state.")
 		return diags
 	}
+
 	if err != nil {
+		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
 	log.Println("[DEBUG] GET BROWSER BODY: ", o)
