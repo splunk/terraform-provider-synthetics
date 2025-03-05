@@ -175,7 +175,7 @@ github.com/oklog/run
 # github.com/splunk/syntheticsclient v1.0.3
 ## explicit; go 1.14
 github.com/splunk/syntheticsclient/syntheticsclient
-# github.com/splunk/syntheticsclient/v2 v2.0.14
+# github.com/splunk/syntheticsclient/v2 v2.0.15
 ## explicit; go 1.14
 github.com/splunk/syntheticsclient/v2/syntheticsclientv2
 # github.com/vmihailenco/msgpack v4.0.4+incompatible

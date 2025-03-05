@@ -238,7 +238,12 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 				_ = err
 			}
 			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
+			timezoneValue, ok := downtimeConfiguration["timezone"].(string)
+			if ok {
+				downtimeConfigurationV2.DowntimeConfiguration.Timezone = &timezoneValue
+			}
 			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
+			downtimeConfigurationV2.DowntimeConfiguration.Recurrence = buildRecurrenceData(downtimeConfiguration["recurrence"].(*schema.Set))
 			i++
 		}
 	}
@@ -262,6 +267,14 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
 
 	DowntimeConfigurationV2["test_ids"] = downtimeConfigurationV2.DowntimeConfiguration.Testids
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Timezone != nil {
+		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.DowntimeConfiguration.Timezone
+	}
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Recurrence != nil {
+		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.DowntimeConfiguration.Recurrence)
+	}
 
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
@@ -302,6 +315,14 @@ func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeCon
 
 	DowntimeConfigurationV2["test_count"] = downtimeConfigurationV2.DowntimeConfiguration.Testcount
 
+	if downtimeConfigurationV2.DowntimeConfiguration.Timezone != nil {
+		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.DowntimeConfiguration.Timezone
+	}
+
+	if downtimeConfigurationV2.DowntimeConfiguration.Recurrence != nil {
+		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.DowntimeConfiguration.Recurrence)
+	}
+
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
 	return []interface{}{DowntimeConfigurationV2}
@@ -325,6 +346,12 @@ func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeC
 			cl["updated_at"] = downtimeConfiguration.Updatedat.String()
 			cl["tests_updated_at"] = downtimeConfiguration.Testsupdatedat.String()
 			cl["test_count"] = downtimeConfiguration.Testcount
+			if downtimeConfiguration.Timezone != nil {
+				cl["timezone"] = downtimeConfiguration.Timezone
+			}
+			if downtimeConfiguration.Recurrence != nil {
+				cl["recurrence"] = flattenRecurrenceData(downtimeConfiguration.Recurrence)
+			}
 
 			cls[i] = cl
 		}
@@ -333,6 +360,43 @@ func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeC
 	}
 
 	return make([]interface{}, 0)
+}
+
+func flattenRecurrenceData(recurrenceData *sc2.Recurrence) []interface{} {
+	recurrence := make(map[string]interface{})
+
+	recurrence["repeats"] = flattenRepeatsData(recurrenceData.Repeats)
+
+	if recurrenceData.End != nil {
+		recurrence["end"] = flattenEndData(recurrenceData.End)
+	}
+
+	return []interface{}{recurrence}
+}
+
+func flattenRepeatsData(repeatsData sc2.Repeats) []interface{} {
+	repeats := make(map[string]interface{})
+
+	repeats["type"] = repeatsData.Type
+
+	if repeatsData.Customvalue != nil {
+		repeats["custom_value"] = *repeatsData.Customvalue
+	}
+	if repeatsData.Customfrequency != nil {
+		repeats["custom_frequency"] = *repeatsData.Customfrequency
+	}
+
+	return []interface{}{repeats}
+}
+
+func flattenEndData(endData *sc2.End) []interface{} {
+	end := make(map[string]interface{})
+
+	end["type"] = endData.Type
+
+	end["value"] = endData.Value
+
+	return []interface{}{end}
 }
 
 func flattenDevicesV2Data(devices *[]sc2.Device) []interface{} {
@@ -1467,6 +1531,78 @@ func buildTestIdData(d []interface{}) []int {
 	}
 	return testsList
 }
+
+func buildRecurrenceData(recurrence *schema.Set) *sc2.Recurrence {
+	var recurrenceData sc2.Recurrence
+
+	as_list := recurrence.List()
+	if len(as_list) > 0 {
+		as_map := as_list[0].(map[string]interface{})
+
+		if repeatsPtr := buildRepeatsData(as_map["repeats"].(*schema.Set)); repeatsPtr != nil {
+			recurrenceData.Repeats = *repeatsPtr
+		}
+		if endPtr := buildEndData(as_map["end"].(*schema.Set)); endPtr != nil {
+			recurrenceData.End = endPtr
+		}
+
+	}
+	return &recurrenceData
+}
+
+func buildRepeatsData(repeats *schema.Set) *sc2.Repeats {
+	repeatsList := repeats.List()
+
+	if len(repeatsList) > 0 {
+		repeatsMap := repeatsList[0].(map[string]interface{})
+		repeatsData := &sc2.Repeats{
+			Type: repeatsMap["type"].(string),
+		}
+
+		if val, ok := repeatsMap["custom_value"].(int); ok {
+			repeatsData.Customvalue = &val
+		}
+
+		if val, ok := repeatsMap["custom_frequency"].(string); ok {
+			repeatsData.Customfrequency = &val
+		}
+
+		return repeatsData
+	}
+	return nil
+}
+
+func buildEndData(end *schema.Set) *sc2.End {
+	endList := end.List()
+
+	if len(endList) > 0 {
+		endMap := endList[0].(map[string]interface{})
+		endData := &sc2.End{
+			Type:  endMap["type"].(string),
+			Value: endMap["value"].(string),
+		}
+		return endData
+	}
+	return nil
+}
+
+// func getStringFromMap(dataMap map[string]interface{}, key string) (string, bool) {
+// 	if val, ok := dataMap[key]; ok {
+// 		if strVal, isString := val.(string); isString {
+// 			return strVal, true
+// 		}
+// 	}
+// 	return "", false
+// }
+//
+// func getIntFromMap(dataMap map[string]interface{}, key string) (int, bool) {
+// 	if val, ok := dataMap[key]; ok {
+// 		if intVal, isInt := val.(int); isInt {
+// 			return intVal, true
+// 		}
+// 	}
+// 	return 0, false
+// }
 
 func buildRequestsData(requests []interface{}) []sc2.Requests {
 	requestsList := make([]sc2.Requests, len(requests))
