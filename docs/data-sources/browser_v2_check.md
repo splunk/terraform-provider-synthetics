@@ -34,6 +34,10 @@ data "synthetics_browser_v2_check" "datasource_check_browser" {
 <a id="nestedblock--test"></a>
 ### Nested Schema for `test`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
@@ -45,9 +49,9 @@ Read-Only:
 - `automatic_retries` (Number)
 - `business_transactions` (Set of Object) (see [below for nested schema](#nestedatt--test--business_transactions))
 - `created_at` (String)
+- `created_by` (String)
 - `device` (Set of Object) (see [below for nested schema](#nestedatt--test--device))
 - `frequency` (Number)
-- `id` (Number) The ID of this resource.
 - `last_run_at` (String)
 - `last_run_status` (String)
 - `location_ids` (List of String)
@@ -56,6 +60,7 @@ Read-Only:
 - `transactions` (Set of Object) (see [below for nested schema](#nestedatt--test--transactions))
 - `type` (String)
 - `updated_at` (String)
+- `updated_by` (String)
 
 <a id="nestedblock--test--custom_properties"></a>
 ### Nested Schema for `test.custom_properties`
@@ -72,6 +77,7 @@ Optional:
 Read-Only:
 
 - `authentication` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--authentication))
+- `chrome_flags` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--cookies))
 - `headers` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--headers))
@@ -86,6 +92,15 @@ Read-Only:
 
 - `password` (String)
 - `username` (String)
+
+
+<a id="nestedobjatt--test--advanced_settings--chrome_flags"></a>
+### Nested Schema for `test.advanced_settings.chrome_flags`
+
+Read-Only:
+
+- `name` (String)
+- `value` (String)
 
 
 <a id="nestedobjatt--test--advanced_settings--cookies"></a>
@@ -134,6 +149,7 @@ Read-Only:
 Read-Only:
 
 - `action` (String)
+- `max_wait_time` (Number)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
@@ -146,7 +162,16 @@ Read-Only:
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
 - `wait_for_nav_timeout` (Number)
-- `max_wait_time` (Number)
+
+<a id="nestedobjatt--test--business_transactions--steps--options"></a>
+### Nested Schema for `test.business_transactions.steps.options`
+
+Read-Only:
+
+- `url` (String)
+
+
+
 
 <a id="nestedatt--test--device"></a>
 ### Nested Schema for `test.device`
@@ -188,6 +213,7 @@ Read-Only:
 
 - `action` (String)
 - `duration` (Number)
+- `max_wait_time` (Number)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
@@ -200,4 +226,10 @@ Read-Only:
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
 - `wait_for_nav_timeout` (Number)
-- `max_wait_time` (Number)
+
+<a id="nestedobjatt--test--transactions--steps--options"></a>
+### Nested Schema for `test.transactions.steps.options`
+
+Read-Only:
+
+- `url` (String)

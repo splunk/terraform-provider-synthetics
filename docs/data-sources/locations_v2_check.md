@@ -35,8 +35,6 @@ Read-Only:
 
 - `country` (String)
 - `default` (Boolean)
-- `id` (String) The ID of this resource.
+- `id` (String)
 - `label` (String)
 - `type` (String)
-
-

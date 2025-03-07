@@ -34,6 +34,10 @@ data "synthetics_http_v2_check" "datasource_check_http" {
 <a id="nestedblock--test"></a>
 ### Nested Schema for `test`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
@@ -47,7 +51,7 @@ Read-Only:
 - `automatic_retries` (Number)
 - `body` (String)
 - `created_at` (String)
-- `id` (Number) The ID of this resource.
+- `created_by` (String)
 - `last_run_at` (String)
 - `last_run_status` (String)
 - `location_ids` (List of String)
@@ -56,6 +60,7 @@ Read-Only:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
+- `updated_by` (String)
 - `url` (String)
 - `user_agent` (String)
 - `verify_certificates` (Boolean)
@@ -93,5 +98,3 @@ Optional:
 - `type` (String)
 - `value` (String)
 - `variable` (String)
-
-

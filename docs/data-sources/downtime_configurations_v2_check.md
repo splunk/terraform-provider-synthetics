@@ -33,15 +33,20 @@ data "synthetics_downtime_configurations_v2_check" "datasource_locations" {
 <a id="nestedblock--downtime_configurations"></a>
 ### Nested Schema for `downtime_configurations`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `description` (String)
+- `recurrence` (Block Set) (see [below for nested schema](#nestedblock--downtime_configurations--recurrence))
+- `timezone` (String)
 
 Read-Only:
 
 - `created_at` (String)
 - `end_time` (String)
-- `id` (Number) The ID of this resource.
 - `name` (String)
 - `rule` (String)
 - `start_time` (String)
@@ -50,4 +55,28 @@ Read-Only:
 - `tests_updated_at` (String)
 - `updated_at` (String)
 
+<a id="nestedblock--downtime_configurations--recurrence"></a>
+### Nested Schema for `downtime_configurations.recurrence`
 
+Optional:
+
+- `end` (Block Set) (see [below for nested schema](#nestedblock--downtime_configurations--recurrence--end))
+- `repeats` (Block Set) (see [below for nested schema](#nestedblock--downtime_configurations--recurrence--repeats))
+
+<a id="nestedblock--downtime_configurations--recurrence--end"></a>
+### Nested Schema for `downtime_configurations.recurrence.end`
+
+Optional:
+
+- `type` (String)
+- `value` (String)
+
+
+<a id="nestedblock--downtime_configurations--recurrence--repeats"></a>
+### Nested Schema for `downtime_configurations.recurrence.repeats`
+
+Optional:
+
+- `custom_frequency` (String)
+- `custom_value` (Number)
+- `type` (String)

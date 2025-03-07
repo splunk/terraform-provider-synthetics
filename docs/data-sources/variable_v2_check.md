@@ -34,6 +34,10 @@ data "synthetics_variable_v2_check" "datasource_check_variable" {
 <a id="nestedblock--variable"></a>
 ### Nested Schema for `variable`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `description` (String)
@@ -41,10 +45,7 @@ Optional:
 Read-Only:
 
 - `created_at` (String)
-- `id` (Number) The ID of this resource.
 - `name` (String)
 - `secret` (Boolean)
 - `updated_at` (String)
 - `value` (String)
-
-

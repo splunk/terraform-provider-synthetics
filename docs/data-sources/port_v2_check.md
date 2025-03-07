@@ -34,6 +34,10 @@ data "synthetics_port_v2_check" "datasource_check_port" {
 <a id="nestedblock--test"></a>
 ### Nested Schema for `test`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
@@ -44,9 +48,9 @@ Read-Only:
 - `active` (Boolean)
 - `automatic_retries` (Number)
 - `created_at` (String)
+- `created_by` (String)
 - `frequency` (Number)
 - `host` (String)
-- `id` (Number) The ID of this resource.
 - `last_run_at` (String)
 - `last_run_status` (String)
 - `name` (String)
@@ -55,6 +59,7 @@ Read-Only:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
+- `updated_by` (String)
 
 <a id="nestedblock--test--custom_properties"></a>
 ### Nested Schema for `test.custom_properties`
@@ -63,5 +68,3 @@ Optional:
 
 - `key` (String)
 - `value` (String)
-
-
