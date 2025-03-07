@@ -174,10 +174,8 @@ github.com/sirupsen/logrus v1.4.1/go.mod h1:ni0Sbl8bgC9z8RoU9G6nDWqqs/fq4eDPysMB
 github.com/sirupsen/logrus v1.7.0/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/splunk/syntheticsclient v1.0.3 h1:I3PUgTnKZsCNGFH8OgBiQ+sZYYxOwcLmkbi3mp0Qq78=
 github.com/splunk/syntheticsclient v1.0.3/go.mod h1:riH4plM9ySr2lHnWi2E4cocaP9qqlRQHKX6nisiyq6E=
-github.com/splunk/syntheticsclient/v2 v2.0.13 h1:xdEV76SqInIo4/3eN7h6PrZIVzDNDvHw47+HgJtIje0=
-github.com/splunk/syntheticsclient/v2 v2.0.13/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
-github.com/splunk/syntheticsclient/v2 v2.0.14 h1:s5D+bh2HYCR2to0iWHj20zuLXSaJAejZif6iSCzTNAE=
-github.com/splunk/syntheticsclient/v2 v2.0.14/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
+github.com/splunk/syntheticsclient/v2 v2.0.15-1 h1:ITsc2C6ZT0vDhxAoj+9mQltUHorbmxIvXMjPtIy1Ydg=
+github.com/splunk/syntheticsclient/v2 v2.0.15-1/go.mod h1:xP4ikfSyA0eVyI72sa11hi9yUDBaQhB5mtW6QSClaWw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=

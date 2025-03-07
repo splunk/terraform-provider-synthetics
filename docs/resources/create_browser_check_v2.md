@@ -166,7 +166,7 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
 
 ### Required
 
-- `test` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--test))
+- `test` (Block List, Min: 1) (see [below for nested schema](#nestedblock--test))
 
 ### Read-Only
 
@@ -203,6 +203,7 @@ Required:
 Optional:
 
 - `authentication` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--authentication))
+- `chrome_flags` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--cookies))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--headers))
@@ -216,6 +217,15 @@ Optional:
 
 - `password` (String)
 - `username` (String)
+
+
+<a id="nestedblock--test--advanced_settings--chrome_flags"></a>
+### Nested Schema for `test.advanced_settings.chrome_flags`
+
+Optional:
+
+- `name` (String)
+- `value` (String)
 
 
 <a id="nestedblock--test--advanced_settings--cookies"></a>
@@ -268,6 +278,7 @@ Optional:
 
 - `action` (String)
 - `duration` (Number)
+- `max_wait_time` (Number)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
@@ -280,7 +291,11 @@ Optional:
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
 - `wait_for_nav_timeout` (Number)
-- `max_wait_time` (Number)
+
+Read-Only:
+
+- `max_wait_time_default` (Boolean)
+- `wait_for_nav_timeout_default` (Boolean)
 
 <a id="nestedblock--test--transactions--steps--options"></a>
 ### Nested Schema for `test.transactions.steps.options`
@@ -299,5 +314,3 @@ Optional:
 
 - `key` (String)
 - `value` (String)
-
-

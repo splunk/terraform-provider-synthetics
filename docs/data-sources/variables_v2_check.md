@@ -34,10 +34,8 @@ Read-Only:
 
 - `created_at` (String)
 - `description` (String)
-- `id` (Number) The ID of this resource.
+- `id` (Number)
 - `name` (String)
 - `secret` (Boolean)
 - `updated_at` (String)
 - `value` (String)
-
-

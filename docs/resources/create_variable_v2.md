@@ -49,7 +49,5 @@ Required:
 Read-Only:
 
 - `created_at` (String)
-- `id` (Number) The ID of this resource.
+- `id` (Number)
 - `updated_at` (String)
-
-

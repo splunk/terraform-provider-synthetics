@@ -50,13 +50,39 @@ Required:
 Optional:
 
 - `description` (String)
+- `recurrence` (Block Set) (see [below for nested schema](#nestedblock--downtime_configuration--recurrence))
+- `timezone` (String)
 
 Read-Only:
 
 - `created_at` (String)
-- `id` (Number) The ID of this resource.
+- `id` (Number)
 - `status` (String)
 - `tests_updated_at` (String)
 - `updated_at` (String)
 
+<a id="nestedblock--downtime_configuration--recurrence"></a>
+### Nested Schema for `downtime_configuration.recurrence`
 
+Optional:
+
+- `end` (Block Set) (see [below for nested schema](#nestedblock--downtime_configuration--recurrence--end))
+- `repeats` (Block Set) (see [below for nested schema](#nestedblock--downtime_configuration--recurrence--repeats))
+
+<a id="nestedblock--downtime_configuration--recurrence--end"></a>
+### Nested Schema for `downtime_configuration.recurrence.end`
+
+Optional:
+
+- `type` (String)
+- `value` (String)
+
+
+<a id="nestedblock--downtime_configuration--recurrence--repeats"></a>
+### Nested Schema for `downtime_configuration.recurrence.repeats`
+
+Optional:
+
+- `custom_frequency` (String)
+- `custom_value` (Number)
+- `type` (String)

@@ -37,13 +37,11 @@ resource "synthetics_create_location_v2" "location_v2_foo" {
 
 Required:
 
+- `id` (String)
 - `label` (String)
 
 Read-Only:
 
 - `country` (String)
 - `default` (Boolean)
-- `id` (String) The ID of this resource.
 - `type` (String)
-
-

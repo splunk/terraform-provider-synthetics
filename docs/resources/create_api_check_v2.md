@@ -231,5 +231,3 @@ Optional:
 - `type` (String)
 - `value` (String)
 - `variable` (String)
-
-

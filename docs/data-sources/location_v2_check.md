@@ -35,11 +35,14 @@ data "synthetics_location_v2_check" "datasource_location" {
 <a id="nestedblock--location"></a>
 ### Nested Schema for `location`
 
+Required:
+
+- `id` (String)
+
 Read-Only:
 
 - `country` (String)
 - `default` (Boolean)
-- `id` (String) The ID of this resource.
 - `label` (String)
 - `type` (String)
 
@@ -51,5 +54,3 @@ Read-Only:
 
 - `active_test_ids` (List of Number)
 - `paused_test_ids` (List of Number)
-
-

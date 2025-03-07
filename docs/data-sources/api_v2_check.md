@@ -34,6 +34,10 @@ data "synthetics_api_v2_check" "datasource_check_api" {
 <a id="nestedblock--test"></a>
 ### Nested Schema for `test`
 
+Required:
+
+- `id` (Number)
+
 Optional:
 
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
@@ -45,8 +49,8 @@ Read-Only:
 - `active` (Boolean)
 - `automatic_retries` (Number)
 - `created_at` (String)
+- `created_by` (String)
 - `device` (Set of Object) (see [below for nested schema](#nestedatt--test--device))
-- `id` (Number) The ID of this resource.
 - `last_run_at` (String)
 - `last_run_status` (String)
 - `name` (String)
@@ -54,6 +58,7 @@ Read-Only:
 - `scheduling_strategy` (String)
 - `type` (String)
 - `updated_at` (String)
+- `updated_by` (String)
 
 <a id="nestedblock--test--custom_properties"></a>
 ### Nested Schema for `test.custom_properties`
@@ -139,5 +144,3 @@ Read-Only:
 - `type` (String)
 - `value` (String)
 - `variable` (String)
-
-

@@ -67,7 +67,7 @@ Optional:
 Read-Only:
 
 - `created_at` (String)
-- `id` (Number) The ID of this resource.
+- `id` (Number)
 - `updated_at` (String)
 
 <a id="nestedblock--test--custom_properties"></a>
@@ -77,5 +77,3 @@ Optional:
 
 - `key` (String)
 - `value` (String)
-
-

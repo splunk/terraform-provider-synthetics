@@ -30,9 +30,9 @@ resource "synthetics_create_downtime_configuration_v2" "downtime_configuration_v
     name = "acceptance-downtime-configuration-terraform-test"
     description = "The most awesome downtime_configuration. Full of snakes."
     rule = "augment_data"
-    start_time = "2024-07-01T17:13:00.000Z"
-    end_time = "2024-08-01T17:13:00.000Z"
-    test_ids = [932826]
+    start_time = "2025-07-01T17:13:00.000Z"
+    end_time = "2025-08-01T17:13:00.000Z"
+    test_ids = [1523512]
   }
 }
 `
@@ -50,8 +50,8 @@ func TestAccCreateDowntimeConfigurationV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.description", "The most awesome downtime_configuration. Full of snakes."),
 					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.rule", "augment_data"),
 					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.name", "acceptance-downtime-configuration-terraform-test"),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.start_time", "2024-07-01T17:13:00.000Z"),
-					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.end_time", "2024-08-01T17:13:00.000Z"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.start_time", "2025-07-01T17:13:00.000Z"),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.end_time", "2025-08-01T17:13:00.000Z"),
 				),
 			},
 			{

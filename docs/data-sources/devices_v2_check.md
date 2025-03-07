@@ -32,7 +32,7 @@ data "synthetics_devices_v2_check" "datasource_devices" {
 
 Read-Only:
 
-- `id` (Number) The ID of this resource.
+- `id` (Number)
 - `label` (String)
 - `network_connection` (Set of Object) (see [below for nested schema](#nestedatt--devices--network_connection))
 - `user_agent` (String)
@@ -49,5 +49,3 @@ Read-Only:
 - `latency` (Number)
 - `packet_loss` (Number)
 - `upload_bandwidth` (Number)
-
-
