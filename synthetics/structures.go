@@ -1586,24 +1586,6 @@ func buildEndData(end *schema.Set) *sc2.End {
 	return nil
 }
 
-// func getStringFromMap(dataMap map[string]interface{}, key string) (string, bool) {
-// 	if val, ok := dataMap[key]; ok {
-// 		if strVal, isString := val.(string); isString {
-// 			return strVal, true
-// 		}
-// 	}
-// 	return "", false
-// }
-//
-// func getIntFromMap(dataMap map[string]interface{}, key string) (int, bool) {
-// 	if val, ok := dataMap[key]; ok {
-// 		if intVal, isInt := val.(int); isInt {
-// 			return intVal, true
-// 		}
-// 	}
-// 	return 0, false
-// }
-
 func buildRequestsData(requests []interface{}) []sc2.Requests {
 	requestsList := make([]sc2.Requests, len(requests))
 	for i, request := range requests {
