@@ -55,14 +55,14 @@ type Authentication struct {
 type Cookiesv2 struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
-	Domain string `json:"domain"`
-	Path   string `json:"path"`
+	Domain string `json:"domain,omitempty"`
+	Path   string `json:"path,omitempty"`
 }
 
 type BrowserHeaders struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
-	Domain string `json:"domain"`
+	Domain string `json:"domain,omitempty"`
 }
 
 type HostOverrides struct {
