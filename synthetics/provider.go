@@ -49,11 +49,11 @@ func Provider() *schema.Provider {
 				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available. For Rigor use realm rigor",
 				DefaultFunc: schema.EnvDefaultFunc("REALM", nil),
 			},
-			"apiUrl": {
-			    Type:     schema.TypeString,
-			    Optional: true,
-			    Description: "Splunk Observability Realm API Endpoint (E.G. `https://api.<REALM>.signalfx.com`). Will pull from `API_URL` environment variable if available.",
-			    DefaultFunc: schema.EnvDefaultFunc("API_URL", nil),
+			"apiurl": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Splunk Observability Realm API Endpoint (E.G. `https://api.<REALM>.signalfx.com`). Will pull from `API_URL` environment variable if available.",
+				DefaultFunc: schema.EnvDefaultFunc("API_URL", nil),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -89,26 +89,20 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	token := d.Get("apikey").(string)
 	realm := d.Get("realm").(string)
 	product := d.Get("product").(string)
-	apiUrl := d.Get("apiUrl").(string)
+	apiUrl := d.Get("apiurl").(string)
 
 	var diags diag.Diagnostics
 
 	if product == "observability" {
-		if token != "" && realm != "" {
-			if apiUrl != "" {
-				args := sc2.ClientArgs {
-					timeoutSeconds: 30,
-					publicBaseUrl: strings.TrimSuffix(apiUrl, "/") + "/v2/synthetics"
-				}
-				
-				c := sc2.NewConfigurableClient(token, realm, args)
-				
-				return c, diags
-			} else {
-				c := sc2.NewClient(token, realm)
-				
-				return c, diags
+		if apiUrl != "" {
+			args := sc2.ClientArgs{
+				TimeoutSeconds: 30,
+				PublicBaseUrl:  strings.TrimSuffix(apiUrl, "/") + "/v2/synthetics",
 			}
+
+			c := sc2.NewConfigurableClient(token, realm, args)
+
+			return c, diags
 		}
 
 		c := sc2.NewClient(token, realm)

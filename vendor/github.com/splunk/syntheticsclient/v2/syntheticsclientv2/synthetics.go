@@ -33,8 +33,8 @@ type Client struct {
 }
 
 type ClientArgs struct {
-	timeoutSeconds int
-	publicBaseUrl  string
+	TimeoutSeconds int
+	PublicBaseUrl  string
 }
 
 type RequestDetails struct {
@@ -122,7 +122,7 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 }
 
 func NewClient(apiKey string, realm string) *Client {
-	args := ClientArgs{timeoutSeconds: 30}
+	args := ClientArgs{TimeoutSeconds: 30}
 	return NewConfigurableClient(apiKey, realm, args)
 }
 
@@ -130,12 +130,12 @@ func NewConfigurableClient(apiKey string, realm string, args ClientArgs) *Client
 	client := Client{
 		apiKey:     apiKey,
 		realm:      realm,
-		httpClient: http.Client{Timeout: time.Duration(args.timeoutSeconds) * time.Second},
+		httpClient: http.Client{Timeout: time.Duration(args.TimeoutSeconds) * time.Second},
 	}
-	if args.publicBaseUrl == "" {
+	if args.PublicBaseUrl == "" {
 		client.publicBaseURL = "https://api." + realm + ".signalfx.com/v2/synthetics"
 	} else {
-		client.publicBaseURL = args.publicBaseUrl
+		client.publicBaseURL = args.PublicBaseUrl
 	}
 
 	return &client
