@@ -111,13 +111,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 		c := sc2.NewClient(token, realm)
 		return c, diags
-	}
-
-	if product == "rigor" && token != "" {
+	} else {
+		if product == "rigor" && token != "" {
+			c := sc.NewClient(token)
+			return c, diags
+		}
 		c := sc.NewClient(token)
 		return c, diags
 	}
-
-	c := sc.NewClient(token)
-	return c, diags
 }
