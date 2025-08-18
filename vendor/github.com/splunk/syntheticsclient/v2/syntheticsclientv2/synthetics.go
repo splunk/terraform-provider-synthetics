@@ -121,6 +121,13 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	return &details, nil
 }
 
+func NewClientArgs(timeout int, baseUrl string) ClientArgs {
+	return ClientArgs{
+		timeoutSeconds: timeout,
+		publicBaseUrl:  baseUrl,
+	}
+}
+
 func NewClient(apiKey string, realm string) *Client {
 	args := ClientArgs{timeoutSeconds: 30}
 	return NewConfigurableClient(apiKey, realm, args)
