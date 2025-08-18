@@ -59,4 +59,40 @@ I have read the CLA Document and I hereby sign the CLA
 Code of Conduct:
 ```
 I have read the Code of Conduct and I hereby accept the Terms
+```
 
+### Local development
+
+1. Update your `~/.terraformrc` and add `dev_overrides` config:
+
+```
+provider_installation {
+  dev_overrides {
+    "splunk/synthetics" = "/<path-to-terraform-provider-synthetics-repository>"
+  }
+  direct {}
+}
+```
+
+2. Build the provider binary with `make build`. See GNUmakefile for more usefull commands.
+3. Use the provider in your testing Terraform config and use `terraform plan/apply/destroy` to make sure your changes work as expected.
+
+``` init.tf
+terraform {
+  required_providers {
+    synthetics = {
+      version = "2.0.15"
+      source  = "splunk/synthetics"
+    }
+  }
+}
+
+provider "synthetics" {
+  product = "observability"
+  realm   = "us1"
+  apikey  = "<token>"
+}
+
+# your TF resources
+resource "synthetics_create_browser_check_v2" "test" { ... }
+```
