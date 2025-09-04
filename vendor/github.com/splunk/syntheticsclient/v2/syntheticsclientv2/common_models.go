@@ -36,6 +36,7 @@ type Advancedsettings struct {
 	CollectInteractiveMetrics bool             `json:"collectInteractiveMetrics"`
 	Verifycertificates        bool             `json:"verifyCertificates"`
 	ChromeFlags               []ChromeFlag     `json:"chromeFlags"`
+	ExcludedFiles             []ExcludedFile   `json:"excludedFiles"`
 }
 
 type ChromeFlag struct {
@@ -69,6 +70,11 @@ type HostOverrides struct {
 	Source         string `json:"source"`
 	Target         string `json:"target"`
 	KeepHostHeader bool   `json:"keepHostHeader"`
+}
+
+type ExcludedFile struct {
+	Type  string `json:"type"`
+	Regex string `json:"regex,omitempty"`
 }
 
 type Transactions struct {
