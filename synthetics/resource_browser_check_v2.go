@@ -307,12 +307,12 @@ func resourceBrowserCheckV2() *schema.Resource {
 									"key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z](\w|-|_){1,128}$`), "custom_properties key must start with a letter and only consist of alphanumeric and underscore characters with no whitespace"),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
 									},
 									"value": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9](\w|-|_| ){1,128}$`), "custom_properties value can only consist of alphanumeric and underscore characters and whitespace"),
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
 									},
 								},
 							},
