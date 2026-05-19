@@ -149,19 +149,23 @@ Read-Only:
 Read-Only:
 
 - `action` (String)
+- `duration` (Number)
 - `max_wait_time` (Number)
+- `max_wait_time_default` (Boolean)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
 - `options` (Set of Object) (see [below for nested schema](#nestedobjatt--test--business_transactions--steps--options))
 - `selector` (String)
 - `selector_type` (String)
+- `selectors` (List of Object) (see [below for nested schema](#nestedobjatt--test--business_transactions--steps--selectors))
 - `type` (String)
 - `url` (String)
 - `value` (String)
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
 - `wait_for_nav_timeout` (Number)
+- `wait_for_nav_timeout_default` (Boolean)
 
 <a id="nestedobjatt--test--business_transactions--steps--options"></a>
 ### Nested Schema for `test.business_transactions.steps.options`
@@ -169,6 +173,15 @@ Read-Only:
 Read-Only:
 
 - `url` (String)
+
+
+<a id="nestedobjatt--test--business_transactions--steps--selectors"></a>
+### Nested Schema for `test.business_transactions.steps.selectors`
+
+Read-Only:
+
+- `type` (String)
+- `value` (String)
 
 
 
@@ -214,18 +227,21 @@ Read-Only:
 - `action` (String)
 - `duration` (Number)
 - `max_wait_time` (Number)
+- `max_wait_time_default` (Boolean)
 - `name` (String)
 - `option_selector` (String)
 - `option_selector_type` (String)
 - `options` (Set of Object) (see [below for nested schema](#nestedobjatt--test--transactions--steps--options))
 - `selector` (String)
 - `selector_type` (String)
+- `selectors` (List of Object) (see [below for nested schema](#nestedobjatt--test--transactions--steps--selectors))
 - `type` (String)
 - `url` (String)
 - `value` (String)
 - `variable_name` (String)
 - `wait_for_nav` (Boolean)
 - `wait_for_nav_timeout` (Number)
+- `wait_for_nav_timeout_default` (Boolean)
 
 <a id="nestedobjatt--test--transactions--steps--options"></a>
 ### Nested Schema for `test.transactions.steps.options`
@@ -233,3 +249,12 @@ Read-Only:
 Read-Only:
 
 - `url` (String)
+
+
+<a id="nestedobjatt--test--transactions--steps--selectors"></a>
+### Nested Schema for `test.transactions.steps.selectors`
+
+Read-Only:
+
+- `type` (String)
+- `value` (String)
