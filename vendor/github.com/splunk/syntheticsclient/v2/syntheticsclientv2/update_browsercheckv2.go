@@ -39,7 +39,7 @@ func (c Client) UpdateBrowserCheckV2(id int, BrowserCheckV2Details *BrowserCheck
 		return nil, nil, err
 	}
 
-	requestDetails, err := c.makePublicAPICall("PUT", fmt.Sprintf("/tests/browser/%d", id), bytes.NewBuffer(body), nil)
+	requestDetails, err := c.makePublicAPICall("PUT", fmt.Sprintf("/v2/tests/browser/%d", id), bytes.NewBuffer(body), nil)
 	if err != nil {
 		return nil, requestDetails, err
 	}

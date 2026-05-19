@@ -47,7 +47,7 @@ func (c Client) CreateApiCheckV2(ApiCheckV2Details *ApiCheckV2Input) (*ApiCheckV
 		return nil, nil, err
 	}
 
-	details, err := c.makePublicAPICall("POST", "/tests/api", bytes.NewBuffer(body), nil)
+	details, err := c.makePublicAPICall("POST", "/v2/tests/api", bytes.NewBuffer(body), nil)
 	if err != nil {
 		return nil, details, err
 	}

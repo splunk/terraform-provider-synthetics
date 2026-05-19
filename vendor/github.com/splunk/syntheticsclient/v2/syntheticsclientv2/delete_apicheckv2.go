@@ -22,7 +22,7 @@ import (
 )
 
 func (c Client) DeleteApiCheckV2(id int) (int, error) {
-	requestDetails, err := c.makePublicAPICall("DELETE", fmt.Sprintf("/tests/api/%d", id), bytes.NewBufferString("{}"), nil)
+	requestDetails, err := c.makePublicAPICall("DELETE", fmt.Sprintf("/v2/tests/api/%d", id), bytes.NewBufferString("{}"), nil)
 	if err != nil {
 		return 1, err
 	}

@@ -38,7 +38,7 @@ func (c Client) CreateBrowserCheckV2(browserCheckV2Details *BrowserCheckV2Input)
 		return nil, nil, err
 	}
 
-	details, err := c.makePublicAPICall("POST", "/tests/browser", bytes.NewBuffer(body), nil)
+	details, err := c.makePublicAPICall("POST", "/v2/tests/browser", bytes.NewBuffer(body), nil)
 	if err != nil {
 		return nil, details, err
 	}

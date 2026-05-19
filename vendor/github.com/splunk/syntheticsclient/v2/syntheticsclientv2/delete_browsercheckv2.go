@@ -22,7 +22,7 @@ import (
 )
 
 func (c Client) DeleteBrowserCheckV2(id int) (int, error) {
-	requestDetails, err := c.makePublicAPICall("DELETE", fmt.Sprintf("/tests/browser/%d", id), bytes.NewBufferString("{}"), nil)
+	requestDetails, err := c.makePublicAPICall("DELETE", fmt.Sprintf("/v2/tests/browser/%d", id), bytes.NewBufferString("{}"), nil)
 	if err != nil {
 		return 1, err
 	}

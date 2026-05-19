@@ -48,7 +48,7 @@ func (c Client) UpdateApiCheckV2(id int, ApiCheckV2Details *ApiCheckV2Input) (*A
 		return nil, nil, err
 	}
 
-	requestDetails, err := c.makePublicAPICall("PUT", fmt.Sprintf("/tests/api/%d", id), bytes.NewBuffer(body), nil)
+	requestDetails, err := c.makePublicAPICall("PUT", fmt.Sprintf("/v2/tests/api/%d", id), bytes.NewBuffer(body), nil)
 	if err != nil {
 		return nil, requestDetails, err
 	}

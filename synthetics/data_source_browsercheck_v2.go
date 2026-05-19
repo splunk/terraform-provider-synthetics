@@ -217,72 +217,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 										Type:     schema.TypeSet,
 										Computed: true,
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"url": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"action": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"variable_name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"wait_for_nav": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-												"wait_for_nav_timeout": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"max_wait_time": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"options": {
-													Type:     schema.TypeSet,
-													Computed: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"url": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-														},
-													},
-												},
-											},
+											Schema: browserCheckV2StepSchema(true),
 										},
 									},
 								},
@@ -301,76 +236,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 										Type:     schema.TypeSet,
 										Computed: true,
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"url": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"action": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"variable_name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"wait_for_nav": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-												"duration": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"wait_for_nav_timeout": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"max_wait_time": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"options": {
-													Type:     schema.TypeSet,
-													Computed: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"url": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-														},
-													},
-												},
-											},
+											Schema: browserCheckV2StepSchema(true),
 										},
 									},
 								},
@@ -475,7 +341,17 @@ func dataSourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	checkTest := flattenBrowserV2Data(check)
+	devices, _, err := c.GetDevicesV2()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	var deviceList []sc2.Device
+	if devices != nil {
+		deviceList = devices.Devices
+	}
+
+	checkTest := flattenBrowserV2Data(check, deviceList)
 	if err := d.Set("test", checkTest); err != nil {
 		return diag.FromErr(err)
 	}
