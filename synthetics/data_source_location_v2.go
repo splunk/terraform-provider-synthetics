@@ -107,7 +107,7 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	id := fmt.Sprint(check.Location.ID)
+	id := fmt.Sprint(check.ID)
 	d.SetId(id)
 	return diags
 }
