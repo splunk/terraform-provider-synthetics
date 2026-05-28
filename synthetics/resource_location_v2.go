@@ -88,8 +88,8 @@ func resourceLocationV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] LOCATION ID IS: ", o.Location.ID)
-	d.SetId(o.Location.ID)
+	log.Println("DEBUG] LOCATION ID IS: ", o.ID)
+	d.SetId(o.ID)
 
 	resourceLocationV2Read(ctx, d, meta)
 

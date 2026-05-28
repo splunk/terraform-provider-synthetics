@@ -91,7 +91,7 @@ func resourceVariableV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(strconv.Itoa(o.Variable.ID))
+	d.SetId(strconv.Itoa(o.ID))
 
 	resourceVariableV2Read(ctx, d, meta)
 

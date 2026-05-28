@@ -157,7 +157,7 @@ func resourceDowntimeConfigurationV2Create(ctx context.Context, d *schema.Resour
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(strconv.Itoa(o.DowntimeConfiguration.ID))
+	d.SetId(strconv.Itoa(o.ID))
 
 	resourceDowntimeConfigurationV2Read(ctx, d, meta)
 

@@ -89,7 +89,7 @@ func dataSourceVariableV2Read(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	id := fmt.Sprint(check.Variable.ID)
+	id := fmt.Sprint(check.ID)
 	d.SetId(id)
 	return diags
 }

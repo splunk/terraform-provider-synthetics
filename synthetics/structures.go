@@ -152,13 +152,13 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{} {
 	variableV2 := make(map[string]interface{})
 
-	variableV2["name"] = checkVariableV2.Variable.Name
+	variableV2["name"] = checkVariableV2.Name
 
-	variableV2["description"] = checkVariableV2.Variable.Description
+	variableV2["description"] = checkVariableV2.Description
 
-	variableV2["value"] = checkVariableV2.Variable.Value
+	variableV2["value"] = checkVariableV2.Value
 
-	variableV2["secret"] = checkVariableV2.Variable.Secret
+	variableV2["secret"] = checkVariableV2.Secret
 
 	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
 
@@ -168,24 +168,24 @@ func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{
 func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{} {
 	variableV2 := make(map[string]interface{})
 
-	variableV2["name"] = checkVariableV2.Variable.Name
+	variableV2["name"] = checkVariableV2.Name
 
-	variableV2["id"] = checkVariableV2.Variable.ID
+	variableV2["id"] = checkVariableV2.ID
 
-	variableV2["description"] = checkVariableV2.Variable.Description
+	variableV2["description"] = checkVariableV2.Description
 
-	variableV2["value"] = checkVariableV2.Variable.Value
+	variableV2["value"] = checkVariableV2.Value
 
-	variableV2["secret"] = checkVariableV2.Variable.Secret
+	variableV2["secret"] = checkVariableV2.Secret
 
-	if checkVariableV2.Variable.Createdat.IsZero() {
+	if checkVariableV2.Createdat.IsZero() {
 	} else {
-		variableV2["created_at"] = checkVariableV2.Variable.Createdat.String()
+		variableV2["created_at"] = checkVariableV2.Createdat.String()
 	}
 
-	if checkVariableV2.Variable.Updatedat.IsZero() {
+	if checkVariableV2.Updatedat.IsZero() {
 	} else {
-		variableV2["updated_at"] = checkVariableV2.Variable.Updatedat.String()
+		variableV2["updated_at"] = checkVariableV2.Updatedat.String()
 	}
 
 	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
@@ -225,25 +225,25 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 	for _, downtimeConfiguration := range downtimeConfigurationV2Data {
 		if i < 1 {
 			downtimeConfiguration := downtimeConfiguration.(map[string]interface{})
-			downtimeConfigurationV2.DowntimeConfiguration.Description = downtimeConfiguration["description"].(string)
-			downtimeConfigurationV2.DowntimeConfiguration.Name = downtimeConfiguration["name"].(string)
-			downtimeConfigurationV2.DowntimeConfiguration.Rule = downtimeConfiguration["rule"].(string)
+			downtimeConfigurationV2.Description = downtimeConfiguration["description"].(string)
+			downtimeConfigurationV2.Name = downtimeConfiguration["name"].(string)
+			downtimeConfigurationV2.Rule = downtimeConfiguration["rule"].(string)
 			startTime, err := time.Parse(layout, downtimeConfiguration["start_time"].(string))
 			if err != nil {
 				_ = err
 			}
-			downtimeConfigurationV2.DowntimeConfiguration.Starttime = startTime
+			downtimeConfigurationV2.Starttime = startTime
 			endTime, err := time.Parse(layout, downtimeConfiguration["end_time"].(string))
 			if err != nil {
 				_ = err
 			}
-			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
+			downtimeConfigurationV2.Endtime = endTime
 			timezoneValue, ok := downtimeConfiguration["timezone"].(string)
 			if ok {
-				downtimeConfigurationV2.DowntimeConfiguration.Timezone = &timezoneValue
+				downtimeConfigurationV2.Timezone = &timezoneValue
 			}
-			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
-			downtimeConfigurationV2.DowntimeConfiguration.Recurrence = buildRecurrenceData(downtimeConfiguration["recurrence"].(*schema.Set))
+			downtimeConfigurationV2.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
+			downtimeConfigurationV2.Recurrence = buildRecurrenceData(downtimeConfiguration["recurrence"].(*schema.Set))
 			i++
 		}
 	}
@@ -254,26 +254,26 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeConfigurationV2Response) []interface{} {
 	DowntimeConfigurationV2 := make(map[string]interface{})
 
-	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.DowntimeConfiguration.Name
+	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.Name
 
 	if DowntimeConfigurationV2["description"] != "" {
-		DowntimeConfigurationV2["description"] = downtimeConfigurationV2.DowntimeConfiguration.Description
+		DowntimeConfigurationV2["description"] = downtimeConfigurationV2.Description
 	}
 
-	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
+	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.Rule
 
-	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.Starttime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.Endtime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["test_ids"] = downtimeConfigurationV2.DowntimeConfiguration.Testids
+	DowntimeConfigurationV2["test_ids"] = downtimeConfigurationV2.Testids
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Timezone != nil {
-		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.DowntimeConfiguration.Timezone
+	if downtimeConfigurationV2.Timezone != nil {
+		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.Timezone
 	}
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Recurrence != nil {
-		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.DowntimeConfiguration.Recurrence)
+	if downtimeConfigurationV2.Recurrence != nil {
+		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.Recurrence)
 	}
 
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
@@ -284,43 +284,43 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeConfigurationV2Response) []interface{} {
 	DowntimeConfigurationV2 := make(map[string]interface{})
 
-	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.DowntimeConfiguration.Name
+	DowntimeConfigurationV2["name"] = downtimeConfigurationV2.Name
 
-	DowntimeConfigurationV2["id"] = downtimeConfigurationV2.DowntimeConfiguration.ID
+	DowntimeConfigurationV2["id"] = downtimeConfigurationV2.ID
 
-	DowntimeConfigurationV2["description"] = downtimeConfigurationV2.DowntimeConfiguration.Description
+	DowntimeConfigurationV2["description"] = downtimeConfigurationV2.Description
 
-	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.DowntimeConfiguration.Rule
+	DowntimeConfigurationV2["rule"] = downtimeConfigurationV2.Rule
 
-	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.DowntimeConfiguration.Starttime.Format("2006-01-02T15:04:05.000Z")
+	DowntimeConfigurationV2["start_time"] = downtimeConfigurationV2.Starttime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.DowntimeConfiguration.Endtime.Format("2006-01-02T15:04:05.000Z")
+	DowntimeConfigurationV2["end_time"] = downtimeConfigurationV2.Endtime.Format("2006-01-02T15:04:05.000Z")
 
-	DowntimeConfigurationV2["status"] = downtimeConfigurationV2.DowntimeConfiguration.Status
+	DowntimeConfigurationV2["status"] = downtimeConfigurationV2.Status
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Createdat.IsZero() {
+	if downtimeConfigurationV2.Createdat.IsZero() {
 	} else {
-		DowntimeConfigurationV2["created_at"] = downtimeConfigurationV2.DowntimeConfiguration.Createdat.String()
+		DowntimeConfigurationV2["created_at"] = downtimeConfigurationV2.Createdat.String()
 	}
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Updatedat.IsZero() {
+	if downtimeConfigurationV2.Updatedat.IsZero() {
 	} else {
-		DowntimeConfigurationV2["updated_at"] = downtimeConfigurationV2.DowntimeConfiguration.Updatedat.String()
+		DowntimeConfigurationV2["updated_at"] = downtimeConfigurationV2.Updatedat.String()
 	}
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Testsupdatedat.IsZero() {
+	if downtimeConfigurationV2.Testsupdatedat.IsZero() {
 	} else {
-		DowntimeConfigurationV2["tests_updated_at"] = downtimeConfigurationV2.DowntimeConfiguration.Testsupdatedat.String()
+		DowntimeConfigurationV2["tests_updated_at"] = downtimeConfigurationV2.Testsupdatedat.String()
 	}
 
-	DowntimeConfigurationV2["test_count"] = downtimeConfigurationV2.DowntimeConfiguration.Testcount
+	DowntimeConfigurationV2["test_count"] = downtimeConfigurationV2.Testcount
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Timezone != nil {
-		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.DowntimeConfiguration.Timezone
+	if downtimeConfigurationV2.Timezone != nil {
+		DowntimeConfigurationV2["timezone"] = downtimeConfigurationV2.Timezone
 	}
 
-	if downtimeConfigurationV2.DowntimeConfiguration.Recurrence != nil {
-		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.DowntimeConfiguration.Recurrence)
+	if downtimeConfigurationV2.Recurrence != nil {
+		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.Recurrence)
 	}
 
 	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
@@ -1505,10 +1505,10 @@ func buildVariableV2Data(d *schema.ResourceData) sc2.VariableV2Input {
 	for _, variable := range variablev2Data {
 		if i < 1 {
 			variable := variable.(map[string]interface{})
-			variablev2.Variable.Description = variable["description"].(string)
-			variablev2.Variable.Name = variable["name"].(string)
-			variablev2.Variable.Secret = variable["secret"].(bool)
-			variablev2.Variable.Value = variable["value"].(string)
+			variablev2.Description = variable["description"].(string)
+			variablev2.Name = variable["name"].(string)
+			variablev2.Secret = variable["secret"].(bool)
+			variablev2.Value = variable["value"].(string)
 			i++
 		}
 	}
