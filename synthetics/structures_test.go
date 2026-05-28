@@ -62,6 +62,25 @@ func TestBuildSelectorsFromStep_legacyFields(t *testing.T) {
 	}
 }
 
+func TestDropStaleStepSelectors_legacyUpdateWins(t *testing.T) {
+	step := map[string]interface{}{
+		"name":          "06 Select-Val-Val",
+		"selector_type": "id",
+		"selector":      "valz",
+		"selectors": []interface{}{
+			map[string]interface{}{"type": "id", "value": "beep"},
+		},
+	}
+	dropStaleStepSelectors(step)
+	got, err := buildSelectorsFromStep(step)
+	if err != nil {
+		t.Fatalf("buildSelectorsFromStep() error = %v", err)
+	}
+	if len(got) != 1 || got[0].Value != "valz" {
+		t.Fatalf("selectors = %+v, want id/valz after dropping stale state", got)
+	}
+}
+
 func TestBuildSelectorsFromStep_prefersSelectorsList(t *testing.T) {
 	step := map[string]interface{}{
 		"selector_type": "id",
@@ -80,7 +99,7 @@ func TestBuildSelectorsFromStep_prefersSelectorsList(t *testing.T) {
 	}
 }
 
-func TestFlattenStepsData_singleSelectorUsesLegacyOnly(t *testing.T) {
+func TestFlattenStepsData_singleSelectorUsesSelectorsBlock(t *testing.T) {
 	steps := []sc2.StepsV2{{
 		Name:      "click",
 		Type:      "click_element",
@@ -92,11 +111,44 @@ func TestFlattenStepsData_singleSelectorUsesLegacyOnly(t *testing.T) {
 		t.Fatalf("len(steps) = %d, want 1", len(got))
 	}
 	step := got[0].(map[string]interface{})
-	if _, ok := step["selectors"]; ok {
-		t.Fatal("expected no selectors block for single selector")
+	selectors, ok := step["selectors"].([]interface{})
+	if !ok || len(selectors) != 1 {
+		t.Fatalf("selectors = %#v, want one block", step["selectors"])
 	}
-	if step["selector"] != "#order" || step["selector_type"] != "id" {
-		t.Fatalf("legacy fields = %v / %v, want #order / id", step["selector"], step["selector_type"])
+	sel := selectors[0].(map[string]interface{})
+	if sel["type"] != "id" || sel["value"] != "#order" {
+		t.Fatalf("selector block = %#v, want id/#order", sel)
+	}
+	if _, ok := step["selector"]; ok {
+		t.Fatal("expected no legacy selector field for single API selector")
+	}
+	if _, ok := step["selector_type"]; ok {
+		t.Fatal("expected no legacy selector_type for single API selector")
+	}
+}
+
+func TestStepSelectorInputsEquivalent_legacyAndSelectorsBlock(t *testing.T) {
+	oldIn := stepSelectorInput{
+		selectorType: "id",
+		selector:     "#order",
+	}
+	newIn := stepSelectorInput{
+		selectors: []sc2.Selector{{Type: "id", Value: "#order"}},
+	}
+	if !stepSelectorInputsEquivalent(oldIn, newIn) {
+		t.Fatal("expected legacy and single selectors block to be equivalent")
+	}
+	if !migratingFromLegacyToSelectors(oldIn, newIn) {
+		t.Fatal("expected legacy state to selectors config to be a migration")
+	}
+}
+
+func TestMigratingFromLegacyToSelectors_afterApplyNotMigration(t *testing.T) {
+	in := stepSelectorInput{
+		selectors: []sc2.Selector{{Type: "id", Value: "#order"}},
+	}
+	if migratingFromLegacyToSelectors(in, in) {
+		t.Fatal("selectors in state and config should not be treated as migration")
 	}
 }
 

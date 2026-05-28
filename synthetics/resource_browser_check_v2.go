@@ -409,6 +409,12 @@ func browserCheckV2StepSchema(computed bool) map[string]*schema.Schema {
 		Computed:    computed,
 		Description: "Shorthand for the first selector when selectors is not used.",
 	}
+	if !computed {
+		suppress := browserCheckV2SelectorRepresentationDiffSuppress
+		selectorsSchema.DiffSuppressFunc = suppress
+		selectorTypeSchema.DiffSuppressFunc = suppress
+		selectorSchema.DiffSuppressFunc = suppress
+	}
 
 	return map[string]*schema.Schema{
 		"name": {

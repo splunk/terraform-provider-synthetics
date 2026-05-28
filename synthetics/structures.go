@@ -99,13 +99,6 @@ func flattenDeviceFromID(deviceID int, devices []sc2.Device) []interface{} {
 	return []interface{}{}
 }
 
-func selectorFieldsFromSelectors(selectors []sc2.Selector) (selectorType, selector string) {
-	if len(selectors) == 0 {
-		return "", ""
-	}
-	return selectors[0].Type, selectors[0].Value
-}
-
 const browserCheckV2MaxSelectors = 10
 
 func selectorsFromFields(selectorType, selector string) []sc2.Selector {
@@ -113,6 +106,76 @@ func selectorsFromFields(selectorType, selector string) []sc2.Selector {
 		return nil
 	}
 	return []sc2.Selector{{Type: selectorType, Value: selector}}
+}
+
+// stepSelectorInput holds legacy and selectors-block fields for one browser step.
+type stepSelectorInput struct {
+	selectorType string
+	selector     string
+	selectors    []sc2.Selector
+}
+
+func parseSelectorsList(raw interface{}) []sc2.Selector {
+	list, ok := raw.([]interface{})
+	if !ok || len(list) == 0 {
+		return nil
+	}
+	out := make([]sc2.Selector, 0, len(list))
+	for _, item := range list {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		selType := stepStringField(m, "type")
+		selValue := stepStringField(m, "value")
+		if selType == "" || selValue == "" {
+			continue
+		}
+		out = append(out, sc2.Selector{Type: selType, Value: selValue})
+	}
+	return out
+}
+
+// resolveSingleSelector returns the single selector implied by the step, using the
+// same precedence as buildSelectorsFromStep. ok is false when there are multiple
+// selectors or no selector at all.
+func (in stepSelectorInput) resolveSingleSelector() (selectorType, selector string, ok bool) {
+	if len(in.selectors) > 1 {
+		return "", "", false
+	}
+	if len(in.selectors) == 1 {
+		return in.selectors[0].Type, in.selectors[0].Value, true
+	}
+	if in.selectorType != "" && in.selector != "" {
+		return in.selectorType, in.selector, true
+	}
+	return "", "", false
+}
+
+func stepSelectorInputsEquivalent(a, b stepSelectorInput) bool {
+	aType, aVal, aOK := a.resolveSingleSelector()
+	bType, bVal, bOK := b.resolveSingleSelector()
+	return aOK && bOK && aType == bType && aVal == bVal
+}
+
+// stepSelectorRepresentationDiffers is true when state and config encode the same
+// single selector using different Terraform fields (legacy vs selectors block).
+func stepSelectorRepresentationDiffers(a, b stepSelectorInput) bool {
+	aUsesList := len(a.selectors) > 0
+	bUsesList := len(b.selectors) > 0
+	aUsesLegacy := a.selector != "" || a.selectorType != ""
+	bUsesLegacy := b.selector != "" || b.selectorType != ""
+	return aUsesList != bUsesList || aUsesLegacy != bUsesLegacy
+}
+
+// migratingFromLegacyToSelectors is true when state still has legacy fields and
+// config has moved to a single selectors block (the one-time migration shape).
+func migratingFromLegacyToSelectors(state, config stepSelectorInput) bool {
+	stateUsesLegacy := state.selector != "" || state.selectorType != ""
+	stateUsesList := len(state.selectors) > 0
+	configUsesList := len(config.selectors) == 1
+	configUsesLegacy := config.selector != "" || config.selectorType != ""
+	return stateUsesLegacy && !stateUsesList && configUsesList && !configUsesLegacy
 }
 
 func flattenSelectorsData(selectors []sc2.Selector) []interface{} {
@@ -1128,23 +1191,12 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			cl["max_wait_time_default"] = checkStep.MaxWaitTimeDefault
 
-			// Only expose selectors blocks when there are multiple; a single selector
-			// is represented via legacy selector/selector_type to avoid plan drift when
-			// config uses those fields only.
-			if len(checkStep.Selectors) > 1 {
+			// Persist all API selectors (including a single one) as selectors blocks so
+			// config using selectors { } stays in sync after apply. Legacy fields are only
+			// written when the API returns no selectors.
+			if len(checkStep.Selectors) > 0 {
 				if selectors := flattenSelectorsData(checkStep.Selectors); selectors != nil {
 					cl["selectors"] = selectors
-				}
-			}
-
-			// Legacy fields only for a single selector; multi-selector steps use selectors blocks only.
-			if len(checkStep.Selectors) <= 1 {
-				selectorType, selector := selectorFieldsFromSelectors(checkStep.Selectors)
-				if selector != "" {
-					cl["selector"] = selector
-				}
-				if selectorType != "" {
-					cl["selector_type"] = selectorType
 				}
 			}
 
@@ -1752,10 +1804,29 @@ func buildCustomPropertiesData(customProperties *schema.Set) []sc2.CustomPropert
 	return customPropertiesList
 }
 
+// dropStaleStepSelectors removes a single selectors block carried over from state
+// when legacy selector fields were updated to different values in config.
+func dropStaleStepSelectors(step map[string]interface{}) {
+	legacyType := stepStringField(step, "selector_type")
+	legacyVal := stepStringField(step, "selector")
+	if legacyType == "" || legacyVal == "" {
+		return
+	}
+	stale := parseSelectorsList(step["selectors"])
+	if len(stale) != 1 {
+		return
+	}
+	if stale[0].Type == legacyType && stale[0].Value == legacyVal {
+		return
+	}
+	delete(step, "selectors")
+}
+
 func buildStepV2Data(steps []interface{}) ([]sc2.StepsV2, error) {
 	stepsList := make([]sc2.StepsV2, len(steps))
 	for i, step := range steps {
 		step := step.(map[string]interface{})
+		dropStaleStepSelectors(step)
 		selectors, err := buildSelectorsFromStep(step)
 		if err != nil {
 			return nil, err
