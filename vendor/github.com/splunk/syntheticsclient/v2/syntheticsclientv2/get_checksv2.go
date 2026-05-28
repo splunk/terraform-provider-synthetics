@@ -108,7 +108,7 @@ func integersQueryParam(params []int, queryParamName string) string {
 	if len(params) == 0 {
 		return ""
 	}
-	return queryParamName + strings.Trim(strings.Replace(fmt.Sprint(params), " ", queryParamName, -1), "[]")
+	return queryParamName + strings.Trim(strings.ReplaceAll(fmt.Sprint(params), " ", queryParamName), "[]")
 }
 
 func stringsQueryParam(params []string, queryParamName string) string {

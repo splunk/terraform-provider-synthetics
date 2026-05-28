@@ -40,11 +40,17 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         value                = "{{env.beep-var}}"
       }
       steps {
-        name                 = "03 click"
-        selector             = "clicky"
-        selector_type        = "id"
-        type                 = "click_element"
-        wait_for_nav         = true
+        name          = "03 click"
+        type          = "click_element"
+        wait_for_nav  = true
+        selectors {
+          type  = "css"
+          value = ".checkout-primary"
+        }
+        selectors {
+          type  = "id"
+          value = "clicky"
+        }
       }
       steps {
         name                 = "04 accept---Alert"
@@ -283,8 +289,9 @@ Optional:
 - `option_selector` (String)
 - `option_selector_type` (String)
 - `options` (Block Set) (see [below for nested schema](#nestedblock--test--transactions--steps--options))
-- `selector` (String)
-- `selector_type` (String)
+- `selector` (String) Shorthand for the first selector when selectors is not used.
+- `selector_type` (String) Shorthand for the first selector when selectors is not used.
+- `selectors` (Block List) Element locators for this step (1-10). When set, this is sent to the API as the selectors array. selector and selector_type are still supported as a shorthand for a single locator. (see [below for nested schema](#nestedblock--test--transactions--steps--selectors))
 - `type` (String)
 - `url` (String)
 - `value` (String)
@@ -303,6 +310,15 @@ Read-Only:
 Optional:
 
 - `url` (String)
+
+
+<a id="nestedblock--test--transactions--steps--selectors"></a>
+### Nested Schema for `test.transactions.steps.selectors`
+
+Required:
+
+- `type` (String)
+- `value` (String)
 
 
 

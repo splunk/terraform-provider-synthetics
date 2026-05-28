@@ -312,7 +312,17 @@ func dataSourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	checkTest := flattenApiV2Data(check)
+	devices, _, err := c.GetDevicesV2()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	var deviceList []sc2.Device
+	if devices != nil {
+		deviceList = devices.Devices
+	}
+
+	checkTest := flattenApiV2Data(check, deviceList)
 	if err := d.Set("test", checkTest); err != nil {
 		return diag.FromErr(err)
 	}

@@ -34,7 +34,7 @@ func parseApiCheckV2Response(response string) (*ApiCheckV2Response, error) {
 func (c Client) GetApiCheckV2(id int) (*ApiCheckV2Response, *RequestDetails, error) {
 
 	details, err := c.makePublicAPICall("GET",
-		fmt.Sprintf("/tests/api/%d", id),
+		fmt.Sprintf("/v2/tests/api/%d", id),
 		bytes.NewBufferString("{}"),
 		nil)
 

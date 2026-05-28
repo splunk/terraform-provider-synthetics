@@ -32,7 +32,7 @@ func parseGetBrowserCheckV2Response(response string) (*BrowserCheckV2Response, e
 }
 
 func (c Client) GetBrowserCheckV2(id int) (*BrowserCheckV2Response, *RequestDetails, error) {
-	details, err := c.makePublicAPICall("GET", fmt.Sprintf("/tests/browser/%d", id), bytes.NewBufferString("{}"), nil)
+	details, err := c.makePublicAPICall("GET", fmt.Sprintf("/v2/tests/browser/%d", id), bytes.NewBufferString("{}"), nil)
 
 	// Check for errors
 	if err != nil {

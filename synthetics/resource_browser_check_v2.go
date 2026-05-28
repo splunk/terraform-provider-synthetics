@@ -212,87 +212,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 										Required:    true,
 										Description: "Unique steps for the transaction. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_browser/latest#endpoint-createbrowsertest) as the source of truth for descriptions and options for these values.",
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"url": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"action": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector_type": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"option_selector": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"variable_name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"duration": {
-													Type:     schema.TypeInt,
-													Optional: true,
-												},
-												"wait_for_nav": {
-													Type:     schema.TypeBool,
-													Optional: true,
-													Default:  false,
-												},
-												"wait_for_nav_timeout": {
-													Type:         schema.TypeInt,
-													Optional:     true,
-													ValidateFunc: validation.All(validation.IntAtLeast(1), validation.IntAtMost(20000)),
-												},
-												"wait_for_nav_timeout_default": {
-													Type:     schema.TypeBool,
-													Computed: true,
-												},
-												"max_wait_time": {
-													Type:         schema.TypeInt,
-													Optional:     true,
-													ValidateFunc: validation.All(validation.IntAtLeast(1), validation.IntAtMost(90000)),
-												},
-												"max_wait_time_default": {
-													Type:     schema.TypeBool,
-													Computed: true,
-												},
-												"options": {
-													Type:     schema.TypeSet,
-													Optional: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"url": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-														},
-													},
-												},
-											},
+											Schema: browserCheckV2StepSchema(false),
 										},
 									},
 								},
@@ -336,7 +256,10 @@ func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, m
 	c := meta.(*sc2.Client)
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-	checkData := processBrowserCheckV2Items(d)
+	checkData, err := processBrowserCheckV2Items(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	o, _, err := c.CreateBrowserCheckV2(&checkData)
 	if err != nil {
 		return diag.FromErr(err)
@@ -409,7 +332,10 @@ func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, m
 
 	log.Println("[DEBUG] UPDATE BROWSER CHECK ID: ", checkID)
 
-	checkData := processBrowserCheckV2Items(d)
+	checkData, err := processBrowserCheckV2Items(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	checkIdString, err := strconv.Atoi(checkID)
 	if err != nil {
@@ -425,9 +351,174 @@ func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, m
 	return resourceBrowserCheckV2Read(ctx, d, meta)
 }
 
-func processBrowserCheckV2Items(d *schema.ResourceData) sc2.BrowserCheckV2Input {
-
-	var check = buildBrowserV2Data(d)
+func processBrowserCheckV2Items(d *schema.ResourceData) (sc2.BrowserCheckV2Input, error) {
+	check, err := buildBrowserV2Data(d)
+	if err != nil {
+		return check, err
+	}
 	log.Println("[DEBUG] BROWSER V2 CHECK OUTPUT: ", check)
-	return check
+	return check, nil
+}
+
+var browserCheckV2SelectorTypes = []string{
+	"id",
+	"name",
+	"xpath",
+	"css",
+	"link",
+	"jspath",
+}
+
+func browserCheckV2SelectorSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice(browserCheckV2SelectorTypes, false),
+		},
+		"value": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+	}
+}
+
+// browserCheckV2StepSchema returns the schema for a browser test transaction step.
+// When computed is true, fields are marked computed (for data sources).
+func browserCheckV2StepSchema(computed bool) map[string]*schema.Schema {
+	optional := !computed
+
+	selectorsSchema := &schema.Schema{
+		Type:     schema.TypeList,
+		Elem:     &schema.Resource{Schema: browserCheckV2SelectorSchema()},
+		Optional: optional,
+		Computed: computed,
+		Description: "Element locators for this step (1-10). When set, this is sent to the API as the selectors array. " +
+			"selector and selector_type are still supported as a shorthand for a single locator.",
+	}
+
+	selectorTypeSchema := &schema.Schema{
+		Type:        schema.TypeString,
+		Optional:    optional,
+		Computed:    computed,
+		Description: "Shorthand for the first selector when selectors is not used.",
+	}
+	selectorSchema := &schema.Schema{
+		Type:        schema.TypeString,
+		Optional:    optional,
+		Computed:    computed,
+		Description: "Shorthand for the first selector when selectors is not used.",
+	}
+	if !computed {
+		suppress := browserCheckV2SelectorRepresentationDiffSuppress
+		selectorsSchema.DiffSuppressFunc = suppress
+		selectorTypeSchema.DiffSuppressFunc = suppress
+		selectorSchema.DiffSuppressFunc = suppress
+	}
+
+	return map[string]*schema.Schema{
+		"name": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"type": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"url": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"action": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"selectors":        selectorsSchema,
+		"selector_type":    selectorTypeSchema,
+		"selector":         selectorSchema,
+		"option_selector_type": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"option_selector": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"variable_name": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"value": {
+			Type:     schema.TypeString,
+			Optional: optional,
+			Computed: computed,
+		},
+		"duration": {
+			Type:     schema.TypeInt,
+			Optional: optional,
+			Computed: computed,
+		},
+		"wait_for_nav": func() *schema.Schema {
+			s := &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: optional,
+				Computed: computed,
+			}
+			if !computed {
+				s.Default = false
+			}
+			return s
+		}(),
+		"wait_for_nav_timeout": func() *schema.Schema {
+			s := &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: optional,
+				Computed: computed,
+			}
+			if !computed {
+				s.ValidateFunc = validation.All(validation.IntAtLeast(1), validation.IntAtMost(20000))
+			}
+			return s
+		}(),
+		"wait_for_nav_timeout_default": {
+			Type:     schema.TypeBool,
+			Computed: true,
+		},
+		"max_wait_time": func() *schema.Schema {
+			s := &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: optional,
+				Computed: computed,
+			}
+			if !computed {
+				s.ValidateFunc = validation.All(validation.IntAtLeast(1), validation.IntAtMost(90000))
+			}
+			return s
+		}(),
+		"max_wait_time_default": {
+			Type:     schema.TypeBool,
+			Computed: true,
+		},
+		"options": {
+			Type:     schema.TypeSet,
+			Optional: optional,
+			Computed: computed,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"url": {
+						Type:     schema.TypeString,
+						Optional: optional,
+						Computed: computed,
+					},
+				},
+			},
+		},
+	}
 }

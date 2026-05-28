@@ -25,11 +25,17 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         value                = "{{env.beep-var}}"
       }
       steps {
-        name                 = "03 click"
-        selector             = "clicky"
-        selector_type        = "id"
-        type                 = "click_element"
-        wait_for_nav         = true
+        name          = "03 click"
+        type          = "click_element"
+        wait_for_nav  = true
+        selectors {
+          type  = "css"
+          value = ".checkout-primary"
+        }
+        selectors {
+          type  = "id"
+          value = "clicky"
+        }
       }
       steps {
         name                 = "04 accept---Alert"

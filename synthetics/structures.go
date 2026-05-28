@@ -15,6 +15,7 @@
 package synthetics
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -63,7 +64,7 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 		apiV2["scheduling_strategy"] = checkApiV2.Test.Schedulingstrategy
 	}
 
-	apiV2["device_id"] = checkApiV2.Test.Device.ID
+	apiV2["device_id"] = checkApiV2.Test.Deviceid
 
 	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
 	apiV2["location_ids"] = locationIds
@@ -79,7 +80,160 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	return []interface{}{apiV2}
 }
 
-func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
+func findDeviceByID(devices []sc2.Device, deviceID int) *sc2.Device {
+	for i := range devices {
+		if devices[i].ID == deviceID {
+			return &devices[i]
+		}
+	}
+	return nil
+}
+
+func flattenDeviceFromID(deviceID int, devices []sc2.Device) []interface{} {
+	if device := findDeviceByID(devices, deviceID); device != nil {
+		return flattenDeviceData(device)
+	}
+	if deviceID != 0 {
+		return flattenDeviceData(&sc2.Device{ID: deviceID})
+	}
+	return []interface{}{}
+}
+
+const browserCheckV2MaxSelectors = 10
+
+func selectorsFromFields(selectorType, selector string) []sc2.Selector {
+	if selectorType == "" || selector == "" {
+		return nil
+	}
+	return []sc2.Selector{{Type: selectorType, Value: selector}}
+}
+
+// stepSelectorInput holds legacy and selectors-block fields for one browser step.
+type stepSelectorInput struct {
+	selectorType string
+	selector     string
+	selectors    []sc2.Selector
+}
+
+func parseSelectorsList(raw interface{}) []sc2.Selector {
+	list, ok := raw.([]interface{})
+	if !ok || len(list) == 0 {
+		return nil
+	}
+	out := make([]sc2.Selector, 0, len(list))
+	for _, item := range list {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		selType := stepStringField(m, "type")
+		selValue := stepStringField(m, "value")
+		if selType == "" || selValue == "" {
+			continue
+		}
+		out = append(out, sc2.Selector{Type: selType, Value: selValue})
+	}
+	return out
+}
+
+// resolveSingleSelector returns the single selector implied by the step, using the
+// same precedence as buildSelectorsFromStep. ok is false when there are multiple
+// selectors or no selector at all.
+func (in stepSelectorInput) resolveSingleSelector() (selectorType, selector string, ok bool) {
+	if len(in.selectors) > 1 {
+		return "", "", false
+	}
+	if len(in.selectors) == 1 {
+		return in.selectors[0].Type, in.selectors[0].Value, true
+	}
+	if in.selectorType != "" && in.selector != "" {
+		return in.selectorType, in.selector, true
+	}
+	return "", "", false
+}
+
+func stepSelectorInputsEquivalent(a, b stepSelectorInput) bool {
+	aType, aVal, aOK := a.resolveSingleSelector()
+	bType, bVal, bOK := b.resolveSingleSelector()
+	return aOK && bOK && aType == bType && aVal == bVal
+}
+
+// stepSelectorRepresentationDiffers is true when state and config encode the same
+// single selector using different Terraform fields (legacy vs selectors block).
+func stepSelectorRepresentationDiffers(a, b stepSelectorInput) bool {
+	aUsesList := len(a.selectors) > 0
+	bUsesList := len(b.selectors) > 0
+	aUsesLegacy := a.selector != "" || a.selectorType != ""
+	bUsesLegacy := b.selector != "" || b.selectorType != ""
+	return aUsesList != bUsesList || aUsesLegacy != bUsesLegacy
+}
+
+// migratingFromLegacyToSelectors is true when state still has legacy fields and
+// config has moved to a single selectors block (the one-time migration shape).
+func migratingFromLegacyToSelectors(state, config stepSelectorInput) bool {
+	stateUsesLegacy := state.selector != "" || state.selectorType != ""
+	stateUsesList := len(state.selectors) > 0
+	configUsesList := len(config.selectors) == 1
+	configUsesLegacy := config.selector != "" || config.selectorType != ""
+	return stateUsesLegacy && !stateUsesList && configUsesList && !configUsesLegacy
+}
+
+func flattenSelectorsData(selectors []sc2.Selector) []interface{} {
+	if len(selectors) == 0 {
+		return nil
+	}
+	cls := make([]interface{}, len(selectors))
+	for i, sel := range selectors {
+		cls[i] = map[string]interface{}{
+			"type":  sel.Type,
+			"value": sel.Value,
+		}
+	}
+	return cls
+}
+
+func stepStringField(step map[string]interface{}, key string) string {
+	if v, ok := step[key].(string); ok {
+		return v
+	}
+	return ""
+}
+
+func buildSelectorsFromStep(step map[string]interface{}) ([]sc2.Selector, error) {
+	if raw, ok := step["selectors"]; ok && raw != nil {
+		list, ok := raw.([]interface{})
+		if ok && len(list) > 0 {
+			if len(list) > browserCheckV2MaxSelectors {
+				return nil, fmt.Errorf(
+					"step %q has %d selectors; maximum is %d",
+					stepStringField(step, "name"),
+					len(list),
+					browserCheckV2MaxSelectors,
+				)
+			}
+			result := make([]sc2.Selector, len(list))
+			for i, item := range list {
+				m, ok := item.(map[string]interface{})
+				if !ok {
+					return nil, fmt.Errorf("step %q: invalid selector at index %d", stepStringField(step, "name"), i)
+				}
+				selType := stepStringField(m, "type")
+				selValue := stepStringField(m, "value")
+				if selType == "" || selValue == "" {
+					return nil, fmt.Errorf("step %q: selector at index %d requires type and value", stepStringField(step, "name"), i)
+				}
+				result[i] = sc2.Selector{Type: selType, Value: selValue}
+			}
+			return result, nil
+		}
+	}
+	return selectorsFromFields(
+		stepStringField(step, "selector_type"),
+		stepStringField(step, "selector"),
+	), nil
+}
+
+func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response, devices []sc2.Device) []interface{} {
 	apiV2 := make(map[string]interface{})
 
 	apiV2["active"] = checkApiV2.Test.Active
@@ -132,8 +286,7 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 		apiV2["type"] = checkApiV2.Test.Type
 	}
 
-	device := flattenDeviceData(&checkApiV2.Test.Device)
-	apiV2["device"] = device
+	apiV2["device"] = flattenDeviceFromID(checkApiV2.Test.Deviceid, devices)
 
 	locationIds := flattenLocationData(&checkApiV2.Test.Locationids)
 	apiV2["location_ids"] = locationIds
@@ -507,7 +660,7 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	browserV2["active"] = checkBrowserV2.Test.Active
 	browserV2["automatic_retries"] = checkBrowserV2.Test.Automaticretries
 
-	browserV2["device_id"] = checkBrowserV2.Test.Device.ID
+	browserV2["device_id"] = checkBrowserV2.Test.Deviceid
 
 	if checkBrowserV2.Test.Frequency != 0 {
 		browserV2["frequency"] = checkBrowserV2.Test.Frequency
@@ -538,7 +691,7 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	return []interface{}{browserV2}
 }
 
-func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interface{} {
+func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response, devices []sc2.Device) []interface{} {
 	browserV2 := make(map[string]interface{})
 
 	browserV2["active"] = checkBrowserV2.Test.Active
@@ -594,8 +747,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	locationIds := flattenLocationData(&checkBrowserV2.Test.Locationids)
 	browserV2["location_ids"] = locationIds
 
-	device := flattenDeviceData(&checkBrowserV2.Test.Device)
-	browserV2["device"] = device
+	browserV2["device"] = flattenDeviceFromID(checkBrowserV2.Test.Deviceid, devices)
 
 	advancedSettings := flattenAdvancedSettingsData(&checkBrowserV2.Test.Advancedsettings)
 	browserV2["advanced_settings"] = advancedSettings
@@ -1039,12 +1191,13 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			cl["max_wait_time_default"] = checkStep.MaxWaitTimeDefault
 
-			if checkStep.Selector != "" {
-				cl["selector"] = checkStep.Selector
-			}
-
-			if checkStep.SelectorType != "" {
-				cl["selector_type"] = checkStep.SelectorType
+			// Persist all API selectors (including a single one) as selectors blocks so
+			// config using selectors { } stays in sync after apply. Legacy fields are only
+			// written when the API returns no selectors.
+			if len(checkStep.Selectors) > 0 {
+				if selectors := flattenSelectorsData(checkStep.Selectors); selectors != nil {
+					cl["selectors"] = selectors
+				}
 			}
 
 			if checkStep.OptionSelectorType != "" {
@@ -1061,10 +1214,6 @@ func flattenStepsData(checkSteps *[]sc2.StepsV2) []interface{} {
 
 			if checkStep.Value != "" {
 				cl["value"] = string(checkStep.Value)
-			}
-
-			if checkStep.SelectorType != "" {
-				cl["selector_type"] = checkStep.SelectorType
 			}
 
 			if checkStep.Duration != 0 {
@@ -1418,7 +1567,7 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 	return apiv2
 }
 
-func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
+func buildBrowserV2Data(d *schema.ResourceData) (sc2.BrowserCheckV2Input, error) {
 	var browserv2 sc2.BrowserCheckV2Input
 	browserv2Data := d.Get("test").([]interface{})
 	for _, browser := range browserv2Data {
@@ -1430,7 +1579,11 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 			browserv2.Test.Automaticretries = browser["automatic_retries"].(int)
 			browserv2.Test.LocationIds = buildLocationIdData(browser["location_ids"].([]interface{}))
 			browserv2.Test.Name = browser["name"].(string)
-			browserv2.Test.Transactions = buildBusinessTransactionsData(browser["transactions"].([]interface{}))
+			transactions, err := buildBusinessTransactionsData(browser["transactions"].([]interface{}))
+			if err != nil {
+				return browserv2, err
+			}
+			browserv2.Test.Transactions = transactions
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
 			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
 			browserv2.Test.Customproperties = buildCustomPropertiesData(browser["custom_properties"].(*schema.Set))
@@ -1438,7 +1591,7 @@ func buildBrowserV2Data(d *schema.ResourceData) sc2.BrowserCheckV2Input {
 	}
 
 	log.Println("[DEBUG] build browserv2 data:", browserv2)
-	return browserv2
+	return browserv2, nil
 }
 
 func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
@@ -1601,17 +1754,21 @@ func buildRequestsData(requests []interface{}) []sc2.Requests {
 	return requestsList
 }
 
-func buildBusinessTransactionsData(businessTransactions []interface{}) []sc2.Transactions {
+func buildBusinessTransactionsData(businessTransactions []interface{}) ([]sc2.Transactions, error) {
 	businessTransactionsList := make([]sc2.Transactions, len(businessTransactions))
 	for i, bisTrans := range businessTransactions {
 		bisTrans := bisTrans.(map[string]interface{})
+		steps, err := buildStepV2Data(bisTrans["steps"].([]interface{}))
+		if err != nil {
+			return nil, err
+		}
 		transaction := sc2.Transactions{
 			Name:    bisTrans["name"].(string),
-			StepsV2: buildStepV2Data(bisTrans["steps"].([]interface{})),
+			StepsV2: steps,
 		}
 		businessTransactionsList[i] = transaction
 	}
-	return businessTransactionsList
+	return businessTransactionsList, nil
 }
 
 func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
@@ -1647,10 +1804,33 @@ func buildCustomPropertiesData(customProperties *schema.Set) []sc2.CustomPropert
 	return customPropertiesList
 }
 
-func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
+// dropStaleStepSelectors removes a single selectors block carried over from state
+// when legacy selector fields were updated to different values in config.
+func dropStaleStepSelectors(step map[string]interface{}) {
+	legacyType := stepStringField(step, "selector_type")
+	legacyVal := stepStringField(step, "selector")
+	if legacyType == "" || legacyVal == "" {
+		return
+	}
+	stale := parseSelectorsList(step["selectors"])
+	if len(stale) != 1 {
+		return
+	}
+	if stale[0].Type == legacyType && stale[0].Value == legacyVal {
+		return
+	}
+	delete(step, "selectors")
+}
+
+func buildStepV2Data(steps []interface{}) ([]sc2.StepsV2, error) {
 	stepsList := make([]sc2.StepsV2, len(steps))
 	for i, step := range steps {
 		step := step.(map[string]interface{})
+		dropStaleStepSelectors(step)
+		selectors, err := buildSelectorsFromStep(step)
+		if err != nil {
+			return nil, err
+		}
 		st := sc2.StepsV2{
 			URL:                step["url"].(string),
 			Name:               step["name"].(string),
@@ -1658,8 +1838,7 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 			WaitForNav:         step["wait_for_nav"].(bool),
 			WaitForNavTimeout:  step["wait_for_nav_timeout"].(int),
 			MaxWaitTime:        step["max_wait_time"].(int),
-			SelectorType:       step["selector_type"].(string),
-			Selector:           step["selector"].(string),
+			Selectors:          selectors,
 			OptionSelectorType: step["option_selector_type"].(string),
 			OptionSelector:     step["option_selector"].(string),
 			VariableName:       step["variable_name"].(string),
@@ -1669,7 +1848,7 @@ func buildStepV2Data(steps []interface{}) []sc2.StepsV2 {
 		stepsList[i] = st
 
 	}
-	return stepsList
+	return stepsList, nil
 }
 
 func buildSetupData(setups []interface{}) []sc2.Setup {

@@ -87,24 +87,29 @@ type BusinessTransactions struct {
 	StepsV2 []StepsV2 `json:"steps"`
 }
 
+// Selector is a v2 browser step element locator (type + value).
+type Selector struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
 type StepsV2 struct {
-	Name                     string  `json:"name"`
-	Type                     string  `json:"type"`
-	URL                      string  `json:"url,omitempty"`
-	Action                   string  `json:"action,omitempty"`
-	WaitForNav               bool    `json:"waitForNav"`
-	WaitForNavTimeout        int     `json:"waitForNavTimeout,omitempty"`
-	WaitForNavTimeoutDefault bool    `json:"waitForNavTimeoutDefault,omitempty"`
-	MaxWaitTime              int     `json:"maxWaitTime,omitempty"`
-	MaxWaitTimeDefault       bool    `json:"maxWaitTimeDefault,omitempty"`
-	SelectorType             string  `json:"selectorType,omitempty"`
-	Selector                 string  `json:"selector,omitempty"`
-	OptionSelectorType       string  `json:"optionSelectorType,omitempty"`
-	OptionSelector           string  `json:"optionSelector,omitempty"`
-	VariableName             string  `json:"variableName,omitempty"`
-	Value                    string  `json:"value,omitempty"`
-	Options                  Options `json:"options,omitempty"`
-	Duration                 int     `json:"duration,omitempty"`
+	Name                     string     `json:"name"`
+	Type                     string     `json:"type"`
+	URL                      string     `json:"url,omitempty"`
+	Action                   string     `json:"action,omitempty"`
+	WaitForNav               bool       `json:"waitForNav"`
+	WaitForNavTimeout        int        `json:"waitForNavTimeout,omitempty"`
+	WaitForNavTimeoutDefault bool       `json:"waitForNavTimeoutDefault,omitempty"`
+	MaxWaitTime              int        `json:"maxWaitTime,omitempty"`
+	MaxWaitTimeDefault       bool       `json:"maxWaitTimeDefault,omitempty"`
+	Selectors                []Selector `json:"selectors,omitempty"`
+	OptionSelectorType       string     `json:"optionSelectorType,omitempty"`
+	OptionSelector           string     `json:"optionSelector,omitempty"`
+	VariableName             string     `json:"variableName,omitempty"`
+	Value                    string     `json:"value,omitempty"`
+	Options                  Options    `json:"options,omitempty"`
+	Duration                 int        `json:"duration,omitempty"`
 }
 
 type Options struct {
@@ -416,9 +421,9 @@ type ApiCheckV2Input struct {
 
 type ApiCheckV2Response struct {
 	Test struct {
-		Active             bool      `json:"active"`
-		Createdat          time.Time `json:"createdAt"`
-		Device             `json:"device,omitempty"`
+		Active             bool               `json:"active"`
+		Createdat          time.Time          `json:"createdAt"`
+		Deviceid           int                `json:"deviceId,omitempty"`
 		Frequency          int                `json:"frequency,omitempty"`
 		ID                 int                `json:"id,omitempty"`
 		Locationids        []string           `json:"locationIds,omitempty"`
@@ -460,8 +465,8 @@ type BrowserCheckV2Response struct {
 type BrowserCheckV2ResponseTest struct {
 	Active             bool `json:"active"`
 	Advancedsettings   `json:"advancedSettings"`
-	Createdat          time.Time `json:"createdAt"`
-	Device             `json:"device"`
+	Createdat          time.Time          `json:"createdAt"`
+	Deviceid           int                `json:"deviceId"`
 	Frequency          int                `json:"frequency"`
 	ID                 int                `json:"id"`
 	Locationids        []string           `json:"locationIds"`

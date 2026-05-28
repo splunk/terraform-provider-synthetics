@@ -121,7 +121,7 @@ resource "synthetics_create_api_check_v2" "api_v2_foo_check" {
 		active = false
 		device_id = 2  
 		frequency = 15
-		location_ids = ["aws-us-west-1"]
+		location_ids = ["aws-us-west-2"]
 		name = "2 Terraform-Api V2 Acceptance Checkaroo Updated"
 		scheduling_strategy = "concurrent"
 		automatic_retries = 0
@@ -295,7 +295,7 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.device_id", "2"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.frequency", "15"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.automatic_retries", "0"),
-					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-west-1"),
+					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.location_ids.0", "aws-us-west-2"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.name", "2 Terraform-Api V2 Acceptance Checkaroo Updated"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
 					resource.TestCheckResourceAttr("synthetics_create_api_check_v2.api_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
