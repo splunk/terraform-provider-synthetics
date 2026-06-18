@@ -1032,6 +1032,173 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 	return []interface{}{portV2}
 }
 
+func flattenSslCheckV2Read(checkSslV2 *sc2.SslCheckV2Response) []interface{} {
+	sslV2 := make(map[string]interface{})
+
+	if checkSslV2.Test.ID != 0 {
+		sslV2["id"] = checkSslV2.Test.ID
+	}
+
+	if checkSslV2.Test.Name != "" {
+		sslV2["name"] = checkSslV2.Test.Name
+	}
+
+	sslV2["active"] = checkSslV2.Test.Active
+	sslV2["automatic_retries"] = checkSslV2.Test.Automaticretries
+
+	if checkSslV2.Test.Frequency != 0 {
+		sslV2["frequency"] = checkSslV2.Test.Frequency
+	}
+
+	if checkSslV2.Test.CreatedAt.IsZero() {
+	} else {
+		sslV2["created_at"] = checkSslV2.Test.CreatedAt.String()
+	}
+
+	if checkSslV2.Test.UpdatedAt.IsZero() {
+	} else {
+		sslV2["updated_at"] = checkSslV2.Test.UpdatedAt.String()
+	}
+
+	if checkSslV2.Test.Createdby != "" {
+		sslV2["created_by"] = checkSslV2.Test.Createdby
+	}
+
+	if checkSslV2.Test.Updatedby != "" {
+		sslV2["updated_by"] = checkSslV2.Test.Updatedby
+	}
+
+	if checkSslV2.Test.Lastrunat.IsZero() {
+	} else {
+		sslV2["last_run_at"] = checkSslV2.Test.Lastrunat.String()
+	}
+
+	if checkSslV2.Test.Lastrunstatus != "" {
+		sslV2["last_run_status"] = checkSslV2.Test.Lastrunstatus
+	}
+
+	if checkSslV2.Test.LastRunLocationId != "" {
+		sslV2["last_run_location_id"] = checkSslV2.Test.LastRunLocationId
+	}
+
+	if checkSslV2.Test.LastRunId != 0 {
+		sslV2["last_run_id"] = checkSslV2.Test.LastRunId
+	}
+
+	if checkSslV2.Test.LastRunCoreMetricsPublishedAt.IsZero() {
+	} else {
+		sslV2["last_run_core_metrics_published_at"] = checkSslV2.Test.LastRunCoreMetricsPublishedAt.String()
+	}
+
+	if checkSslV2.Test.SchedulingStrategy != "" {
+		sslV2["scheduling_strategy"] = checkSslV2.Test.SchedulingStrategy
+	}
+
+	if checkSslV2.Test.Type != "" {
+		sslV2["type"] = checkSslV2.Test.Type
+	}
+
+	if checkSslV2.Test.Host != "" {
+		sslV2["host"] = checkSslV2.Test.Host
+	}
+
+	if checkSslV2.Test.Port != 0 {
+		sslV2["port"] = checkSslV2.Test.Port
+	}
+
+	if checkSslV2.Test.ServerName != nil {
+		sslV2["server_name"] = *checkSslV2.Test.ServerName
+	}
+
+	sslV2["allow_self_signed"] = checkSslV2.Test.AllowSelfSigned
+	sslV2["allow_untrusted_root"] = checkSslV2.Test.AllowUntrustedRoot
+
+	if checkSslV2.Test.CaCertificateID != nil {
+		sslV2["ca_certificate_id"] = *checkSslV2.Test.CaCertificateID
+	}
+
+	locationIds := flattenLocationData(&checkSslV2.Test.LocationIds)
+	sslV2["location_ids"] = locationIds
+
+	validations := flattenValidationsData(&checkSslV2.Test.Validations)
+	sslV2["validations"] = validations
+
+	customProperties := flattenCustomProperties(&checkSslV2.Test.Customproperties)
+	sslV2["custom_properties"] = customProperties
+
+	return []interface{}{sslV2}
+}
+
+func flattenSslCheckV2Data(checkSslV2 *sc2.SslCheckV2Response) []interface{} {
+	return flattenSslCheckV2Read(checkSslV2)
+}
+
+func flattenCaCertificateV2Read(resp *sc2.CaCertificateV2Response, existingContent string) []interface{} {
+	return flattenCaCertificateV2Data(resp, existingContent)
+}
+
+func flattenCaCertificateV2Data(resp *sc2.CaCertificateV2Response, existingContent string) []interface{} {
+	if resp == nil {
+		return []interface{}{}
+	}
+	return []interface{}{flattenCaCertificateData(resp.CaCert, existingContent)}
+}
+
+func flattenCaCertificatesV2Data(caCertificates []sc2.CaCertificate) []interface{} {
+	cls := make([]interface{}, len(caCertificates))
+	for i, caCertificate := range caCertificates {
+		cls[i] = flattenCaCertificateData(caCertificate, "")
+	}
+	return cls
+}
+
+func flattenCaCertificateData(caCertificate sc2.CaCertificate, existingContent string) map[string]interface{} {
+	caCertificateData := make(map[string]interface{})
+
+	if caCertificate.ID != 0 {
+		caCertificateData["id"] = caCertificate.ID
+	}
+	if caCertificate.Name != "" {
+		caCertificateData["name"] = caCertificate.Name
+	}
+	if caCertificate.Description != "" {
+		caCertificateData["description"] = caCertificate.Description
+	}
+	if content := caCertificateContentForState(caCertificate.Content, existingContent); content != "" {
+		caCertificateData["content"] = content
+	}
+	if caCertificate.FileExtension != "" {
+		caCertificateData["file_extension"] = caCertificate.FileExtension
+	}
+	if caCertificate.Filename != "" {
+		caCertificateData["filename"] = caCertificate.Filename
+	}
+	if !caCertificate.ExpiresAt.IsZero() {
+		caCertificateData["expires_at"] = caCertificate.ExpiresAt.String()
+	}
+	if !caCertificate.CreatedAt.IsZero() {
+		caCertificateData["created_at"] = caCertificate.CreatedAt.String()
+	}
+	if caCertificate.CreatedBy != "" {
+		caCertificateData["created_by"] = caCertificate.CreatedBy
+	}
+	if !caCertificate.UpdatedAt.IsZero() {
+		caCertificateData["updated_at"] = caCertificate.UpdatedAt.String()
+	}
+	if caCertificate.UpdatedBy != "" {
+		caCertificateData["updated_by"] = caCertificate.UpdatedBy
+	}
+
+	return caCertificateData
+}
+
+func caCertificateContentForState(apiContent, existingContent string) string {
+	if existingContent != "" && (apiContent == "" || apiContent == caCertificateRedactedContent) {
+		return existingContent
+	}
+	return apiContent
+}
+
 func flattenRequestData(checkRequests *[]sc2.Requests) []interface{} {
 	if checkRequests != nil {
 		cls := make([]interface{}, len(*checkRequests))
@@ -1649,6 +1816,172 @@ func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
 	}
 	log.Println("[DEBUG] build portv2 data: ", portv2)
 	return portv2
+}
+
+func buildSslCheckV2Data(d *schema.ResourceData) sc2.SslCheckV2Input {
+	var sslv2 sc2.SslCheckV2Input
+	sslv2Data := d.Get("test").(*schema.Set).List()
+	var i = 0
+	for _, ssl := range sslv2Data {
+		if i < 1 {
+			ssl := ssl.(map[string]interface{})
+			sslv2.Test.Name = ssl["name"].(string)
+			sslv2.Test.LocationIds = buildLocationIdData(ssl["location_ids"].([]interface{}))
+			sslv2.Test.Frequency = ssl["frequency"].(int)
+			sslv2.Test.SchedulingStrategy = ssl["scheduling_strategy"].(string)
+			sslv2.Test.Active = ssl["active"].(bool)
+			sslv2.Test.Customproperties = buildCustomPropertiesData(ssl["custom_properties"].(*schema.Set))
+			sslv2.Test.Automaticretries = ssl["automatic_retries"].(int)
+			sslv2.Test.Host = ssl["host"].(string)
+			sslv2.Test.Port = ssl["port"].(int)
+			if serverName := sslStringField(ssl, "server_name"); serverName != "" {
+				sslv2.Test.ServerName = &serverName
+			}
+			sslv2.Test.AllowSelfSigned = ssl["allow_self_signed"].(bool)
+			sslv2.Test.AllowUntrustedRoot = ssl["allow_untrusted_root"].(bool)
+			if caCertificateID := sslIntField(ssl, "ca_certificate_id"); caCertificateID != 0 {
+				sslv2.Test.CaCertificateID = &caCertificateID
+			}
+			sslv2.Test.Validations = buildValidationsData(sslInterfaceListField(ssl, "validations"))
+			i++
+		}
+	}
+	return sslv2
+}
+
+func buildSslCheckV2UpdateData(d *schema.ResourceData) sc2.SslCheckV2UpdateInput {
+	var sslv2 sc2.SslCheckV2UpdateInput
+	sslv2Data := d.Get("test").(*schema.Set).List()
+	var i = 0
+	for _, ssl := range sslv2Data {
+		if i < 1 {
+			ssl := ssl.(map[string]interface{})
+			name := ssl["name"].(string)
+			locationIds := buildLocationIdData(ssl["location_ids"].([]interface{}))
+			frequency := ssl["frequency"].(int)
+			schedulingStrategy := ssl["scheduling_strategy"].(string)
+			active := ssl["active"].(bool)
+			customProperties := buildCustomPropertiesData(ssl["custom_properties"].(*schema.Set))
+			automaticRetries := ssl["automatic_retries"].(int)
+			host := ssl["host"].(string)
+			port := ssl["port"].(int)
+			allowSelfSigned := ssl["allow_self_signed"].(bool)
+			allowUntrustedRoot := ssl["allow_untrusted_root"].(bool)
+			validations := buildValidationsData(sslInterfaceListField(ssl, "validations"))
+
+			sslv2.Test.Name = &name
+			sslv2.Test.LocationIds = &locationIds
+			sslv2.Test.Frequency = &frequency
+			sslv2.Test.SchedulingStrategy = &schedulingStrategy
+			sslv2.Test.Active = &active
+			sslv2.Test.Customproperties = &customProperties
+			sslv2.Test.Automaticretries = &automaticRetries
+			sslv2.Test.Host = &host
+			sslv2.Test.Port = &port
+			if serverName := sslStringField(ssl, "server_name"); serverName != "" {
+				sslv2.Test.ServerName = sc2.NewNullableString(serverName)
+			} else {
+				sslv2.Test.ServerName = sc2.NewNullString()
+			}
+			sslv2.Test.AllowSelfSigned = &allowSelfSigned
+			sslv2.Test.AllowUntrustedRoot = &allowUntrustedRoot
+			if caCertificateID := sslIntField(ssl, "ca_certificate_id"); caCertificateID != 0 {
+				sslv2.Test.CaCertificateID = sc2.NewNullableInt(caCertificateID)
+			} else {
+				sslv2.Test.CaCertificateID = sc2.NewNullInt()
+			}
+			sslv2.Test.Validations = &validations
+			i++
+		}
+	}
+	return sslv2
+}
+
+const caCertificateRedactedContent = "<REDACTED>"
+
+func buildCaCertificateV2Data(d *schema.ResourceData) (sc2.CaCertificateV2Input, error) {
+	var caCertificateV2 sc2.CaCertificateV2Input
+	caCertificateV2Data := d.Get("ca_certificate").(*schema.Set).List()
+	if len(caCertificateV2Data) == 0 {
+		return caCertificateV2, fmt.Errorf("ca_certificate block is required")
+	}
+
+	caCertificate := caCertificateV2Data[0].(map[string]interface{})
+	content := caCertificateStringField(caCertificate, "content")
+	if content == "" || content == caCertificateRedactedContent {
+		return caCertificateV2, fmt.Errorf("ca_certificate content is required")
+	}
+
+	caCertificateV2.CaCert.Name = caCertificateStringField(caCertificate, "name")
+	caCertificateV2.CaCert.Description = caCertificateStringField(caCertificate, "description")
+	caCertificateV2.CaCert.Content = content
+	caCertificateV2.CaCert.FileExtension = caCertificateStringField(caCertificate, "file_extension")
+	caCertificateV2.CaCert.Filename = caCertificateStringField(caCertificate, "filename")
+	return caCertificateV2, nil
+}
+
+func buildCaCertificateV2UpdateData(d *schema.ResourceData) sc2.CaCertificateV2UpdateInput {
+	var caCertificateV2 sc2.CaCertificateV2UpdateInput
+	caCertificateV2Data := d.Get("ca_certificate").(*schema.Set).List()
+	if len(caCertificateV2Data) == 0 {
+		return caCertificateV2
+	}
+
+	caCertificate := caCertificateV2Data[0].(map[string]interface{})
+	description := caCertificateStringField(caCertificate, "description")
+	fileExtension := caCertificateStringField(caCertificate, "file_extension")
+	filename := caCertificateStringField(caCertificate, "filename")
+	content := caCertificateStringField(caCertificate, "content")
+
+	caCertificateV2.CaCert.Description = &description
+	caCertificateV2.CaCert.FileExtension = &fileExtension
+	caCertificateV2.CaCert.Filename = &filename
+	if content != "" && content != caCertificateRedactedContent {
+		caCertificateV2.CaCert.Content = &content
+	}
+
+	return caCertificateV2
+}
+
+func caCertificateContentFromState(d *schema.ResourceData) string {
+	caCertificateData, ok := d.Get("ca_certificate").(*schema.Set)
+	if !ok || caCertificateData.Len() == 0 {
+		return ""
+	}
+
+	caCertificate, ok := caCertificateData.List()[0].(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	return caCertificateStringField(caCertificate, "content")
+}
+
+func caCertificateStringField(caCertificate map[string]interface{}, key string) string {
+	if value, ok := caCertificate[key].(string); ok {
+		return value
+	}
+	return ""
+}
+
+func sslStringField(ssl map[string]interface{}, key string) string {
+	if value, ok := ssl[key].(string); ok {
+		return value
+	}
+	return ""
+}
+
+func sslIntField(ssl map[string]interface{}, key string) int {
+	if value, ok := ssl[key].(int); ok {
+		return value
+	}
+	return 0
+}
+
+func sslInterfaceListField(ssl map[string]interface{}, key string) []interface{} {
+	if value, ok := ssl[key].([]interface{}); ok {
+		return value
+	}
+	return []interface{}{}
 }
 
 func buildVariableV2Data(d *schema.ResourceData) sc2.VariableV2Input {

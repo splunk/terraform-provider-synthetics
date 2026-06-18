@@ -17,6 +17,7 @@ package synthetics
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
@@ -186,5 +187,179 @@ func TestBuildSelectorsFromStep_tooManySelectors(t *testing.T) {
 	_, err := buildSelectorsFromStep(step)
 	if err == nil {
 		t.Fatal("expected error for too many selectors")
+	}
+}
+
+func TestBuildSslCheckV2DataSetsNullableFieldsValidationsAndCustomProperties(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceSslCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{
+			map[string]interface{}{
+				"name":                 "ssl-create",
+				"type":                 "ssl",
+				"active":               false,
+				"frequency":            5,
+				"scheduling_strategy":  "round_robin",
+				"location_ids":         []interface{}{"aws-us-east-1"},
+				"automatic_retries":    1,
+				"host":                 "example.com",
+				"port":                 443,
+				"server_name":          "tls.example.com",
+				"allow_self_signed":    true,
+				"allow_untrusted_root": true,
+				"ca_certificate_id":    123,
+				"validations": []interface{}{
+					map[string]interface{}{
+						"name":       "expires",
+						"type":       "certificate",
+						"comparator": "less_than",
+						"value":      "30",
+					},
+				},
+				"custom_properties": []interface{}{
+					map[string]interface{}{
+						"key":   "owner",
+						"value": "synthetics",
+					},
+				},
+			},
+		},
+	})
+
+	got := buildSslCheckV2Data(d)
+
+	if got.Test.ServerName == nil || *got.Test.ServerName != "tls.example.com" {
+		t.Fatalf("ServerName = %#v, want tls.example.com", got.Test.ServerName)
+	}
+	if got.Test.CaCertificateID == nil || *got.Test.CaCertificateID != 123 {
+		t.Fatalf("CaCertificateID = %#v, want 123", got.Test.CaCertificateID)
+	}
+	if len(got.Test.Validations) != 1 || got.Test.Validations[0].Name != "expires" || got.Test.Validations[0].Value != "30" {
+		t.Fatalf("Validations = %#v, want expires validation", got.Test.Validations)
+	}
+	if len(got.Test.Customproperties) != 1 || got.Test.Customproperties[0].Key != "owner" || got.Test.Customproperties[0].Value != "synthetics" {
+		t.Fatalf("Customproperties = %#v, want owner=synthetics", got.Test.Customproperties)
+	}
+}
+
+func TestBuildSslCheckV2UpdateDataSendsExplicitNullsForAbsentNullableFields(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceSslCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{
+			map[string]interface{}{
+				"name":                 "ssl-update",
+				"type":                 "ssl",
+				"active":               false,
+				"frequency":            5,
+				"scheduling_strategy":  "round_robin",
+				"location_ids":         []interface{}{"aws-us-east-1"},
+				"automatic_retries":    1,
+				"host":                 "example.com",
+				"port":                 443,
+				"allow_self_signed":    false,
+				"allow_untrusted_root": false,
+			},
+		},
+	})
+
+	got := buildSslCheckV2UpdateData(d)
+
+	if got.Test.ServerName == nil {
+		t.Fatal("ServerName = nil, want explicit nullable null")
+	}
+	if got.Test.ServerName.Value != nil {
+		t.Fatalf("ServerName.Value = %#v, want nil", *got.Test.ServerName.Value)
+	}
+	if got.Test.CaCertificateID == nil {
+		t.Fatal("CaCertificateID = nil, want explicit nullable null")
+	}
+	if got.Test.CaCertificateID.Value != nil {
+		t.Fatalf("CaCertificateID.Value = %#v, want nil", *got.Test.CaCertificateID.Value)
+	}
+}
+
+func TestFlattenSslCheckV2ReadPreservesNullableServerNameAndCaCertificateID(t *testing.T) {
+	serverName := "tls.example.com"
+	caCertificateID := 123
+	check := &sc2.SslCheckV2Response{}
+	check.Test.Name = "ssl-read"
+	check.Test.Type = "ssl"
+	check.Test.Active = true
+	check.Test.Frequency = 5
+	check.Test.SchedulingStrategy = "round_robin"
+	check.Test.LocationIds = []string{"aws-us-east-1"}
+	check.Test.Host = "example.com"
+	check.Test.Port = 443
+	check.Test.ServerName = &serverName
+	check.Test.CaCertificateID = &caCertificateID
+
+	got := flattenSslCheckV2Read(check)
+	if len(got) != 1 {
+		t.Fatalf("len(flattened) = %d, want 1", len(got))
+	}
+	test := got[0].(map[string]interface{})
+	if test["server_name"] != serverName {
+		t.Fatalf("server_name = %#v, want %q", test["server_name"], serverName)
+	}
+	if test["ca_certificate_id"] != caCertificateID {
+		t.Fatalf("ca_certificate_id = %#v, want %d", test["ca_certificate_id"], caCertificateID)
+	}
+}
+
+func TestBuildCaCertificateV2DataRequiresContent(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceCaCertificateV2().Schema, map[string]interface{}{
+		"ca_certificate": []interface{}{
+			map[string]interface{}{
+				"name":           "ca-create",
+				"description":    "test CA",
+				"file_extension": "pem",
+				"filename":       "test.pem",
+			},
+		},
+	})
+
+	_, err := buildCaCertificateV2Data(d)
+	if err == nil {
+		t.Fatal("expected error when CA certificate content is missing")
+	}
+}
+
+func TestBuildCaCertificateV2UpdateDataDoesNotSendRedactedContent(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceCaCertificateV2().Schema, map[string]interface{}{
+		"ca_certificate": []interface{}{
+			map[string]interface{}{
+				"name":           "ca-update",
+				"description":    "updated CA",
+				"content":        caCertificateRedactedContent,
+				"file_extension": "pem",
+				"filename":       "updated.pem",
+			},
+		},
+	})
+
+	got := buildCaCertificateV2UpdateData(d)
+
+	if got.CaCert.Content != nil {
+		t.Fatalf("Content = %#v, want nil when content is redacted", *got.CaCert.Content)
+	}
+	if got.CaCert.Description == nil || *got.CaCert.Description != "updated CA" {
+		t.Fatalf("Description = %#v, want updated CA", got.CaCert.Description)
+	}
+}
+
+func TestFlattenCaCertificateV2ReadPreservesExistingStateContent(t *testing.T) {
+	check := &sc2.CaCertificateV2Response{}
+	check.CaCert.ID = 123
+	check.CaCert.Name = "ca-read"
+	check.CaCert.Description = "test CA"
+	check.CaCert.Content = caCertificateRedactedContent
+	check.CaCert.FileExtension = "pem"
+	check.CaCert.Filename = "test.pem"
+
+	got := flattenCaCertificateV2Read(check, "existing-sensitive-content")
+	if len(got) != 1 {
+		t.Fatalf("len(flattened) = %d, want 1", len(got))
+	}
+	caCertificate := got[0].(map[string]interface{})
+	if caCertificate["content"] != "existing-sensitive-content" {
+		t.Fatalf("content = %#v, want existing state content", caCertificate["content"])
 	}
 }

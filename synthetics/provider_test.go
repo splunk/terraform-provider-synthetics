@@ -74,6 +74,31 @@ func TestProvider_impl(t *testing.T) {
 	var _ = Provider()
 }
 
+func TestProviderContainsSslAndCaCertificateV2(t *testing.T) {
+	provider := Provider()
+
+	expectedResources := []string{
+		"synthetics_create_ssl_check_v2",
+		"synthetics_create_ca_certificate_v2",
+	}
+	for _, name := range expectedResources {
+		if _, ok := provider.ResourcesMap[name]; !ok {
+			t.Fatalf("Provider().ResourcesMap missing %q", name)
+		}
+	}
+
+	expectedDataSources := []string{
+		"synthetics_ssl_v2_check",
+		"synthetics_ca_certificate_v2_check",
+		"synthetics_ca_certificates_v2_check",
+	}
+	for _, name := range expectedDataSources {
+		if _, ok := provider.DataSourcesMap[name]; !ok {
+			t.Fatalf("Provider().DataSourcesMap missing %q", name)
+		}
+	}
+}
+
 func testAccPreCheck(t *testing.T) {
 	if err := os.Getenv("TF_VAR_rigor_token"); err == "" {
 		t.Fatal("TF_VAR_rigor_token environment variable must be set for acceptance tests. Set to empty string if not testing v1 rigor resources.")
