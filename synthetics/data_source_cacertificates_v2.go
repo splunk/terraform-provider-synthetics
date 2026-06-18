@@ -25,6 +25,7 @@ import (
 
 func dataSourceCaCertificatesV2() *schema.Resource {
 	return &schema.Resource{
+		Description: "Reads Synthetics CA certificates. CA certificate content is read into Terraform state even when marked sensitive. Use encrypted, access-controlled remote state and do not commit private CA material to source control.",
 		ReadContext: dataSourceCaCertificatesV2Read,
 		Schema: map[string]*schema.Schema{
 			"ca_certificates": {
