@@ -322,6 +322,17 @@ func TestBuildCaCertificateV2DataRequiresContent(t *testing.T) {
 	}
 }
 
+func TestCaCertificateV2ContentSchemaIsRequiredAndSensitive(t *testing.T) {
+	certSchema := resourceCaCertificateV2().Schema["ca_certificate"].Elem.(*schema.Resource).Schema
+	contentSchema := certSchema["content"]
+	if !contentSchema.Required {
+		t.Fatal("content schema must be required for CA certificate resources")
+	}
+	if !contentSchema.Sensitive {
+		t.Fatal("content schema must be sensitive for CA certificate resources")
+	}
+}
+
 func TestBuildCaCertificateV2UpdateDataDoesNotSendRedactedContent(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceCaCertificateV2().Schema, map[string]interface{}{
 		"ca_certificate": []interface{}{

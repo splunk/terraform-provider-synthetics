@@ -362,9 +362,7 @@ func resourceSslCheckV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(strconv.Itoa(o.Test.ID))
 
-	resourceSslCheckV2Read(ctx, d, meta)
-
-	return diags
+	return append(diags, resourceSslCheckV2Read(ctx, d, meta)...)
 }
 
 func resourceSslCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

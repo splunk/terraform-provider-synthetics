@@ -65,7 +65,7 @@ func caCertificateV2ResourceSchema() map[string]*schema.Schema {
 		},
 		"content": {
 			Type:      schema.TypeString,
-			Optional:  true,
+			Required:  true,
 			Sensitive: true,
 		},
 		"file_extension": {

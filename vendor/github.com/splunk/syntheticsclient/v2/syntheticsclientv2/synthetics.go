@@ -21,6 +21,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"time"
 )
 
@@ -84,7 +85,7 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	if err != nil {
 		return &details, err
 	}
-	details.RequestBody = string(requestDump)
+	details.RequestBody = sanitizeRequestDump(endpoint, requestDump)
 	fmt.Println("************")
 	fmt.Println(details.RequestBody)
 	fmt.Println("************")
@@ -118,6 +119,70 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	details.ResponseBody = string(responseBody)
 
 	return &details, nil
+}
+
+func sanitizeRequestDump(endpoint string, requestDump []byte) string {
+	dump := redactHeader(string(requestDump), "X-Sf-Token")
+	if strings.Contains(endpoint, "/cacerts") {
+		return redactRequestJSONField(dump, "content")
+	}
+	return dump
+}
+
+func redactHeader(dump string, header string) string {
+	lines := strings.Split(dump, "\n")
+	prefix := strings.ToLower(header) + ":"
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(strings.ToLower(trimmed), prefix) {
+			suffix := ""
+			if strings.HasSuffix(line, "\r") {
+				suffix = "\r"
+			}
+			lines[i] = header + ": <REDACTED>" + suffix
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+func redactRequestJSONField(dump string, field string) string {
+	separator := "\r\n\r\n"
+	parts := strings.SplitN(dump, separator, 2)
+	if len(parts) != 2 {
+		separator = "\n\n"
+		parts = strings.SplitN(dump, separator, 2)
+	}
+	if len(parts) != 2 {
+		return dump
+	}
+
+	var body interface{}
+	if err := json.Unmarshal([]byte(parts[1]), &body); err != nil {
+		return dump
+	}
+	redactJSONField(body, field)
+	redactedBody, err := json.Marshal(body)
+	if err != nil {
+		return dump
+	}
+	return parts[0] + separator + string(redactedBody)
+}
+
+func redactJSONField(value interface{}, field string) {
+	switch typed := value.(type) {
+	case map[string]interface{}:
+		for key, nested := range typed {
+			if strings.EqualFold(key, field) {
+				typed[key] = "<REDACTED>"
+				continue
+			}
+			redactJSONField(nested, field)
+		}
+	case []interface{}:
+		for _, nested := range typed {
+			redactJSONField(nested, field)
+		}
+	}
 }
 
 func NewClientArgs(timeout int, baseUrl string) ClientArgs {
