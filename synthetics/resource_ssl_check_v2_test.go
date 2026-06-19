@@ -120,3 +120,23 @@ func TestSslCheckV2AcceptanceConfigsOmitUnsupportedCertificateValidations(t *tes
 		}
 	}
 }
+
+func TestSslCheckV2ValidationSchemaExposesOnlyControllerAllowedFields(t *testing.T) {
+	schema := sslCheckV2ValidationSchema()
+	allowed := map[string]bool{
+		"actual":     true,
+		"comparator": true,
+		"expected":   true,
+		"name":       true,
+		"type":       true,
+	}
+
+	if len(schema) != len(allowed) {
+		t.Fatalf("SSL validation schema fields = %d, want %d: %#v", len(schema), len(allowed), schema)
+	}
+	for key := range schema {
+		if !allowed[key] {
+			t.Fatalf("SSL validation schema exposes unsupported field %q", key)
+		}
+	}
+}

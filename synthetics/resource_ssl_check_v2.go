@@ -288,8 +288,9 @@ func sslCheckV2DataSourceTestSchema() map[string]*schema.Schema {
 func sslCheckV2ValidationSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"actual": {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\{\{(response|headers)\.[^}]+\}\}$`), "actual must follow the format {{response.<VARIABLE_NAME>}} or {{headers.<VARIABLE_NAME>}}"),
 		},
 		"comparator": {
 			Type:     schema.TypeString,
@@ -304,28 +305,9 @@ func sslCheckV2ValidationSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 		"type": {
-			Type:     schema.TypeString,
-			Optional: true,
-		},
-		"extractor": {
-			Type:     schema.TypeString,
-			Optional: true,
-		},
-		"source": {
-			Type:     schema.TypeString,
-			Optional: true,
-		},
-		"variable": {
-			Type:     schema.TypeString,
-			Optional: true,
-		},
-		"value": {
-			Type:     schema.TypeString,
-			Optional: true,
-		},
-		"code": {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"assert_numeric", "assert_string"}, false),
 		},
 	}
 }

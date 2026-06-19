@@ -209,10 +209,11 @@ func TestBuildSslCheckV2DataSetsNullableFieldsValidationsAndCustomProperties(t *
 				"ca_certificate_id":    123,
 				"validations": []interface{}{
 					map[string]interface{}{
-						"name":       "expires",
-						"type":       "certificate",
-						"comparator": "less_than",
-						"value":      "30",
+						"name":       "response code",
+						"type":       "assert_numeric",
+						"actual":     "{{response.code}}",
+						"comparator": "equals",
+						"expected":   "200",
 					},
 				},
 				"custom_properties": []interface{}{
@@ -233,11 +234,37 @@ func TestBuildSslCheckV2DataSetsNullableFieldsValidationsAndCustomProperties(t *
 	if got.Test.CaCertificateID == nil || *got.Test.CaCertificateID != 123 {
 		t.Fatalf("CaCertificateID = %#v, want 123", got.Test.CaCertificateID)
 	}
-	if len(got.Test.Validations) != 1 || got.Test.Validations[0].Name != "expires" || got.Test.Validations[0].Value != "30" {
-		t.Fatalf("Validations = %#v, want expires validation", got.Test.Validations)
+	if len(got.Test.Validations) != 1 {
+		t.Fatalf("Validations = %#v, want one validation", got.Test.Validations)
+	}
+	validation := got.Test.Validations[0]
+	if validation.Name != "response code" || validation.Type != "assert_numeric" || validation.Actual != "{{response.code}}" || validation.Comparator != "equals" || validation.Expected != "200" {
+		t.Fatalf("Validation = %#v, want response code assertion", validation)
+	}
+	if validation.Extractor != "" || validation.Source != "" || validation.Variable != "" || validation.Value != "" || validation.Code != "" {
+		t.Fatalf("Validation includes unsupported SSL fields: %#v", validation)
 	}
 	if len(got.Test.Customproperties) != 1 || got.Test.Customproperties[0].Key != "owner" || got.Test.Customproperties[0].Value != "synthetics" {
 		t.Fatalf("Customproperties = %#v, want owner=synthetics", got.Test.Customproperties)
+	}
+}
+
+func TestBuildValidationsDataToleratesMissingGenericValidationFields(t *testing.T) {
+	got := buildValidationsData([]interface{}{
+		map[string]interface{}{
+			"name":       "response code",
+			"type":       "assert_numeric",
+			"actual":     "{{response.code}}",
+			"comparator": "equals",
+			"expected":   "200",
+		},
+	})
+
+	if len(got) != 1 {
+		t.Fatalf("Validations = %#v, want one validation", got)
+	}
+	if got[0].Name != "response code" || got[0].Type != "assert_numeric" || got[0].Actual != "{{response.code}}" || got[0].Comparator != "equals" || got[0].Expected != "200" {
+		t.Fatalf("Validation = %#v, want response code assertion", got[0])
 	}
 }
 

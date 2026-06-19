@@ -1120,7 +1120,7 @@ func flattenSslCheckV2Read(checkSslV2 *sc2.SslCheckV2Response) []interface{} {
 	locationIds := flattenLocationData(&checkSslV2.Test.LocationIds)
 	sslV2["location_ids"] = locationIds
 
-	validations := flattenValidationsData(&checkSslV2.Test.Validations)
+	validations := flattenSslValidationsData(&checkSslV2.Test.Validations)
 	sslV2["validations"] = validations
 
 	customProperties := flattenCustomProperties(&checkSslV2.Test.Customproperties)
@@ -1590,6 +1590,42 @@ func flattenValidationsData(checkValidations *[]sc2.Validations) []interface{} {
 
 			if checkValidations.Code != "" {
 				cl["code"] = checkValidations.Code
+			}
+
+			cls[i] = cl
+		}
+
+		return cls
+	}
+
+	return make([]interface{}, 0)
+}
+
+func flattenSslValidationsData(checkValidations *[]sc2.Validations) []interface{} {
+	if checkValidations != nil {
+		cls := make([]interface{}, len(*checkValidations))
+
+		for i, checkValidation := range *checkValidations {
+			cl := make(map[string]interface{})
+
+			if checkValidation.Name != "" {
+				cl["name"] = checkValidation.Name
+			}
+
+			if checkValidation.Type != "" {
+				cl["type"] = checkValidation.Type
+			}
+
+			if checkValidation.Actual != "" {
+				cl["actual"] = checkValidation.Actual
+			}
+
+			if checkValidation.Expected != "" {
+				cl["expected"] = checkValidation.Expected
+			}
+
+			if checkValidation.Comparator != "" {
+				cl["comparator"] = checkValidation.Comparator
 			}
 
 			cls[i] = cl
@@ -2210,22 +2246,29 @@ func buildValidationsData(validations []interface{}) []sc2.Validations {
 	for i, validation := range validations {
 		validation := validation.(map[string]interface{})
 		val := sc2.Validations{
-			Actual:     validation["actual"].(string),
-			Comparator: validation["comparator"].(string),
-			Expected:   validation["expected"].(string),
-			Name:       validation["name"].(string),
-			Type:       validation["type"].(string),
-			Extractor:  validation["extractor"].(string),
-			Source:     validation["source"].(string),
-			Variable:   validation["variable"].(string),
-			Code:       validation["code"].(string),
-			Value:      validation["value"].(string),
+			Actual:     stringMapValue(validation, "actual"),
+			Comparator: stringMapValue(validation, "comparator"),
+			Expected:   stringMapValue(validation, "expected"),
+			Name:       stringMapValue(validation, "name"),
+			Type:       stringMapValue(validation, "type"),
+			Extractor:  stringMapValue(validation, "extractor"),
+			Source:     stringMapValue(validation, "source"),
+			Variable:   stringMapValue(validation, "variable"),
+			Code:       stringMapValue(validation, "code"),
+			Value:      stringMapValue(validation, "value"),
 		}
 
 		validationsList[i] = val
 
 	}
 	return validationsList
+}
+
+func stringMapValue(values map[string]interface{}, key string) string {
+	if value, ok := values[key].(string); ok {
+		return value
+	}
+	return ""
 }
 
 func buildConfigurationData(configuration []interface{}) sc2.Configuration {
