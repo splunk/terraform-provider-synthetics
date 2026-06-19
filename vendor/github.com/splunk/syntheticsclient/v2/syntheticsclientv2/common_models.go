@@ -15,10 +15,79 @@
 package syntheticsclientv2
 
 import (
+	"encoding/json"
 	"time"
 )
 
 // Common and shared struct models used for more complex requests
+type NullableString struct {
+	Value *string
+}
+
+func NewNullableString(value string) *NullableString {
+	return &NullableString{Value: &value}
+}
+
+func NewNullString() *NullableString {
+	return &NullableString{}
+}
+
+func (n NullableString) MarshalJSON() ([]byte, error) {
+	if n.Value == nil {
+		return []byte("null"), nil
+	}
+
+	return json.Marshal(*n.Value)
+}
+
+func (n *NullableString) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		n.Value = nil
+		return nil
+	}
+
+	var value string
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	n.Value = &value
+	return nil
+}
+
+type NullableInt struct {
+	Value *int
+}
+
+func NewNullableInt(value int) *NullableInt {
+	return &NullableInt{Value: &value}
+}
+
+func NewNullInt() *NullableInt {
+	return &NullableInt{}
+}
+
+func (n NullableInt) MarshalJSON() ([]byte, error) {
+	if n.Value == nil {
+		return []byte("null"), nil
+	}
+
+	return json.Marshal(*n.Value)
+}
+
+func (n *NullableInt) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		n.Value = nil
+		return nil
+	}
+
+	var value int
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	n.Value = &value
+	return nil
+}
+
 type Networkconnection struct {
 	Description       string `json:"description,omitempty"`
 	Downloadbandwidth int    `json:"downloadBandwidth,omitempty"`
@@ -312,6 +381,119 @@ type ChecksV2Response struct {
 	Perpage      int `json:"perPage"`
 	Tests        `json:"tests"`
 	Totalcount   int `json:"totalCount"`
+}
+
+type CaCertificate struct {
+	ID            int       `json:"id,omitempty"`
+	Name          string    `json:"name"`
+	Description   string    `json:"description,omitempty"`
+	Content       string    `json:"content,omitempty"`
+	FileExtension string    `json:"fileExtension,omitempty"`
+	Filename      string    `json:"filename,omitempty"`
+	ExpiresAt     time.Time `json:"expiresAt,omitempty"`
+	CreatedAt     time.Time `json:"createdAt,omitempty"`
+	CreatedBy     string    `json:"createdBy,omitempty"`
+	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy     string    `json:"updatedBy,omitempty"`
+}
+
+type CaCertificateInput struct {
+	Name          string `json:"name,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Content       string `json:"content,omitempty"`
+	FileExtension string `json:"fileExtension,omitempty"`
+	Filename      string `json:"filename,omitempty"`
+}
+
+type CaCertificateUpdateInput struct {
+	Description   *string `json:"description,omitempty"`
+	Content       *string `json:"content,omitempty"`
+	FileExtension *string `json:"fileExtension,omitempty"`
+	Filename      *string `json:"filename,omitempty"`
+}
+
+type CaCertificateV2Input struct {
+	CaCert CaCertificateInput `json:"cacert"`
+}
+
+type CaCertificateV2UpdateInput struct {
+	CaCert CaCertificateUpdateInput `json:"cacert"`
+}
+
+type CaCertificateV2Response struct {
+	CaCert CaCertificate `json:"cacert"`
+}
+
+type CaCertificatesV2Response struct {
+	CaCerts []CaCertificate `json:"cacerts"`
+}
+
+type SslCheckV2Response struct {
+	Test struct {
+		ID                            int                `json:"id,omitempty"`
+		Name                          string             `json:"name,omitempty"`
+		Active                        bool               `json:"active"`
+		Frequency                     int                `json:"frequency,omitempty"`
+		SchedulingStrategy            string             `json:"schedulingStrategy,omitempty"`
+		CreatedAt                     time.Time          `json:"createdAt,omitempty"`
+		UpdatedAt                     time.Time          `json:"updatedAt,omitempty"`
+		LocationIds                   []string           `json:"locationIds,omitempty"`
+		Type                          string             `json:"type,omitempty"`
+		Host                          string             `json:"host,omitempty"`
+		Port                          int                `json:"port,omitempty"`
+		ServerName                    *string            `json:"serverName,omitempty"`
+		AllowSelfSigned               bool               `json:"allowSelfSigned"`
+		AllowUntrustedRoot            bool               `json:"allowUntrustedRoot"`
+		CaCertificateID               *int               `json:"caCertificateId"`
+		Validations                   []Validations      `json:"validations"`
+		Customproperties              []CustomProperties `json:"customProperties"`
+		Lastrunstatus                 string             `json:"lastRunStatus"`
+		Lastrunat                     time.Time          `json:"lastRunAt"`
+		LastRunCoreMetricsPublishedAt time.Time          `json:"lastRunCoreMetricsPublishedAt"`
+		LastRunLocationId             string             `json:"lastRunLocationId"`
+		LastRunId                     int                `json:"lastRunId"`
+		Automaticretries              int                `json:"automaticRetries"`
+		Createdby                     string             `json:"createdBy"`
+		Updatedby                     string             `json:"updatedBy"`
+	} `json:"test"`
+}
+
+type SslCheckV2Input struct {
+	Test struct {
+		Name               string             `json:"name"`
+		LocationIds        []string           `json:"locationIds"`
+		Frequency          int                `json:"frequency"`
+		SchedulingStrategy string             `json:"schedulingStrategy"`
+		Active             bool               `json:"active"`
+		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
+		Host               string             `json:"host"`
+		Port               int                `json:"port"`
+		ServerName         *string            `json:"serverName"`
+		AllowSelfSigned    bool               `json:"allowSelfSigned"`
+		AllowUntrustedRoot bool               `json:"allowUntrustedRoot"`
+		CaCertificateID    *int               `json:"caCertificateId"`
+		Validations        []Validations      `json:"validations"`
+	} `json:"test"`
+}
+
+type SslCheckV2UpdateInput struct {
+	Test struct {
+		Name               *string             `json:"name,omitempty"`
+		LocationIds        *[]string           `json:"locationIds,omitempty"`
+		Frequency          *int                `json:"frequency,omitempty"`
+		SchedulingStrategy *string             `json:"schedulingStrategy,omitempty"`
+		Active             *bool               `json:"active,omitempty"`
+		Customproperties   *[]CustomProperties `json:"customProperties,omitempty"`
+		Automaticretries   *int                `json:"automaticRetries,omitempty"`
+		Host               *string             `json:"host,omitempty"`
+		Port               *int                `json:"port,omitempty"`
+		ServerName         *NullableString     `json:"serverName,omitempty"`
+		AllowSelfSigned    *bool               `json:"allowSelfSigned,omitempty"`
+		AllowUntrustedRoot *bool               `json:"allowUntrustedRoot,omitempty"`
+		CaCertificateID    *NullableInt        `json:"caCertificateId,omitempty"`
+		Validations        *[]Validations      `json:"validations,omitempty"`
+	} `json:"test"`
 }
 
 type PortCheckV2Response struct {
