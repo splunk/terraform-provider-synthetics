@@ -15,6 +15,7 @@
 package synthetics
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -41,13 +42,6 @@ resource "synthetics_create_ssl_check_v2" "ssl_v2_check" {
       value = "terraform-acceptance"
     }
 
-    validations {
-      name       = "Certificate expires later"
-      type       = "assert_numeric"
-      actual     = "{{certificate.days_until_expiration}}"
-      comparator = "is_greater_than"
-      expected   = "7"
-    }
   }
 }
 `
@@ -72,13 +66,6 @@ resource "synthetics_create_ssl_check_v2" "ssl_v2_check" {
       value = "terraform-acceptance-updated"
     }
 
-    validations {
-      name       = "Certificate expires later"
-      type       = "assert_numeric"
-      actual     = "{{certificate.days_until_expiration}}"
-      comparator = "is_greater_than"
-      expected   = "7"
-    }
   }
 }
 `
@@ -118,4 +105,18 @@ func TestAccCreateUpdateSslCheckV2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestSslCheckV2AcceptanceConfigsOmitUnsupportedCertificateValidations(t *testing.T) {
+	for name, config := range map[string]string{
+		"create": newSslCheckV2Config,
+		"update": updatedSslCheckV2Config,
+	} {
+		if strings.Contains(config, "{{certificate.days_until_expiration}}") {
+			t.Fatalf("%s config uses unsupported certificate metric validation actual", name)
+		}
+		if strings.Contains(config, "validations {") {
+			t.Fatalf("%s config must not send unsupported SSL certificate validations", name)
+		}
+	}
 }
