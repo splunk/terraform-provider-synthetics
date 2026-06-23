@@ -85,10 +85,7 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	if err != nil {
 		return &details, err
 	}
-	details.RequestBody = sanitizeRequestDump(endpoint, requestDump)
-	fmt.Println("************")
-	fmt.Println(details.RequestBody)
-	fmt.Println("************")
+	details.RequestBody = sanitizeRequestDump(string(requestDump), c.apiKey, endpoint)
 
 	// Make the request
 	resp, err := c.httpClient.Do(req)
@@ -121,66 +118,72 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	return &details, nil
 }
 
-func sanitizeRequestDump(endpoint string, requestDump []byte) string {
-	dump := redactHeader(string(requestDump), "X-Sf-Token")
-	if strings.Contains(endpoint, "/cacerts") {
-		return redactRequestJSONField(dump, "content")
+func redactSensitiveValue(value string, sensitiveValue string) string {
+	if sensitiveValue == "" {
+		return value
 	}
-	return dump
+
+	return strings.ReplaceAll(value, sensitiveValue, "[REDACTED]")
 }
 
-func redactHeader(dump string, header string) string {
-	lines := strings.Split(dump, "\n")
-	prefix := strings.ToLower(header) + ":"
-	for i, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(strings.ToLower(trimmed), prefix) {
-			suffix := ""
-			if strings.HasSuffix(line, "\r") {
-				suffix = "\r"
-			}
-			lines[i] = header + ": <REDACTED>" + suffix
+func sanitizeRequestDump(requestDump string, apiKey string, endpoint string) string {
+	sanitizedRequestDump := redactSensitiveValue(requestDump, apiKey)
+	if !strings.Contains(endpoint, "/cacerts") {
+		return sanitizedRequestDump
+	}
+
+	return redactCaCertificateContent(sanitizedRequestDump)
+}
+
+func redactCaCertificateContent(requestDump string) string {
+	headers, body, separator, ok := splitRequestDump(requestDump)
+	if !ok || body == "" {
+		return requestDump
+	}
+
+	var requestBody interface{}
+	if err := json.Unmarshal([]byte(body), &requestBody); err != nil {
+		return replaceRequestDumpBody(headers, separator)
+	}
+
+	redactContentFields(requestBody)
+
+	redactedRequestBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return replaceRequestDumpBody(headers, separator)
+	}
+
+	return headers + separator + string(redactedRequestBody)
+}
+
+func splitRequestDump(requestDump string) (string, string, string, bool) {
+	for _, separator := range []string{"\r\n\r\n", "\n\n"} {
+		requestParts := strings.SplitN(requestDump, separator, 2)
+		if len(requestParts) == 2 {
+			return requestParts[0], requestParts[1], separator, true
 		}
 	}
-	return strings.Join(lines, "\n")
+
+	return "", "", "", false
 }
 
-func redactRequestJSONField(dump string, field string) string {
-	separator := "\r\n\r\n"
-	parts := strings.SplitN(dump, separator, 2)
-	if len(parts) != 2 {
-		separator = "\n\n"
-		parts = strings.SplitN(dump, separator, 2)
-	}
-	if len(parts) != 2 {
-		return dump
-	}
-
-	var body interface{}
-	if err := json.Unmarshal([]byte(parts[1]), &body); err != nil {
-		return dump
-	}
-	redactJSONField(body, field)
-	redactedBody, err := json.Marshal(body)
-	if err != nil {
-		return dump
-	}
-	return parts[0] + separator + string(redactedBody)
+func replaceRequestDumpBody(headers string, separator string) string {
+	return headers + separator + "[REDACTED]"
 }
 
-func redactJSONField(value interface{}, field string) {
-	switch typed := value.(type) {
+func redactContentFields(value interface{}) {
+	switch typedValue := value.(type) {
 	case map[string]interface{}:
-		for key, nested := range typed {
-			if strings.EqualFold(key, field) {
-				typed[key] = "<REDACTED>"
+		for key, nestedValue := range typedValue {
+			if strings.EqualFold(key, "content") {
+				typedValue[key] = "[REDACTED]"
 				continue
 			}
-			redactJSONField(nested, field)
+			redactContentFields(nestedValue)
 		}
 	case []interface{}:
-		for _, nested := range typed {
-			redactJSONField(nested, field)
+		for _, nestedValue := range typedValue {
+			redactContentFields(nestedValue)
 		}
 	}
 }

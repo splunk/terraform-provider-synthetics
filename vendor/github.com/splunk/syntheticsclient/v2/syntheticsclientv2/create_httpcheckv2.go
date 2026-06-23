@@ -55,3 +55,38 @@ func (c Client) CreateHttpCheckV2(HttpCheckV2Details *HttpCheckV2Input) (*HttpCh
 
 	return newHttpCheckV2, details, nil
 }
+
+func parseCreateHttpCheckV2WithNullablePortResponse(response string) (*HttpCheckV2ResponseWithNullablePort, error) {
+	var createHttpCheckV2 HttpCheckV2ResponseWithNullablePort
+	JSONResponse := []byte(response)
+	err := json.Unmarshal(JSONResponse, &createHttpCheckV2)
+	if err != nil {
+		return nil, err
+	}
+
+	return &createHttpCheckV2, err
+}
+
+func (c Client) CreateHttpCheckV2WithNullablePort(HttpCheckV2Details *HttpCheckV2InputWithNullablePort) (*HttpCheckV2ResponseWithNullablePort, *RequestDetails, error) {
+	if HttpCheckV2Details.Test.Validations == nil {
+		validation := make([]Validations, 0)
+		HttpCheckV2Details.Test.Validations = validation
+	}
+
+	body, err := json.Marshal(HttpCheckV2Details)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	details, err := c.makePublicAPICall("POST", "/tests/http", bytes.NewBuffer(body), nil)
+	if err != nil {
+		return nil, details, err
+	}
+
+	newHttpCheckV2, err := parseCreateHttpCheckV2WithNullablePortResponse(details.ResponseBody)
+	if err != nil {
+		return newHttpCheckV2, details, err
+	}
+
+	return newHttpCheckV2, details, nil
+}

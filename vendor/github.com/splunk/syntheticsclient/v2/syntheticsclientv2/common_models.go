@@ -117,6 +117,10 @@ type ChromeFlagsResponse struct {
 	ChromeFlags []ChromeFlag `json:"chromeFlags"`
 }
 
+type ExcludedFileTypesResponse struct {
+	ExcludedFileTypes []string `json:"excludedFileTypes"`
+}
+
 type Authentication struct {
 	Password string `json:"password,omitempty"`
 	Username string `json:"username,omitempty"`
@@ -295,6 +299,37 @@ type Variable struct {
 	Value       string    `json:"value"`
 }
 
+type TotpVariable struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	Description string    `json:"description"`
+	Digits      int       `json:"digits"`
+	HmacDigest  string    `json:"hmacDigest"`
+	ID          int       `json:"id"`
+	Interval    int       `json:"interval"`
+	Name        string    `json:"name"`
+	Secret      string    `json:"secret"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	UpdatedBy   string    `json:"updatedBy"`
+}
+
+type TotpVariableInput struct {
+	Description string `json:"description"`
+	Digits      int    `json:"digits"`
+	HmacDigest  string `json:"hmacDigest"`
+	Interval    int    `json:"interval"`
+	Name        string `json:"name"`
+	Secret      string `json:"secret"`
+}
+
+type TotpVariableUpdateInput struct {
+	Description *string `json:"description,omitempty"`
+	Digits      *int    `json:"digits,omitempty"`
+	HmacDigest  *string `json:"hmacDigest,omitempty"`
+	Interval    *int    `json:"interval,omitempty"`
+	Secret      *string `json:"secret,omitempty"`
+}
+
 type DowntimeConfiguration struct {
 	Createdat      time.Time   `json:"createdAt,omitempty"`
 	Description    string      `json:"description,omitempty"`
@@ -360,6 +395,22 @@ type VariableV2Input struct {
 
 type VariablesV2Response struct {
 	Variable []Variable `json:"variables"`
+}
+
+type TotpVariableV2Input struct {
+	Totp TotpVariableInput `json:"totp"`
+}
+
+type TotpVariableV2UpdateInput struct {
+	Totp TotpVariableUpdateInput `json:"totp"`
+}
+
+type TotpVariableV2Response struct {
+	Totp TotpVariable `json:"totp"`
+}
+
+type TotpVariablesV2Response struct {
+	Totps []TotpVariable `json:"totps"`
 }
 
 type LocationsV2Response struct {
@@ -584,6 +635,57 @@ type HttpCheckV2Input struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Automaticretries   int                `json:"automaticRetries"`
 		Port               int                `json:"port"`
+	} `json:"test"`
+}
+
+type HttpCheckV2ResponseWithNullablePort struct {
+	Test struct {
+		ID                 int                `json:"id"`
+		Name               string             `json:"name"`
+		Active             bool               `json:"active"`
+		Frequency          int                `json:"frequency"`
+		SchedulingStrategy string             `json:"schedulingStrategy"`
+		CreatedAt          time.Time          `json:"createdAt,omitempty"`
+		UpdatedAt          time.Time          `json:"updatedAt,omitempty"`
+		LocationIds        []string           `json:"locationIds"`
+		Type               string             `json:"type"`
+		URL                string             `json:"url"`
+		RequestMethod      string             `json:"requestMethod"`
+		Body               string             `json:"body,omitempty"`
+		Authentication     *Authentication    `json:"authentication"`
+		UserAgent          *string            `json:"userAgent"`
+		Verifycertificates bool               `json:"verifyCertificates"`
+		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
+		Validations        []Validations      `json:"validations"`
+		Customproperties   []CustomProperties `json:"customProperties"`
+		Lastrunstatus      string             `json:"lastRunStatus"`
+		Lastrunat          time.Time          `json:"lastRunAt"`
+		Automaticretries   int                `json:"automaticRetries"`
+		Port               NullableInt        `json:"port"`
+		Createdby          string             `json:"createdBy"`
+		Updatedby          string             `json:"updatedBy"`
+	} `json:"test"`
+}
+
+type HttpCheckV2InputWithNullablePort struct {
+	Test struct {
+		Name               string             `json:"name"`
+		Type               string             `json:"type"`
+		URL                string             `json:"url"`
+		LocationIds        []string           `json:"locationIds"`
+		Frequency          int                `json:"frequency"`
+		SchedulingStrategy string             `json:"schedulingStrategy"`
+		Active             bool               `json:"active"`
+		RequestMethod      string             `json:"requestMethod"`
+		Body               string             `json:"body,omitempty"`
+		Authentication     *Authentication    `json:"authentication"`
+		UserAgent          *string            `json:"userAgent"`
+		Verifycertificates bool               `json:"verifyCertificates"`
+		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
+		Validations        []Validations      `json:"validations"`
+		Customproperties   []CustomProperties `json:"customProperties"`
+		Automaticretries   int                `json:"automaticRetries"`
+		Port               NullableInt        `json:"port"`
 	} `json:"test"`
 }
 
