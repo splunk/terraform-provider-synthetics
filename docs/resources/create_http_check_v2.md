@@ -3,7 +3,7 @@
 page_title: "synthetics_create_http_check_v2 Resource - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # synthetics_create_http_check_v2 (Resource)
@@ -15,12 +15,13 @@ description: |-
 ```terraform
 resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
   test {
-    active = true 
+    active = true
     frequency = 10
     location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
     name = "Terraform1 - HTTP V2 Checkaroo"
     type = "http"
     url = "https://www.splunk.com"
+    port = 443
     scheduling_strategy = "round_robin"
     custom_properties {
 			key = "key"
@@ -38,7 +39,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
       name = "back_transaction_1"
       value = "peeko"
     }
-  }    
+  }
 }
 ```
 
@@ -72,6 +73,7 @@ Optional:
 - `body` (String)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))
+- `port` (Number) HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Most checks should use a real service port such as 80, 443, or 8443. Omit this field to leave the port unset.
 - `scheduling_strategy` (String)
 - `type` (String)
 - `user_agent` (String)

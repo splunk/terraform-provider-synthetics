@@ -3,7 +3,7 @@
 page_title: "synthetics_http_v2_check Data Source - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # synthetics_http_v2_check (Data Source)
@@ -56,6 +56,7 @@ Read-Only:
 - `last_run_status` (String)
 - `location_ids` (List of String)
 - `name` (String)
+- `port` (Number) HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Most checks should use a real service port such as 80, 443, or 8443. Omit this field to leave the port unset.
 - `request_method` (String)
 - `scheduling_strategy` (String)
 - `type` (String)

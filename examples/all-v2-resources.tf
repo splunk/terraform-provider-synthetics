@@ -19,7 +19,7 @@
 #   location {
 #     id = "private-aws-awesome"
 #     label = "awesome aws east location part2"
-#   }    
+#   }
 # }
 
 # //Create a V2 Variable
@@ -30,19 +30,20 @@
 #     // Once created name and secret can not be changed and will result in a 422 from the API
 #     // unless the variable is deleted and re-created
 #     name = "terraform-test-1"
-#     secret = false  
-#   }    
+#     secret = false
+#   }
 # }
 
 # //Create a Http V2 Check
 # resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 #   test {
-#     active = true 
+#     active = true
 #     frequency = 10
 #     location_ids = ["aws-us-east-1","aws-ap-northeast-3"]
 #     name = "Terraform1 - HTTP V2 Checkaroo"
 #     type = "http"
 #     url = "https://www.splunk.com"
+#     port = 443
 #     scheduling_strategy = "round_robin"
 #     request_method = "GET"
 #     verify_certificates = true
@@ -60,7 +61,7 @@
 #       name = "back_transaction_1"
 #       value = "peeko"
 #     }
-#   }    
+#   }
 # }
 
 # //Create a Port V2 Check
@@ -78,15 +79,15 @@
 # 			key = "key"
 # 			value = "value"
 # 		}
-#     active = true 
-#   }    
+#     active = true
+#   }
 # }
 
 # //Create a Browser V2 Check
 # resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
 #   test {
 #     active = true
-#     device_id = 1  
+#     device_id = 1
 #     frequency = 15
 #     location_ids = ["aws-us-east-1"]
 #     name = "0011aTerraform-Browser V2 Checkaroo"
@@ -227,13 +228,13 @@
 #         keep_host_header = true
 #       }
 #     }
-#   }    
+#   }
 # }
 
 # resource "synthetics_create_browser_check_v2" "short_browser_v2_foo_check" {
 #   test {
 #     active = true
-#     device_id = 1  
+#     device_id = 1
 #     frequency = 15
 #     location_ids = ["aws-us-east-1"]
 #     name = "22aTerraform-Browser V2 Checkaroo"
@@ -260,14 +261,14 @@
 #         value                = "{{env.beep-var}}"
 #       }
 #     }
-#   }    
+#   }
 # }
 
 # # //Create an API V2 Check
 # resource "synthetics_create_api_check_v2" "short_api_v2_foo_check" {
 #   test {
 #     active = true
-#     device_id = 1  
+#     device_id = 1
 #     frequency = 5
 #     location_ids = ["aws-us-east-1"]
 #     name = "1 Terraform-Api V2 Checkaroo"
@@ -289,7 +290,7 @@
 # resource "synthetics_create_api_check_v2" "long_api_v2_foo_check" {
 #   test {
 #     active = true
-#     device_id = 1  
+#     device_id = 1
 #     frequency = 5
 #     location_ids = ["aws-us-east-1"]
 #     name = "2 Terraform-Api V2 Checkaroo"
