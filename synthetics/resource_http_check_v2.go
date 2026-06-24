@@ -66,6 +66,12 @@ func resourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"port": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 65535),
+							Description:  "HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Most checks should use a real service port such as 80, 443, or 8443. Omit this field to leave the port unset.",
+						},
 						"active": {
 							Type:     schema.TypeBool,
 							Required: true,
@@ -209,7 +215,7 @@ func resourceHttpCheckV2Create(ctx context.Context, d *schema.ResourceData, meta
 
 	checkData := processHttpCheckV2Items(d)
 
-	o, _, err := c.CreateHttpCheckV2(&checkData)
+	o, _, err := c.CreateHttpCheckV2WithNullablePort(&checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -232,7 +238,7 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	o, r, err := c.GetHttpCheckV2(checkID)
+	o, r, err := c.GetHttpCheckV2WithNullablePort(checkID)
 
 	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
@@ -287,7 +293,7 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateHttpCheckV2(checkIdString, &checkData)
+	o, _, err := c.UpdateHttpCheckV2WithNullablePort(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -296,7 +302,7 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 	return resourceHttpCheckV2Read(ctx, d, meta)
 }
 
-func processHttpCheckV2Items(d *schema.ResourceData) sc2.HttpCheckV2Input {
+func processHttpCheckV2Items(d *schema.ResourceData) sc2.HttpCheckV2InputWithNullablePort {
 
 	var check = buildHttpV2Data(d)
 	log.Println("[DEBUG] HTTP V2 CHECK OUTPUT: ", check)

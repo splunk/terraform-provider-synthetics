@@ -22,6 +22,8 @@ import (
 
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/go-cty/cty/gocty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sc "github.com/splunk/syntheticsclient/syntheticsclient"
 )
@@ -766,7 +768,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response, devices []
 	return []interface{}{browserV2}
 }
 
-func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
+func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2ResponseWithNullablePort) []interface{} {
 	httpV2 := make(map[string]interface{})
 
 	if checkHttpV2.Test.Name != "" {
@@ -790,6 +792,10 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	if checkHttpV2.Test.URL != "" {
 		httpV2["url"] = checkHttpV2.Test.URL
+	}
+
+	if checkHttpV2.Test.Port.Value != nil {
+		httpV2["port"] = *checkHttpV2.Test.Port.Value
 	}
 
 	if checkHttpV2.Test.RequestMethod != "" {
@@ -821,7 +827,7 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 	return []interface{}{httpV2}
 }
 
-func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
+func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2ResponseWithNullablePort) []interface{} {
 	httpV2 := make(map[string]interface{})
 
 	if checkHttpV2.Test.ID != 0 {
@@ -876,6 +882,10 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	if checkHttpV2.Test.URL != "" {
 		httpV2["url"] = checkHttpV2.Test.URL
+	}
+
+	if checkHttpV2.Test.Port.Value != nil {
+		httpV2["port"] = *checkHttpV2.Test.Port.Value
 	}
 
 	if checkHttpV2.Test.RequestMethod != "" {
@@ -1797,8 +1807,8 @@ func buildBrowserV2Data(d *schema.ResourceData) (sc2.BrowserCheckV2Input, error)
 	return browserv2, nil
 }
 
-func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
-	var httpv2 sc2.HttpCheckV2Input
+func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2InputWithNullablePort {
+	var httpv2 sc2.HttpCheckV2InputWithNullablePort
 	httpv2Data := d.Get("test").(*schema.Set).List()
 	var i = 0
 	for _, http := range httpv2Data {
@@ -1807,6 +1817,7 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			httpv2.Test.Name = http["name"].(string)
 			httpv2.Test.Type = http["type"].(string)
 			httpv2.Test.URL = http["url"].(string)
+			httpv2.Test.Port = httpV2PortFromResourceData(d)
 			httpv2.Test.LocationIds = buildLocationIdData(http["location_ids"].([]interface{}))
 			httpv2.Test.Frequency = http["frequency"].(int)
 			httpv2.Test.Automaticretries = http["automatic_retries"].(int)
@@ -1825,6 +1836,65 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 	}
 	log.Println("[DEBUG] build httpv2 data: ", httpv2)
 	return httpv2
+}
+
+func httpV2PortFromResourceData(d *schema.ResourceData) sc2.NullableInt {
+	if port, ok := httpV2PortFromRawConfig(d); ok {
+		return port
+	}
+
+	port, ok := d.GetOkExists("test.0.port")
+	if !ok {
+		return *sc2.NewNullInt()
+	}
+	return *sc2.NewNullableInt(port.(int))
+}
+
+func httpV2PortFromRawConfig(d *schema.ResourceData) (sc2.NullableInt, bool) {
+	for _, raw := range []cty.Value{d.GetRawConfig(), d.GetRawPlan()} {
+		if port, ok := httpV2PortFromRawValue(raw); ok {
+			return port, true
+		}
+	}
+	return *sc2.NewNullInt(), false
+}
+
+func httpV2PortFromRawValue(raw cty.Value) (sc2.NullableInt, bool) {
+	if raw.IsNull() || !raw.IsKnown() || !raw.Type().IsObjectType() || !raw.Type().HasAttribute("test") {
+		return *sc2.NewNullInt(), false
+	}
+
+	test := raw.GetAttr("test")
+	if test.IsNull() || !test.IsKnown() {
+		return *sc2.NewNullInt(), false
+	}
+
+	it := test.ElementIterator()
+	if !it.Next() {
+		return *sc2.NewNullInt(), false
+	}
+
+	_, testBlock := it.Element()
+	if testBlock.IsNull() || !testBlock.IsKnown() {
+		return *sc2.NewNullInt(), false
+	}
+
+	if !testBlock.Type().IsObjectType() || !testBlock.Type().HasAttribute("port") {
+		return *sc2.NewNullInt(), true
+	}
+	portValue := testBlock.GetAttr("port")
+	if portValue.IsNull() {
+		return *sc2.NewNullInt(), true
+	}
+	if !portValue.IsKnown() {
+		return *sc2.NewNullInt(), false
+	}
+
+	var port int
+	if err := gocty.FromCtyValue(portValue, &port); err != nil {
+		return *sc2.NewNullInt(), false
+	}
+	return *sc2.NewNullableInt(port), true
 }
 
 func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {

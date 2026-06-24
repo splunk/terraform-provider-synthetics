@@ -15,9 +15,12 @@
 package synthetics
 
 import (
+	"context"
 	"testing"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
@@ -432,6 +435,28 @@ func TestBuildHttpV2DataPreservesConfiguredPort(t *testing.T) {
 	}
 }
 
+func TestBuildHttpV2DataUsesNullPortWhenRawConfigOmitsPort(t *testing.T) {
+	d := httpV2ResourceDataForPortRawTest(t, true, 443, cty.EmptyObjectVal)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
+func TestBuildHttpV2DataUsesNullPortWhenRawConfigHasNullPort(t *testing.T) {
+	d := httpV2ResourceDataForPortRawTest(t, true, 443, cty.ObjectVal(map[string]cty.Value{
+		"port": cty.NullVal(cty.Number),
+	}))
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
 func TestFlattenHttpV2ReadOmitsNullPort(t *testing.T) {
 	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
 	check.Test.Port = *sc2.NewNullInt()
@@ -526,6 +551,12 @@ func TestHttpV2PortSchemaValidation(t *testing.T) {
 func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *schema.ResourceData {
 	t.Helper()
 
+	return httpV2ResourceDataForPortRawTest(t, includePort, port, httpV2RawTestBlockForPortTest(includePort, port))
+}
+
+func httpV2ResourceDataForPortRawTest(t *testing.T, includePort bool, port int, rawTestBlock cty.Value) *schema.ResourceData {
+	t.Helper()
+
 	testBlock := map[string]interface{}{
 		"name":                "http-port",
 		"type":                "http",
@@ -547,7 +578,32 @@ func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *sc
 		testBlock["port"] = port
 	}
 
-	return schema.TestResourceDataRaw(t, resourceHttpCheckV2().Schema, map[string]interface{}{
+	sm := schema.InternalMap(resourceHttpCheckV2().Schema)
+	diff, err := sm.Diff(context.Background(), nil, terraform.NewResourceConfigRaw(map[string]interface{}{
 		"test": []interface{}{testBlock},
+	}), nil, nil, true)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	rawConfig := cty.ObjectVal(map[string]cty.Value{
+		"test": cty.SetVal([]cty.Value{rawTestBlock}),
 	})
+	diff.RawConfig = rawConfig
+	diff.RawPlan = rawConfig
+
+	result, err := sm.Data(nil, diff)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	return result
+}
+
+func httpV2RawTestBlockForPortTest(includePort bool, port int) cty.Value {
+	if includePort {
+		return cty.ObjectVal(map[string]cty.Value{
+			"port": cty.NumberIntVal(int64(port)),
+		})
+	}
+	return cty.EmptyObjectVal
 }
