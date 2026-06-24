@@ -120,6 +120,13 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         username = "batmab"
         password = "{{env.beep-var}}"
       }
+      excluded_files {
+        type = "google_analytics"
+      }
+      excluded_files {
+        type  = "custom"
+        regex = "cdn\\.example\\.com"
+      }
       headers {
         name = "superstar-machine"
         value = "\"taking it too the staaaaars\""

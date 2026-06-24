@@ -80,6 +80,7 @@ Read-Only:
 - `chrome_flags` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--cookies))
+- `excluded_files` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--excluded_files))
 - `headers` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--headers))
 - `host_overrides` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--host_overrides))
 - `user_agent` (String)
@@ -112,6 +113,15 @@ Read-Only:
 - `key` (String)
 - `path` (String)
 - `value` (String)
+
+
+<a id="nestedobjatt--test--advanced_settings--excluded_files"></a>
+### Nested Schema for `test.advanced_settings.excluded_files`
+
+Read-Only:
+
+- `regex` (String)
+- `type` (String)
 
 
 <a id="nestedobjatt--test--advanced_settings--headers"></a>

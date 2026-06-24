@@ -3,7 +3,7 @@
 page_title: "synthetics_create_ca_certificate_v2 Resource - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-
+  
 ---
 
 # synthetics_create_ca_certificate_v2 (Resource)
