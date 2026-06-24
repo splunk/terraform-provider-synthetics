@@ -401,3 +401,153 @@ func TestFlattenCaCertificateV2ReadPreservesExistingStateContent(t *testing.T) {
 		t.Fatalf("content = %#v, want existing state content", caCertificate["content"])
 	}
 }
+
+func TestBuildHttpV2DataUsesNullPortWhenOmitted(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, false, 0)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
+func TestBuildHttpV2DataPreservesExplicitZeroPort(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, true, 0)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value == nil || *got.Test.Port.Value != 0 {
+		t.Fatalf("Port = %#v, want 0", got.Test.Port.Value)
+	}
+}
+
+func TestBuildHttpV2DataPreservesConfiguredPort(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, true, 443)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value == nil || *got.Test.Port.Value != 443 {
+		t.Fatalf("Port = %#v, want 443", got.Test.Port.Value)
+	}
+}
+
+func TestFlattenHttpV2ReadOmitsNullPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullInt()
+
+	got := flattenHttpV2Read(check)[0].(map[string]interface{})
+
+	if _, ok := got["port"]; ok {
+		t.Fatalf("flattened port = %#v, want omitted", got["port"])
+	}
+}
+
+func TestFlattenHttpV2ReadPreservesZeroPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullableInt(0)
+
+	got := flattenHttpV2Read(check)[0].(map[string]interface{})
+
+	if got["port"] != 0 {
+		t.Fatalf("flattened port = %#v, want 0", got["port"])
+	}
+}
+
+func TestFlattenHttpV2ReadPreservesConfiguredPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullableInt(443)
+
+	got := flattenHttpV2Read(check)[0].(map[string]interface{})
+
+	if got["port"] != 443 {
+		t.Fatalf("flattened port = %#v, want 443", got["port"])
+	}
+}
+
+func TestFlattenHttpV2DataOmitsNullPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullInt()
+
+	got := flattenHttpV2Data(check)[0].(map[string]interface{})
+
+	if _, ok := got["port"]; ok {
+		t.Fatalf("flattened port = %#v, want omitted", got["port"])
+	}
+}
+
+func TestFlattenHttpV2DataPreservesZeroPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullableInt(0)
+
+	got := flattenHttpV2Data(check)[0].(map[string]interface{})
+
+	if got["port"] != 0 {
+		t.Fatalf("flattened port = %#v, want 0", got["port"])
+	}
+}
+
+func TestFlattenHttpV2DataPreservesConfiguredPort(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullableInt(443)
+
+	got := flattenHttpV2Data(check)[0].(map[string]interface{})
+
+	if got["port"] != 443 {
+		t.Fatalf("flattened port = %#v, want 443", got["port"])
+	}
+}
+
+func TestHttpV2PortSchemaValidation(t *testing.T) {
+	testSchema := resourceHttpCheckV2().Schema["test"].Elem.(*schema.Resource).Schema
+	portSchema := testSchema["port"]
+	if portSchema == nil {
+		t.Fatal("test.port schema missing")
+	}
+	if portSchema.ValidateFunc == nil {
+		t.Fatal("test.port ValidateFunc missing")
+	}
+
+	for _, value := range []int{0, 443, 65535} {
+		_, errs := portSchema.ValidateFunc(value, "test.0.port")
+		if len(errs) != 0 {
+			t.Fatalf("port validation for %d returned errors: %#v", value, errs)
+		}
+	}
+
+	for _, value := range []int{-1, 65536} {
+		_, errs := portSchema.ValidateFunc(value, "test.0.port")
+		if len(errs) == 0 {
+			t.Fatalf("port validation for %d returned no errors", value)
+		}
+	}
+}
+
+func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *schema.ResourceData {
+	t.Helper()
+
+	testBlock := map[string]interface{}{
+		"name":                "http-port",
+		"type":                "http",
+		"url":                 "https://example.com",
+		"active":              true,
+		"frequency":           5,
+		"scheduling_strategy": "round_robin",
+		"request_method":      "GET",
+		"body":                "",
+		"location_ids":        []interface{}{"aws-us-east-1"},
+		"user_agent":          "",
+		"verify_certificates": true,
+		"headers":             []interface{}{},
+		"validations":         []interface{}{},
+		"custom_properties":   []interface{}{},
+		"automatic_retries":   0,
+	}
+	if includePort {
+		testBlock["port"] = port
+	}
+
+	return schema.TestResourceDataRaw(t, resourceHttpCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{testBlock},
+	})
+}
