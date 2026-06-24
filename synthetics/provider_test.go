@@ -74,7 +74,7 @@ func TestProvider_impl(t *testing.T) {
 	var _ = Provider()
 }
 
-func TestProviderContainsSslAndCaCertificateV2(t *testing.T) {
+func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 	provider := Provider()
 
 	expectedResources := []string{
@@ -91,6 +91,7 @@ func TestProviderContainsSslAndCaCertificateV2(t *testing.T) {
 		"synthetics_ssl_v2_check",
 		"synthetics_ca_certificate_v2_check",
 		"synthetics_ca_certificates_v2_check",
+		"synthetics_excluded_file_types_v2_check",
 	}
 	for _, name := range expectedDataSources {
 		if _, ok := provider.DataSourcesMap[name]; !ok {

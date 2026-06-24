@@ -78,6 +78,7 @@ func Provider() *schema.Provider {
 			"synthetics_ssl_v2_check":                     dataSourceSslCheckV2(),
 			"synthetics_ca_certificate_v2_check":          dataSourceCaCertificateV2(),
 			"synthetics_ca_certificates_v2_check":         dataSourceCaCertificatesV2(),
+			"synthetics_excluded_file_types_v2_check":     dataSourceExcludedFileTypesV2(),
 			"synthetics_variable_v2_check":                dataSourceVariableV2(),
 			"synthetics_variables_v2_check":               dataSourceVariablesV2(),
 			"synthetics_location_v2_check":                dataSourceLocationV2(),
