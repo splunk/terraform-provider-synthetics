@@ -81,122 +81,7 @@ func resourceBrowserCheckV2() *schema.Resource {
 						"advanced_settings": {
 							Type:     schema.TypeSet,
 							Required: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"user_agent": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"verify_certificates": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"collect_interactive_metrics": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
-									"authentication": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"username": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"password": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"chrome_flags": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"cookies": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"key": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"domain": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain"),
-												},
-												"path": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\/`), "Setting must be a valid path starting with /"),
-												},
-											},
-										},
-									},
-									"headers": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"domain": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain"),
-												},
-											},
-										},
-									},
-									"host_overrides": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"source": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"target": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"keep_host_header": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-											},
-										},
-									},
-								},
-							},
+							Elem:     browserCheckV2AdvancedSettingsResource(false),
 						},
 						"transactions": {
 							Type:     schema.TypeList,
@@ -252,6 +137,114 @@ func resourceBrowserCheckV2() *schema.Resource {
 	}
 }
 
+func browserCheckV2AdvancedSettingsResource(computed bool) *schema.Resource {
+	domainValidation := validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain")
+	pathValidation := validation.StringMatch(regexp.MustCompile(`^\/`), "Setting must be a valid path starting with /")
+
+	stringSchema := func(sensitive bool, validateFunc schema.SchemaValidateFunc) *schema.Schema {
+		s := &schema.Schema{
+			Type:      schema.TypeString,
+			Sensitive: sensitive,
+		}
+		if computed {
+			s.Computed = true
+		} else {
+			s.Optional = true
+			if validateFunc != nil {
+				s.ValidateFunc = validateFunc
+			}
+		}
+		return s
+	}
+
+	boolSchema := func() *schema.Schema {
+		s := &schema.Schema{
+			Type: schema.TypeBool,
+		}
+		if computed {
+			s.Computed = true
+		} else {
+			s.Optional = true
+		}
+		return s
+	}
+
+	setSchema := func(resource *schema.Resource) *schema.Schema {
+		s := &schema.Schema{
+			Type: schema.TypeSet,
+			Elem: resource,
+		}
+		if computed {
+			s.Computed = true
+		} else {
+			s.Optional = true
+		}
+		return s
+	}
+
+	verifyCertificatesSchema := &schema.Schema{
+		Type: schema.TypeBool,
+	}
+	if computed {
+		verifyCertificatesSchema.Computed = true
+	} else {
+		verifyCertificatesSchema.Required = true
+	}
+
+	collectInteractiveMetricsSchema := &schema.Schema{
+		Type: schema.TypeBool,
+	}
+	if computed {
+		collectInteractiveMetricsSchema.Computed = true
+	} else {
+		collectInteractiveMetricsSchema.Optional = true
+		collectInteractiveMetricsSchema.Default = false
+	}
+
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"user_agent":                  stringSchema(false, nil),
+			"verify_certificates":         verifyCertificatesSchema,
+			"collect_interactive_metrics": collectInteractiveMetricsSchema,
+			"authentication": setSchema(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"username": stringSchema(false, nil),
+					"password": stringSchema(true, nil),
+				},
+			}),
+			"chrome_flags": setSchema(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name":  stringSchema(false, nil),
+					"value": stringSchema(false, nil),
+				},
+			}),
+			"cookies": setSchema(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key":    stringSchema(false, nil),
+					"value":  stringSchema(true, nil),
+					"domain": stringSchema(false, domainValidation),
+					"path":   stringSchema(false, pathValidation),
+				},
+			}),
+			"headers": setSchema(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name":   stringSchema(false, nil),
+					"value":  stringSchema(true, nil),
+					"domain": stringSchema(false, domainValidation),
+				},
+			}),
+			"host_overrides": setSchema(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"source":           stringSchema(false, nil),
+					"target":           stringSchema(false, nil),
+					"keep_host_header": boolSchema(),
+				},
+			}),
+			"excluded_files": browserCheckV2ExcludedFilesSchema(computed),
+		},
+	}
+}
+
 func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*sc2.Client)
 	// Warning or errors can be collected in a slice type
@@ -294,7 +287,7 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET BROWSER BODY: ", o)
+	log.Printf("[DEBUG] read browser v2 check id=%d", checkID)
 	if err := d.Set("test", flattenBrowserV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -346,7 +339,7 @@ func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] UPDATE BODY: ", o)
+	log.Printf("[DEBUG] updated browser v2 check id=%s api_id=%d", checkID, o.Test.ID)
 
 	return resourceBrowserCheckV2Read(ctx, d, meta)
 }
@@ -356,7 +349,7 @@ func processBrowserCheckV2Items(d *schema.ResourceData) (sc2.BrowserCheckV2Input
 	if err != nil {
 		return check, err
 	}
-	log.Println("[DEBUG] BROWSER V2 CHECK OUTPUT: ", check)
+	log.Printf("[DEBUG] built browser v2 check name=%q transactions=%d locations=%d", check.Test.Name, len(check.Test.Transactions), len(check.Test.LocationIds))
 	return check, nil
 }
 
@@ -437,9 +430,9 @@ func browserCheckV2StepSchema(computed bool) map[string]*schema.Schema {
 			Optional: optional,
 			Computed: computed,
 		},
-		"selectors":        selectorsSchema,
-		"selector_type":    selectorTypeSchema,
-		"selector":         selectorSchema,
+		"selectors":     selectorsSchema,
+		"selector_type": selectorTypeSchema,
+		"selector":      selectorSchema,
 		"option_selector_type": {
 			Type:     schema.TypeString,
 			Optional: optional,

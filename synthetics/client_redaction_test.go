@@ -53,10 +53,10 @@ func TestCaCertificateRequestDetailsRedactsSensitiveValues(t *testing.T) {
 	if strings.Contains(details.RequestBody, "private-ca-material") {
 		t.Fatalf("expected CA certificate content to be redacted, got %q", details.RequestBody)
 	}
-	if !strings.Contains(details.RequestBody, "X-Sf-Token: <REDACTED>") {
+	if !strings.Contains(details.RequestBody, "X-Sf-Token: [REDACTED]") {
 		t.Fatalf("expected redacted API token header, got %q", details.RequestBody)
 	}
-	if !strings.Contains(details.RequestBody, `\u003cREDACTED\u003e`) {
+	if !strings.Contains(details.RequestBody, `"content":"[REDACTED]"`) {
 		t.Fatalf("expected redacted CA certificate content, got %q", details.RequestBody)
 	}
 }

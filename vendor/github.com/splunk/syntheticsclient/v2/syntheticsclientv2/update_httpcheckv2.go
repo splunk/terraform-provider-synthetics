@@ -55,3 +55,39 @@ func (c Client) UpdateHttpCheckV2(id int, HttpCheckV2Details *HttpCheckV2Input) 
 
 	return updateHttpCheckV2, requestDetails, nil
 }
+
+func parseUpdateHttpCheckV2WithNullablePortResponse(response string) (*HttpCheckV2ResponseWithNullablePort, error) {
+	var updateHttpCheckV2 HttpCheckV2ResponseWithNullablePort
+	if response != "" {
+		err := json.Unmarshal([]byte(response), &updateHttpCheckV2)
+		if err != nil {
+			return nil, err
+		}
+		return &updateHttpCheckV2, err
+	}
+	return &updateHttpCheckV2, nil
+}
+
+func (c Client) UpdateHttpCheckV2WithNullablePort(id int, HttpCheckV2Details *HttpCheckV2InputWithNullablePort) (*HttpCheckV2ResponseWithNullablePort, *RequestDetails, error) {
+	if HttpCheckV2Details.Test.Validations == nil {
+		validation := make([]Validations, 0)
+		HttpCheckV2Details.Test.Validations = validation
+	}
+
+	body, err := json.Marshal(HttpCheckV2Details)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	requestDetails, err := c.makePublicAPICall("PUT", fmt.Sprintf("/tests/http/%d", id), bytes.NewBuffer(body), nil)
+	if err != nil {
+		return nil, requestDetails, err
+	}
+
+	updateHttpCheckV2, err := parseUpdateHttpCheckV2WithNullablePortResponse(requestDetails.ResponseBody)
+	if err != nil {
+		return updateHttpCheckV2, requestDetails, err
+	}
+
+	return updateHttpCheckV2, requestDetails, nil
+}

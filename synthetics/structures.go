@@ -686,7 +686,7 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	customProperties := flattenCustomProperties(&checkBrowserV2.Test.Customproperties)
 	browserV2["custom_properties"] = customProperties
 
-	log.Println("[DEBUG] read browserv2 data: ", browserV2)
+	log.Printf("[DEBUG] read browser v2 data id=%d name=%q locations=%d transactions=%d", checkBrowserV2.Test.ID, checkBrowserV2.Test.Name, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
 
 	return []interface{}{browserV2}
 }
@@ -761,7 +761,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response, devices []
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
 
-	log.Println("[DEBUG] flatten browserv2 data: ", browserV2)
+	log.Printf("[DEBUG] flatten browser v2 data id=%d name=%q locations=%d transactions=%d", checkBrowserV2.Test.ID, checkBrowserV2.Test.Name, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
 
 	return []interface{}{browserV2}
 }
@@ -1721,6 +1721,8 @@ func flattenAdvancedSettingsData(advSettings *sc2.Advancedsettings) []interface{
 	ChromeFlags := flattenChromeFlagsData(advSettings.ChromeFlags)
 	advancedSettings["chrome_flags"] = ChromeFlags
 
+	advancedSettings["excluded_files"] = flattenExcludedFilesV2Data(advSettings.ExcludedFiles)
+
 	return []interface{}{advancedSettings}
 }
 
@@ -1788,12 +1790,16 @@ func buildBrowserV2Data(d *schema.ResourceData) (sc2.BrowserCheckV2Input, error)
 			}
 			browserv2.Test.Transactions = transactions
 			browserv2.Test.Schedulingstrategy = browser["scheduling_strategy"].(string)
-			browserv2.Test.Advancedsettings = buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
+			advancedSettings, err := buildAdvancedSettingsData(browser["advanced_settings"].(*schema.Set))
+			if err != nil {
+				return browserv2, err
+			}
+			browserv2.Test.Advancedsettings = advancedSettings
 			browserv2.Test.Customproperties = buildCustomPropertiesData(browser["custom_properties"].(*schema.Set))
 		}
 	}
 
-	log.Println("[DEBUG] build browserv2 data:", browserv2)
+	log.Printf("[DEBUG] built browser v2 input name=%q transactions=%d locations=%d", browserv2.Test.Name, len(browserv2.Test.Transactions), len(browserv2.Test.LocationIds))
 	return browserv2, nil
 }
 
@@ -2286,7 +2292,7 @@ func buildConfigurationData(configuration []interface{}) sc2.Configuration {
 	return configurationData
 }
 
-func buildAdvancedSettingsData(advancedSettings *schema.Set) sc2.Advancedsettings {
+func buildAdvancedSettingsData(advancedSettings *schema.Set) (sc2.Advancedsettings, error) {
 	var advancedSettingsData sc2.Advancedsettings
 
 	as_list := advancedSettings.List()
@@ -2302,9 +2308,14 @@ func buildAdvancedSettingsData(advancedSettings *schema.Set) sc2.Advancedsetting
 		advancedSettingsData.Cookiesv2 = buildCookiesData(as_map["cookies"].(*schema.Set))
 		advancedSettingsData.HostOverrides = buildHostOverridesData(as_map["host_overrides"].(*schema.Set))
 		advancedSettingsData.ChromeFlags = buildChromeFlagsData(as_map["chrome_flags"].(*schema.Set))
+		excludedFiles, err := buildExcludedFilesV2Data(as_map["excluded_files"].(*schema.Set))
+		if err != nil {
+			return advancedSettingsData, err
+		}
+		advancedSettingsData.ExcludedFiles = excludedFiles
 
 	}
-	return advancedSettingsData
+	return advancedSettingsData, nil
 }
 
 func buildBrowserHeadersData(headers *schema.Set) []sc2.BrowserHeaders {

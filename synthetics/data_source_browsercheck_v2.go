@@ -91,118 +91,7 @@ func dataSourceBrowserCheckV2() *schema.Resource {
 						"advanced_settings": {
 							Type:     schema.TypeSet,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"authentication": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"username": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"password": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"chrome_flags": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-											},
-										},
-									},
-									"cookies": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"key": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"domain": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"path": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"headers": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"value": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"domain": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"host_overrides": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"source": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"target": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"keep_host_header": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"user_agent": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"verify_certificates": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-									"collect_interactive_metrics": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
+							Elem:     browserCheckV2AdvancedSettingsResource(true),
 						},
 						"business_transactions": {
 							Type:     schema.TypeSet,
@@ -336,7 +225,6 @@ func dataSourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, m
 	checkID := flattenIdData(d.Get("test"))
 
 	check, _, err := c.GetBrowserCheckV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}
