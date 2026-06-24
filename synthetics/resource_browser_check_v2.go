@@ -141,7 +141,7 @@ func browserCheckV2AdvancedSettingsResource(computed bool) *schema.Resource {
 	domainValidation := validation.StringMatch(regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$`), "Setting must be a valid domain")
 	pathValidation := validation.StringMatch(regexp.MustCompile(`^\/`), "Setting must be a valid path starting with /")
 
-	stringSchema := func(sensitive bool, validateFunc schema.SchemaValidateFunc) *schema.Schema {
+	stringSchema := func(sensitive bool, validateFunc func(interface{}, string) ([]string, []error)) *schema.Schema {
 		s := &schema.Schema{
 			Type:      schema.TypeString,
 			Sensitive: sensitive,
@@ -151,7 +151,7 @@ func browserCheckV2AdvancedSettingsResource(computed bool) *schema.Resource {
 		} else {
 			s.Optional = true
 			if validateFunc != nil {
-				s.ValidateFunc = validateFunc
+				s.ValidateDiagFunc = validation.ToDiagFunc(validateFunc)
 			}
 		}
 		return s
