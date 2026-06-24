@@ -30,6 +30,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "01-acceptance-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.splunk.com"
+    port = 443
     automatic_retries = 1
     scheduling_strategy = "round_robin"
 		custom_properties {
@@ -67,6 +68,53 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 `
 
 const updatedHttpCheckV2Config = `
+resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
+	provider = synthetics.synthetics
+  test {
+    active = false
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    name = "01-acceptance-updated-Terraform-HTTP-V2"
+    type = "http"
+    url = "https://www.duckduckgo.com"
+    port = 8443
+    automatic_retries = 0
+    scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
+    request_method = "PUT"
+    verify_certificates = false
+    user_agent = "Another User of Agents and snake oil"
+    body = "boopboopboop"
+		headers {
+			name = "Synthetic_transaction_01"
+			value = "batmantis is a mantis not a man. Man."
+		}
+		headers {
+			name = "back_transaction_01"
+			value = "peekoboot"
+		}
+		validations {
+				name = "002 My validation step"
+				actual = "{{response.body}}"
+				comparator = "matches"
+				expected = "12221"
+				type = "assert_string"
+		}
+		validations {
+				name = "My validation step 001"
+				actual = "{{response.code}}"
+				comparator = "does_not_equal"
+				expected = 400
+				type = "assert_numeric"
+		}
+  }
+}
+`
+
+const removedHttpCheckV2PortConfig = `
 resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 	provider = synthetics.synthetics
   test {
@@ -131,6 +179,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.splunk.com"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "443"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "key"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "value"),
@@ -172,6 +221,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-updated-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.duckduckgo.com"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "8443"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
@@ -193,6 +243,13 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.comparator", "does_not_equal"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.expected", "400"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.type", "assert_numeric"),
+				),
+			},
+			{
+				Config: providerConfig + removedHttpCheckV2PortConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.#", "1"),
+					resource.TestCheckNoResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port"),
 				),
 			},
 		},
