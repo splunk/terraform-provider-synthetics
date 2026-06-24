@@ -219,11 +219,11 @@ func resourcePortCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	_, _, err = c.UpdatePortCheckV2(checkIdString, &checkData)
+	o, _, err := c.UpdatePortCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] updated port v2 check id=%d", checkIdString)
+	log.Println("[DEBUG] UPDATE BODY: ", o)
 
 	return resourcePortCheckV2Read(ctx, d, meta)
 }

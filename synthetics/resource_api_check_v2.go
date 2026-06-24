@@ -313,11 +313,11 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	_, _, err = c.UpdateApiCheckV2(checkIdString, &checkData)
+	o, _, err := c.UpdateApiCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] updated api v2 check id=%d", checkIdString)
+	log.Println("[DEBUG] UPDATE BODY JSON: ", o)
 
 	return resourceApiCheckV2Read(ctx, d, meta)
 }

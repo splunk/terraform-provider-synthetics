@@ -3,19 +3,20 @@
 page_title: "synthetics_ca_certificate_v2_check Data Source - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-  Reads a Synthetics CA certificate. CA certificate content is read into Terraform state even when marked sensitive. Use encrypted, access-controlled remote state and do not commit private CA material to source control.
+
 ---
 
 # synthetics_ca_certificate_v2_check (Data Source)
 
-Reads a Synthetics CA certificate. CA certificate content is read into Terraform state even when marked sensitive. Use encrypted, access-controlled remote state and do not commit private CA material to source control.
+CA certificate content is read into Terraform state even when marked sensitive.
+Use encrypted, access-controlled remote state and do not commit private CA
+material to source control.
+
+
 
 ## Example Usage
 
 ```terraform
-# CA certificate content is read into Terraform state even when marked sensitive.
-# Use encrypted, access-controlled remote state and do not commit private CA
-# material to source control.
 data "synthetics_ca_certificate_v2_check" "ca_certificate_v2" {
   ca_certificate {
     id = 42
