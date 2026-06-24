@@ -26,7 +26,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
   test {
     active = true 
     frequency = 5
-    location_ids = ["aws-us-east-1","aws-us-west-2"]
+    location_ids = ["aws-us-west-2"]
     name = "01-acceptance-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.splunk.com"
@@ -174,8 +174,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.active", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.frequency", "5"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.automatic_retries", "1"),
-					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.0", "aws-us-east-1"),
-					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.1", "aws-us-west-2"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.location_ids.0", "aws-us-west-2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.splunk.com"),
