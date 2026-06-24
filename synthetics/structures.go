@@ -1839,24 +1839,11 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2InputWithNullablePor
 }
 
 func httpV2PortFromResourceData(d *schema.ResourceData) sc2.NullableInt {
-	if port, ok := httpV2PortFromRawConfig(d); ok {
-		return port
-	}
-
-	port, ok := d.GetOkExists("test.0.port")
+	port, ok := httpV2PortFromRawValue(d.GetRawConfig())
 	if !ok {
 		return *sc2.NewNullInt()
 	}
-	return *sc2.NewNullableInt(port.(int))
-}
-
-func httpV2PortFromRawConfig(d *schema.ResourceData) (sc2.NullableInt, bool) {
-	for _, raw := range []cty.Value{d.GetRawConfig(), d.GetRawPlan()} {
-		if port, ok := httpV2PortFromRawValue(raw); ok {
-			return port, true
-		}
-	}
-	return *sc2.NewNullInt(), false
+	return port
 }
 
 func httpV2PortFromRawValue(raw cty.Value) (sc2.NullableInt, bool) {

@@ -457,6 +457,22 @@ func TestBuildHttpV2DataUsesNullPortWhenRawConfigHasNullPort(t *testing.T) {
 	}
 }
 
+func TestBuildHttpV2DataIgnoresStaleRawPlanPortWhenCurrentConfigOmitsPort(t *testing.T) {
+	d := httpV2ResourceDataForPortRawConfigPlanTest(
+		t,
+		false,
+		0,
+		httpV2RawTestBlockForPortTest(false, 0),
+		httpV2RawTestBlockForPortTest(true, 443),
+	)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
 func TestFlattenHttpV2ReadOmitsNullPort(t *testing.T) {
 	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
 	check.Test.Port = *sc2.NewNullInt()
@@ -532,7 +548,9 @@ func TestHttpV2PortSchemaValidation(t *testing.T) {
 	if portSchema.ValidateFunc == nil {
 		t.Fatal("test.port ValidateFunc missing")
 	}
-
+	if !portSchema.Optional {
+		t.Fatal("test.port should be optional")
+	}
 	for _, value := range []int{0, 443, 65535} {
 		_, errs := portSchema.ValidateFunc(value, "test.0.port")
 		if len(errs) != 0 {
@@ -555,6 +573,12 @@ func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *sc
 }
 
 func httpV2ResourceDataForPortRawTest(t *testing.T, includePort bool, port int, rawTestBlock cty.Value) *schema.ResourceData {
+	t.Helper()
+
+	return httpV2ResourceDataForPortRawConfigPlanTest(t, includePort, port, rawTestBlock, rawTestBlock)
+}
+
+func httpV2ResourceDataForPortRawConfigPlanTest(t *testing.T, includePort bool, port int, rawConfigTestBlock cty.Value, rawPlanTestBlock cty.Value) *schema.ResourceData {
 	t.Helper()
 
 	testBlock := map[string]interface{}{
@@ -586,17 +610,22 @@ func httpV2ResourceDataForPortRawTest(t *testing.T, includePort bool, port int, 
 		t.Fatalf("err: %s", err)
 	}
 
-	rawConfig := cty.ObjectVal(map[string]cty.Value{
-		"test": cty.SetVal([]cty.Value{rawTestBlock}),
-	})
+	rawConfig := httpV2RawConfigForPortTest(rawConfigTestBlock)
+	rawPlan := httpV2RawConfigForPortTest(rawPlanTestBlock)
 	diff.RawConfig = rawConfig
-	diff.RawPlan = rawConfig
+	diff.RawPlan = rawPlan
 
 	result, err := sm.Data(nil, diff)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 	return result
+}
+
+func httpV2RawConfigForPortTest(rawTestBlock cty.Value) cty.Value {
+	return cty.ObjectVal(map[string]cty.Value{
+		"test": cty.SetVal([]cty.Value{rawTestBlock}),
+	})
 }
 
 func httpV2RawTestBlockForPortTest(includePort bool, port int) cty.Value {
