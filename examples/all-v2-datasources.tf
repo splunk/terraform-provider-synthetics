@@ -94,6 +94,14 @@
 #   value = data.synthetics_variables_v2_check.datasource_variables
 # }
 
+# data "synthetics_totp_variable_v2_check" "login_mfa" {
+#   totp_variable {
+#     id = 123
+#   }
+# }
+#
+# data "synthetics_totp_variables_v2_check" "all" {}
+
 # data "synthetics_devices_v2_check" "datasource_devices" {
 #   devices {
 #   }
