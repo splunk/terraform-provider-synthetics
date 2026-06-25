@@ -46,3 +46,27 @@ func (c Client) GetHttpCheckV2(id int) (*HttpCheckV2Response, *RequestDetails, e
 
 	return HttpCheckV2, details, nil
 }
+
+func parseGetHttpCheckV2WithNullablePortResponse(response string) (*HttpCheckV2ResponseWithNullablePort, error) {
+	var HttpCheckV2 HttpCheckV2ResponseWithNullablePort
+	err := json.Unmarshal([]byte(response), &HttpCheckV2)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HttpCheckV2, err
+}
+
+func (c Client) GetHttpCheckV2WithNullablePort(id int) (*HttpCheckV2ResponseWithNullablePort, *RequestDetails, error) {
+	details, err := c.makePublicAPICall("GET", fmt.Sprintf("/tests/http/%d", id), bytes.NewBufferString("{}"), nil)
+	if err != nil {
+		return nil, details, err
+	}
+
+	HttpCheckV2, err := parseGetHttpCheckV2WithNullablePortResponse(details.ResponseBody)
+	if err != nil {
+		return HttpCheckV2, details, err
+	}
+
+	return HttpCheckV2, details, nil
+}

@@ -102,3 +102,10 @@
 # output "datasource_devices" {
 #   value = data.synthetics_devices_v2_check.datasource_devices
 # }
+
+# data "synthetics_excluded_file_types_v2_check" "excluded_file_types" {
+# }
+#
+# output "excluded_file_types" {
+#   value = data.synthetics_excluded_file_types_v2_check.excluded_file_types
+# }

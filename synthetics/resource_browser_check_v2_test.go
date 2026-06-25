@@ -50,6 +50,17 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       verify_certificates = true
       user_agent = "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
       collect_interactive_metrics = false
+      excluded_files {
+        type = "google_analytics"
+      }
+      excluded_files {
+        type  = "custom"
+        regex = "cdn\\.example\\.com"
+      }
+      excluded_files {
+        type  = "all_except"
+        regex = "assets\\.example\\.com"
+      }
       authentication {
         username = "batmab"
         password = "{{env.acceptance-variable-terraform-test}}"
@@ -265,6 +276,13 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
       verify_certificates = false
       user_agent = "Jozilla/5.0"
       collect_interactive_metrics = false
+      excluded_files {
+        type = "chartbeat"
+      }
+      excluded_files {
+        type  = "custom"
+        regex = "images\\.example\\.com"
+      }
       authentication {
         username = "batmantis"
         password = "{{env.acceptance-variable-terraform-test}}"
@@ -406,6 +424,44 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
 }
 `
 
+const clearedExcludedFilesBrowserCheckV2Config = `
+resource "synthetics_create_variable_v2" "variable_v2_foo" {
+  provider = synthetics.synthetics
+  variable {
+    description = "The most awesome variable. Full of snakes."
+    value = "barv3v3"
+    name = "acceptance-variable-terraform-test"
+    secret = false
+  }
+}
+resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
+  provider = synthetics.synthetics
+  depends_on = [synthetics_create_variable_v2.variable_v2_foo]
+  test {
+    active = false
+    device_id = 2
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    automatic_retries = 0
+    name = "01-acceptance-cleared-Terraform-Browser-V2"
+    scheduling_strategy = "concurrent"
+    advanced_settings {
+      verify_certificates = true
+      user_agent = "Jozilla/5.0"
+      collect_interactive_metrics = false
+    }
+    transactions {
+      name = "01 First Synthetic transaction"
+      steps {
+        name = "01 Go to URL"
+        type = "go_to_url"
+        url  = "https://www.splunk.com"
+      }
+    }
+  }
+}
+`
+
 func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -429,6 +485,18 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.#", "3"),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.*", map[string]string{
+						"type": "google_analytics",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.*", map[string]string{
+						"type":  "custom",
+						"regex": "cdn\\.example\\.com",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.*", map[string]string{
+						"type":  "all_except",
+						"regex": "assets\\.example\\.com",
+					}),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.username", "batmab"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.name", "superstar-machine"),
@@ -545,6 +613,14 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.user_agent", "Jozilla/5.0"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.collect_interactive_metrics", "false"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.*", map[string]string{
+						"type": "chartbeat",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.*", map[string]string{
+						"type":  "custom",
+						"regex": "images\\.example\\.com",
+					}),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.username", "batmantis"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.authentication.0.password", "{{env.acceptance-variable-terraform-test}}"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.headers.0.name", "superstar-machine-show"),
@@ -645,6 +721,13 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.3.wait_for_nav", "false"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.3.wait_for_nav_timeout", "0"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.transactions.1.steps.3.max_wait_time", "20000"),
+				),
+			},
+			{
+				Config: providerConfig + clearedExcludedFilesBrowserCheckV2Config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "true"),
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.#", "0"),
 				),
 			},
 		},

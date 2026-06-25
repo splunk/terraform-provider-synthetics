@@ -135,6 +135,13 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         username = "batmab"
         password = "{{env.beep-var}}"
       }
+      excluded_files {
+        type = "google_analytics"
+      }
+      excluded_files {
+        type  = "custom"
+        regex = "cdn\\.example\\.com"
+      }
       headers {
         name = "superstar-machine"
         value = "\"taking it too the staaaaars\""
@@ -212,6 +219,7 @@ Optional:
 - `chrome_flags` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--cookies))
+- `excluded_files` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--excluded_files))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--headers))
 - `host_overrides` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--host_overrides))
 - `user_agent` (String)
@@ -221,7 +229,7 @@ Optional:
 
 Optional:
 
-- `password` (String)
+- `password` (String, Sensitive)
 - `username` (String)
 
 
@@ -242,7 +250,19 @@ Optional:
 - `domain` (String)
 - `key` (String)
 - `path` (String)
-- `value` (String)
+- `value` (String, Sensitive)
+
+
+<a id="nestedblock--test--advanced_settings--excluded_files"></a>
+### Nested Schema for `test.advanced_settings.excluded_files`
+
+Required:
+
+- `type` (String)
+
+Optional:
+
+- `regex` (String)
 
 
 <a id="nestedblock--test--advanced_settings--headers"></a>
@@ -252,7 +272,7 @@ Optional:
 
 - `domain` (String)
 - `name` (String)
-- `value` (String)
+- `value` (String, Sensitive)
 
 
 <a id="nestedblock--test--advanced_settings--host_overrides"></a>

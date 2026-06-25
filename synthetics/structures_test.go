@@ -15,6 +15,9 @@
 package synthetics
 
 import (
+	"encoding/json"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -188,6 +191,218 @@ func TestBuildSelectorsFromStep_tooManySelectors(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for too many selectors")
 	}
+}
+
+func TestBuildExcludedFilesV2Data(t *testing.T) {
+	input := testExcludedFileSet(
+		map[string]interface{}{"type": "google_analytics", "regex": ""},
+		map[string]interface{}{"type": "future_api_owned_type", "regex": ""},
+		map[string]interface{}{"type": "custom", "regex": "cdn\\.example\\.com"},
+		map[string]interface{}{"type": "all_except", "regex": "assets\\.example\\.com"},
+	)
+
+	got, err := buildExcludedFilesV2Data(input)
+	if err != nil {
+		t.Fatalf("buildExcludedFilesV2Data() error = %v", err)
+	}
+
+	want := []sc2.ExcludedFile{
+		{Type: "google_analytics"},
+		{Type: "future_api_owned_type"},
+		{Type: "custom", Regex: "cdn\\.example\\.com"},
+		{Type: "all_except", Regex: "assets\\.example\\.com"},
+	}
+	if !sameExcludedFiles(got, want) {
+		t.Fatalf("excluded files = %#v, want %#v", got, want)
+	}
+}
+
+func TestBuildExcludedFilesV2DataNilAndEmpty(t *testing.T) {
+	tests := []struct {
+		name  string
+		input *schema.Set
+	}{
+		{name: "nil"},
+		{name: "empty", input: testExcludedFileSet()},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := buildExcludedFilesV2Data(tt.input)
+			if err != nil {
+				t.Fatalf("buildExcludedFilesV2Data() error = %v", err)
+			}
+			if got == nil {
+				t.Fatal("buildExcludedFilesV2Data() returned nil slice")
+			}
+			if len(got) != 0 {
+				t.Fatalf("buildExcludedFilesV2Data() len = %d, want 0", len(got))
+			}
+		})
+	}
+}
+
+func TestBuildExcludedFilesV2DataValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		item    map[string]interface{}
+		wantErr string
+	}{
+		{
+			name:    "empty type",
+			item:    map[string]interface{}{"type": "", "regex": ""},
+			wantErr: "type must not be empty",
+		},
+		{
+			name:    "custom missing regex",
+			item:    map[string]interface{}{"type": "custom", "regex": ""},
+			wantErr: "regex must be set when type is custom",
+		},
+		{
+			name:    "all_except missing regex",
+			item:    map[string]interface{}{"type": "all_except", "regex": "  "},
+			wantErr: "regex must be set when type is all_except",
+		},
+		{
+			name:    "invalid regex",
+			item:    map[string]interface{}{"type": "custom", "regex": "[a-z"},
+			wantErr: "regex is not valid RE2 syntax",
+		},
+		{
+			name:    "predefined rejects regex",
+			item:    map[string]interface{}{"type": "google_analytics", "regex": "google"},
+			wantErr: "regex is only supported when type is custom or all_except",
+		},
+		{
+			name:    "api owned type rejects whitespace regex",
+			item:    map[string]interface{}{"type": "future_api_owned_type", "regex": " "},
+			wantErr: "regex is only supported when type is custom or all_except",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := buildExcludedFilesV2Data(testExcludedFileSet(tt.item))
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if !strings.Contains(err.Error(), tt.wantErr) {
+				t.Fatalf("error = %q, want substring %q", err.Error(), tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestFlattenExcludedFilesV2Data(t *testing.T) {
+	got := flattenExcludedFilesV2Data([]sc2.ExcludedFile{
+		{Type: "google_analytics"},
+		{Type: "custom", Regex: "cdn\\.example\\.com"},
+	})
+
+	want := []interface{}{
+		map[string]interface{}{"type": "google_analytics"},
+		map[string]interface{}{"type": "custom", "regex": "cdn\\.example\\.com"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("flattened excluded files = %#v, want %#v", got, want)
+	}
+}
+
+func TestBuildAdvancedSettingsDataSendsEmptyExcludedFiles(t *testing.T) {
+	settings := schema.NewSet(schema.HashResource(browserCheckV2AdvancedSettingsResource(false)), []interface{}{
+		map[string]interface{}{
+			"user_agent":                  "",
+			"verify_certificates":         true,
+			"collect_interactive_metrics": false,
+			"authentication":              schema.NewSet(schema.HashString, nil),
+			"chrome_flags":                schema.NewSet(schema.HashString, nil),
+			"cookies":                     schema.NewSet(schema.HashString, nil),
+			"headers":                     schema.NewSet(schema.HashString, nil),
+			"host_overrides":              schema.NewSet(schema.HashString, nil),
+			"excluded_files":              schema.NewSet(schema.HashString, nil),
+		},
+	})
+
+	got, err := buildAdvancedSettingsData(settings)
+	if err != nil {
+		t.Fatalf("buildAdvancedSettingsData() error = %v", err)
+	}
+	body, err := json.Marshal(got)
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if !strings.Contains(string(body), `"excludedFiles":[]`) {
+		t.Fatalf("advanced settings JSON = %s, want excludedFiles empty array", string(body))
+	}
+}
+
+func TestBrowserV2AdvancedSettingsSensitiveFields(t *testing.T) {
+	resourceAdvancedSettings := resourceBrowserCheckV2().Schema["test"].Elem.(*schema.Resource).Schema["advanced_settings"].Elem.(*schema.Resource)
+	assertBrowserV2AdvancedSettingsSensitiveFields(t, "resource", resourceAdvancedSettings)
+
+	computedAdvancedSettings := browserCheckV2AdvancedSettingsResource(true)
+	assertBrowserV2AdvancedSettingsSensitiveFields(t, "computed helper", computedAdvancedSettings)
+
+	dataSourceAdvancedSettings := dataSourceBrowserCheckV2().Schema["test"].Elem.(*schema.Resource).Schema["advanced_settings"].Elem.(*schema.Resource)
+	assertBrowserV2AdvancedSettingsSensitiveFields(t, "data source", dataSourceAdvancedSettings)
+}
+
+func assertBrowserV2AdvancedSettingsSensitiveFields(t *testing.T, name string, advancedSettings *schema.Resource) {
+	t.Helper()
+
+	assertNestedFieldSensitive(t, name, advancedSettings, "authentication", "password", true)
+	assertNestedFieldSensitive(t, name, advancedSettings, "cookies", "value", true)
+	assertNestedFieldSensitive(t, name, advancedSettings, "headers", "value", true)
+	assertNestedFieldSensitive(t, name, advancedSettings, "chrome_flags", "value", false)
+}
+
+func assertNestedFieldSensitive(t *testing.T, name string, advancedSettings *schema.Resource, setName string, fieldName string, want bool) {
+	t.Helper()
+
+	setSchema, ok := advancedSettings.Schema[setName]
+	if !ok {
+		t.Fatalf("%s advanced_settings.%s schema missing", name, setName)
+	}
+	nestedResource, ok := setSchema.Elem.(*schema.Resource)
+	if !ok {
+		t.Fatalf("%s advanced_settings.%s Elem = %T, want *schema.Resource", name, setName, setSchema.Elem)
+	}
+	fieldSchema, ok := nestedResource.Schema[fieldName]
+	if !ok {
+		t.Fatalf("%s advanced_settings.%s.%s schema missing", name, setName, fieldName)
+	}
+	if fieldSchema.Sensitive != want {
+		t.Fatalf("%s advanced_settings.%s.%s Sensitive = %t, want %t", name, setName, fieldName, fieldSchema.Sensitive, want)
+	}
+}
+
+func testExcludedFileSet(items ...map[string]interface{}) *schema.Set {
+	values := make([]interface{}, 0, len(items))
+	for _, item := range items {
+		values = append(values, item)
+	}
+	return schema.NewSet(schema.HashResource(browserCheckV2ExcludedFileResource(false)), values)
+}
+
+func sameExcludedFiles(got []sc2.ExcludedFile, want []sc2.ExcludedFile) bool {
+	if len(got) != len(want) {
+		return false
+	}
+	remaining := append([]sc2.ExcludedFile(nil), want...)
+	for _, gotItem := range got {
+		found := false
+		for i, wantItem := range remaining {
+			if gotItem == wantItem {
+				remaining = append(remaining[:i], remaining[i+1:]...)
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return len(remaining) == 0
 }
 
 func TestBuildSslCheckV2DataSetsNullableFieldsValidationsAndCustomProperties(t *testing.T) {
