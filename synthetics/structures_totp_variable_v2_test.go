@@ -121,6 +121,33 @@ func TestBuildTotpVariableV2UpdateDataDoesNotSendRedactedSecret(t *testing.T) {
 	}
 }
 
+func TestBuildTotpVariableV2UpdateDataSendsChangedSecret(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceTotpVariableV2().Schema, map[string]interface{}{
+		"totp_variable": []interface{}{
+			map[string]interface{}{
+				"name":        "login_mfa",
+				"description": "updated",
+				"secret":      "JBSWY3DPEHPK3PXQ",
+				"digits":      8,
+				"interval":    45,
+				"hmac_digest": "sha1",
+			},
+		},
+	})
+
+	if !d.HasChange("totp_variable.0.secret") {
+		t.Fatal("test setup did not mark totp_variable.0.secret as changed")
+	}
+
+	got := buildTotpVariableV2UpdateData(d)
+	if got.Totp.Secret == nil {
+		t.Fatal("Secret = nil, want changed secret in update payload")
+	}
+	if *got.Totp.Secret != "JBSWY3DPEHPK3PXQ" {
+		t.Fatalf("Secret = %#v, want changed secret", *got.Totp.Secret)
+	}
+}
+
 func TestFlattenTotpVariableV2ReadPreservesExistingStateSecret(t *testing.T) {
 	resp := &sc2.TotpVariableV2Response{}
 	resp.Totp.ID = 123
