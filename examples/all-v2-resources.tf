@@ -34,6 +34,22 @@
 #   }    
 # }
 
+# variable "login_mfa_totp_secret" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# resource "synthetics_create_totp_variable_v2" "login_mfa" {
+#   totp_variable {
+#     name        = "login_mfa"
+#     description = "TOTP seed for login browser test"
+#     secret      = var.login_mfa_totp_secret
+#     digits      = 6
+#     interval    = 30
+#     hmac_digest = "sha1"
+#   }
+# }
+
 # //Create a Http V2 Check
 # resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 #   test {
@@ -108,6 +124,13 @@
 #         selector_type        = "id"
 #         type                 = "enter_value"
 #         value                = "{{env.beep-var}}"
+#       }
+#       steps {
+#         name          = "Enter MFA code"
+#         selector      = "mfa-code"
+#         selector_type = "id"
+#         type          = "enter_value"
+#         value         = "{{totp.login_mfa}}"
 #       }
 #       steps {
 #         name                 = "03 click"

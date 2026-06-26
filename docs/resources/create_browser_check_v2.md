@@ -40,6 +40,13 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         value                = "{{env.beep-var}}"
       }
       steps {
+        name          = "Enter MFA code"
+        selector      = "mfa-code"
+        selector_type = "id"
+        type          = "enter_value"
+        value         = "{{totp.login_mfa}}"
+      }
+      steps {
         name          = "03 click"
         type          = "click_element"
         wait_for_nav  = true
