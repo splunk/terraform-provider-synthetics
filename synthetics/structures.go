@@ -1081,7 +1081,7 @@ func flattenSslCheckV2Read(checkSslV2 *sc2.SslCheckV2Response) []interface{} {
 		sslV2["last_run_location_id"] = checkSslV2.Test.LastRunLocationId
 	}
 
-	if checkSslV2.Test.LastRunId != 0 {
+	if checkSslV2.Test.LastRunId != "" {
 		sslV2["last_run_id"] = checkSslV2.Test.LastRunId
 	}
 

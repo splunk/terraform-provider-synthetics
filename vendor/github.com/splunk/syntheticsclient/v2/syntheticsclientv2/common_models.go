@@ -502,7 +502,7 @@ type SslCheckV2Response struct {
 		Lastrunat                     time.Time          `json:"lastRunAt"`
 		LastRunCoreMetricsPublishedAt time.Time          `json:"lastRunCoreMetricsPublishedAt"`
 		LastRunLocationId             string             `json:"lastRunLocationId"`
-		LastRunId                     int                `json:"lastRunId"`
+		LastRunId                     string             `json:"lastRunId"`
 		Automaticretries              int                `json:"automaticRetries"`
 		Createdby                     string             `json:"createdBy"`
 		Updatedby                     string             `json:"updatedBy"`
