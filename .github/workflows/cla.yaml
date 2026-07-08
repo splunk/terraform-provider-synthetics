@@ -16,12 +16,12 @@ jobs:
     steps:
       - name: "CLA Assistant"
         if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
-        uses: contributor-assistant/github-action@v2.3.0
+        # v2.6.1 with only the action runtime upgraded from Node 20 to Node 24.
+        uses: OpenMapX/cla-assistant-action@3e864d0e9c7ec7a7fc4eb36e78ff857b1db7978c # v2.6.1-node24
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # the below token should have repo scope and must be manually added by you in the repository's secret
-          # This token is required only if you have configured to store the signatures in a remote repository/organization
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          # Splunk-managed token with write access to the remote signatures repository.
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT_CLATOOL }}
         with:
           path-to-signatures: 'signatures/version1/cla.json'
           path-to-document: 'https://github.com/splunk/cla-agreement/blob/main/CLA.md' # e.g. a CLA or a DCO document
@@ -35,10 +35,11 @@ jobs:
     steps:
       - name: "COC Assistant"
         if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the Code of Conduct and I hereby accept the Terms') || github.event_name == 'pull_request_target'
-        uses: cla-assistant/github-action@v2.3.0
+        # v2.6.1 with only the action runtime upgraded from Node 20 to Node 24.
+        uses: OpenMapX/cla-assistant-action@3e864d0e9c7ec7a7fc4eb36e78ff857b1db7978c # v2.6.1-node24
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT_CLATOOL }}
         with:
           path-to-signatures: "signatures/version1/coc.json"
           path-to-document: "https://github.com/splunk/cla-agreement/blob/main/CODE_OF_CONDUCT.md" # e.g. a COC or a DCO document
