@@ -546,6 +546,23 @@ func TestFlattenSslCheckV2ReadPreservesNullableServerNameAndCaCertificateID(t *t
 	}
 }
 
+func TestFlattenSslCheckV2ReadPreservesUUIDLastRunID(t *testing.T) {
+	const lastRunID = "77ff08f0-3865-42d8-9fff-3efb7c25e176"
+	var check sc2.SslCheckV2Response
+	if err := json.Unmarshal([]byte(`{"test":{"lastRunId":"`+lastRunID+`"}}`), &check); err != nil {
+		t.Fatalf("unmarshal SSL response: %v", err)
+	}
+
+	got := flattenSslCheckV2Read(&check)
+	if len(got) != 1 {
+		t.Fatalf("len(flattened) = %d, want 1", len(got))
+	}
+	test := got[0].(map[string]interface{})
+	if test["last_run_id"] != lastRunID {
+		t.Fatalf("last_run_id = %#v, want %q", test["last_run_id"], lastRunID)
+	}
+}
+
 func TestBuildCaCertificateV2DataRequiresContent(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceCaCertificateV2().Schema, map[string]interface{}{
 		"ca_certificate": []interface{}{

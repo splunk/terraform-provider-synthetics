@@ -52,7 +52,7 @@ Read-Only:
 - `host` (String)
 - `last_run_at` (String)
 - `last_run_core_metrics_published_at` (String)
-- `last_run_id` (Number)
+- `last_run_id` (String)
 - `last_run_location_id` (String)
 - `last_run_status` (String)
 - `location_ids` (List of String)

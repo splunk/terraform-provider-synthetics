@@ -40,9 +40,13 @@ type ClientArgs struct {
 type RequestDetails struct {
 	StatusCode   int
 	ResponseBody string
-	RequestBody  string
-	RawResponse  *http.Response
-	RawRequest   *http.Request
+	// RequestBody is the supported debug representation of the outgoing request.
+	// It redacts API tokens and sensitive JSON values before being returned.
+	RequestBody string
+	RawResponse *http.Response
+	// RawRequest is intentionally not returned by v2 public API calls because it
+	// can retain authorization headers or request body secrets.
+	RawRequest *http.Request
 }
 
 type errorResponse struct {
@@ -56,6 +60,24 @@ type errorResponse struct {
 
 func (c Client) String() string {
 	return fmt.Sprintf("Splunk Synthetics Client: URL: %s ", c.publicBaseURL)
+}
+
+var sensitiveJSONFieldNames = map[string]struct{}{
+	"body":     {},
+	"content":  {},
+	"password": {},
+	"username": {},
+	"value":    {},
+}
+
+var sensitiveHeaderNames = map[string]struct{}{
+	"authorization":       {},
+	"proxy-authorization": {},
+	"cookie":              {},
+	"set-cookie":          {},
+	"x-sf-token":          {},
+	"x-api-key":           {},
+	"api-key":             {},
 }
 
 func (c Client) makePublicAPICall(method string, endpoint string, requestBody io.Reader, queryParams map[string]string) (*RequestDetails, error) {
@@ -79,8 +101,6 @@ func (c Client) makePublicAPICall(method string, endpoint string, requestBody io
 	}
 	req.URL.RawQuery = q.Encode()
 
-	// Add the request to the details
-	details.RawRequest = req
 	requestDump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		return &details, err
@@ -126,18 +146,40 @@ func redactSensitiveValue(value string, sensitiveValue string) string {
 	return strings.ReplaceAll(value, sensitiveValue, "[REDACTED]")
 }
 
-func sanitizeRequestDump(requestDump string, apiKey string, endpoint string) string {
+func sanitizeRequestDump(requestDump string, apiKey string, _ string) string {
 	sanitizedRequestDump := redactSensitiveValue(requestDump, apiKey)
-	if !strings.Contains(endpoint, "/cacerts") {
-		return sanitizedRequestDump
-	}
-
-	return redactCaCertificateContent(sanitizedRequestDump)
+	sanitizedRequestDump = redactRequestDumpURLQuery(sanitizedRequestDump)
+	return redactSensitiveRequestBody(sanitizedRequestDump)
 }
 
-func redactCaCertificateContent(requestDump string) string {
+func redactRequestDumpURLQuery(requestDump string) string {
+	lineEnd := strings.Index(requestDump, "\n")
+	if lineEnd == -1 {
+		return redactRequestLineURLQuery(requestDump)
+	}
+
+	return redactRequestLineURLQuery(requestDump[:lineEnd]) + requestDump[lineEnd:]
+}
+
+func redactRequestLineURLQuery(requestLine string) string {
+	lineSuffix := ""
+	if strings.HasSuffix(requestLine, "\r") {
+		requestLine = strings.TrimSuffix(requestLine, "\r")
+		lineSuffix = "\r"
+	}
+
+	requestLineParts := strings.SplitN(requestLine, " ", 3)
+	if len(requestLineParts) != 3 {
+		return requestLine + lineSuffix
+	}
+
+	requestLineParts[1] = redactURLQueryValues(requestLineParts[1])
+	return strings.Join(requestLineParts, " ") + lineSuffix
+}
+
+func redactSensitiveRequestBody(requestDump string) string {
 	headers, body, separator, ok := splitRequestDump(requestDump)
-	if !ok || body == "" {
+	if !ok || strings.TrimSpace(body) == "" {
 		return requestDump
 	}
 
@@ -146,7 +188,7 @@ func redactCaCertificateContent(requestDump string) string {
 		return replaceRequestDumpBody(headers, separator)
 	}
 
-	redactContentFields(requestBody)
+	redactSensitiveJSONFields(requestBody)
 
 	redactedRequestBody, err := json.Marshal(requestBody)
 	if err != nil {
@@ -171,21 +213,124 @@ func replaceRequestDumpBody(headers string, separator string) string {
 	return headers + separator + "[REDACTED]"
 }
 
-func redactContentFields(value interface{}) {
+func redactSensitiveJSONFields(value interface{}) {
 	switch typedValue := value.(type) {
 	case map[string]interface{}:
 		for key, nestedValue := range typedValue {
-			if strings.EqualFold(key, "content") {
+			if _, ok := sensitiveJSONFieldNames[strings.ToLower(key)]; ok {
 				typedValue[key] = "[REDACTED]"
 				continue
 			}
-			redactContentFields(nestedValue)
+			if isSensitiveHeaderName(key) {
+				typedValue[key] = "[REDACTED]"
+				continue
+			}
+			if isURLFieldName(key) {
+				if urlValue, ok := nestedValue.(string); ok {
+					typedValue[key] = redactURLQueryValues(urlValue)
+					continue
+				}
+			}
+			if strings.EqualFold(key, "headers") {
+				redactHeaderValues(nestedValue)
+				continue
+			}
+			redactSensitiveJSONFields(nestedValue)
 		}
 	case []interface{}:
 		for _, nestedValue := range typedValue {
-			redactContentFields(nestedValue)
+			redactSensitiveJSONFields(nestedValue)
 		}
 	}
+}
+
+func redactHeaderValues(value interface{}) {
+	switch typedValue := value.(type) {
+	case map[string]interface{}:
+		for key := range typedValue {
+			typedValue[key] = "[REDACTED]"
+		}
+	default:
+		redactSensitiveJSONFields(value)
+	}
+}
+
+func isSensitiveHeaderName(key string) bool {
+	lowerKey := strings.ToLower(key)
+	if _, ok := sensitiveHeaderNames[lowerKey]; ok {
+		return true
+	}
+
+	return strings.Contains(lowerKey, "token") ||
+		strings.Contains(lowerKey, "secret") ||
+		strings.Contains(lowerKey, "password")
+}
+
+func isURLFieldName(key string) bool {
+	lowerKey := strings.ToLower(key)
+	return lowerKey == "url" || strings.HasSuffix(lowerKey, "url")
+}
+
+func redactURLQueryValues(rawURL string) string {
+	redactedURL := redactURLUserinfo(rawURL)
+	queryStart := strings.Index(redactedURL, "?")
+	if queryStart == -1 || queryStart == len(redactedURL)-1 {
+		return redactedURL
+	}
+
+	prefix := redactedURL[:queryStart+1]
+	query := redactedURL[queryStart+1:]
+	fragment := ""
+	if fragmentStart := strings.Index(query, "#"); fragmentStart != -1 {
+		fragment = query[fragmentStart:]
+		query = query[:fragmentStart]
+	}
+	if query == "" {
+		return redactedURL
+	}
+
+	queryParts := strings.Split(query, "&")
+	for i, queryPart := range queryParts {
+		if queryPart == "" {
+			continue
+		}
+		key := queryPart
+		if equalSign := strings.Index(queryPart, "="); equalSign != -1 {
+			key = queryPart[:equalSign]
+		}
+		if key == "" {
+			queryParts[i] = "[REDACTED]"
+			continue
+		}
+		queryParts[i] = key + "=[REDACTED]"
+	}
+
+	return prefix + strings.Join(queryParts, "&") + fragment
+}
+
+func redactURLUserinfo(rawURL string) string {
+	authorityStart := strings.Index(rawURL, "://")
+	if authorityStart == -1 {
+		if !strings.HasPrefix(rawURL, "//") {
+			return rawURL
+		}
+		authorityStart = 2
+	} else {
+		authorityStart += len("://")
+	}
+
+	authorityEnd := len(rawURL)
+	for _, separator := range []string{"/", "?", "#"} {
+		if index := strings.Index(rawURL[authorityStart:], separator); index != -1 && authorityStart+index < authorityEnd {
+			authorityEnd = authorityStart + index
+		}
+	}
+
+	if atSign := strings.LastIndex(rawURL[authorityStart:authorityEnd], "@"); atSign != -1 {
+		return rawURL[:authorityStart] + "[REDACTED]@" + rawURL[authorityStart+atSign+1:]
+	}
+
+	return rawURL
 }
 
 func NewClientArgs(timeout int, baseUrl string) ClientArgs {
