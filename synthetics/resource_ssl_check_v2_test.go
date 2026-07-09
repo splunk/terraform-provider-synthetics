@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const newSslCheckV2Config = `
@@ -117,6 +118,18 @@ func TestSslCheckV2AcceptanceConfigsOmitUnsupportedCertificateValidations(t *tes
 		}
 		if strings.Contains(config, "validations {") {
 			t.Fatalf("%s config must not send unsupported SSL certificate validations", name)
+		}
+	}
+}
+
+func TestSslCheckV2LastRunIDSchemaUsesString(t *testing.T) {
+	for name, testSchema := range map[string]map[string]*schema.Schema{
+		"resource":    sslCheckV2ResourceTestSchema(),
+		"data source": sslCheckV2DataSourceTestSchema(),
+	} {
+		lastRunIDSchema := testSchema["last_run_id"]
+		if lastRunIDSchema.Type != schema.TypeString {
+			t.Errorf("%s last_run_id type = %v, want TypeString", name, lastRunIDSchema.Type)
 		}
 	}
 }

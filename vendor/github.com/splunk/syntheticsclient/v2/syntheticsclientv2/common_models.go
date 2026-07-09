@@ -106,6 +106,7 @@ type Advancedsettings struct {
 	Verifycertificates        bool             `json:"verifyCertificates"`
 	ChromeFlags               []ChromeFlag     `json:"chromeFlags"`
 	ExcludedFiles             []ExcludedFile   `json:"excludedFiles"`
+	CertificateIDs            []int            `json:"certificateIds,omitempty"`
 }
 
 type ChromeFlag struct {
@@ -207,9 +208,10 @@ type Requests struct {
 type Configuration struct {
 	Body          string `json:"body"`
 	Headers       `json:"headers"`
-	Name          string `json:"name"`
-	RequestMethod string `json:"requestMethod,omitempty"`
-	URL           string `json:"url,omitempty"`
+	Name          string       `json:"name"`
+	RequestMethod string       `json:"requestMethod,omitempty"`
+	URL           string       `json:"url,omitempty"`
+	CertificateID *NullableInt `json:"certificateId,omitempty"`
 }
 
 type Headers map[string]interface{}
@@ -479,6 +481,87 @@ type CaCertificatesV2Response struct {
 	CaCerts []CaCertificate `json:"cacerts"`
 }
 
+type ClientCertificateKey struct {
+	ID            int       `json:"id,omitempty"`
+	Content       string    `json:"content,omitempty"`
+	Filename      string    `json:"filename,omitempty"`
+	FileExtension string    `json:"fileExtension,omitempty"`
+	CreatedAt     time.Time `json:"createdAt,omitempty"`
+	CreatedBy     string    `json:"createdBy,omitempty"`
+	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy     string    `json:"updatedBy,omitempty"`
+}
+
+type ClientCertificatePrivateKey struct {
+	ID            int       `json:"id,omitempty"`
+	Content       string    `json:"content,omitempty"`
+	Filename      string    `json:"filename,omitempty"`
+	FileExtension string    `json:"fileExtension,omitempty"`
+	Password      string    `json:"password,omitempty"`
+	CreatedAt     time.Time `json:"createdAt,omitempty"`
+	CreatedBy     string    `json:"createdBy,omitempty"`
+	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy     string    `json:"updatedBy,omitempty"`
+}
+
+type ClientCertificateKeyInput struct {
+	Content       string `json:"content"`
+	Filename      string `json:"filename"`
+	FileExtension string `json:"fileExtension"`
+}
+
+type ClientCertificatePrivateKeyInput struct {
+	Content       string `json:"content"`
+	Filename      string `json:"filename"`
+	FileExtension string `json:"fileExtension"`
+	Password      string `json:"password,omitempty"`
+}
+
+type ClientCertificate struct {
+	ID          int                         `json:"id,omitempty"`
+	Name        string                      `json:"name,omitempty"`
+	Description string                      `json:"description,omitempty"`
+	Domain      string                      `json:"domain,omitempty"`
+	ExpiresAt   time.Time                   `json:"expiresAt,omitempty"`
+	CreatedAt   time.Time                   `json:"createdAt,omitempty"`
+	CreatedBy   string                      `json:"createdBy,omitempty"`
+	UpdatedAt   time.Time                   `json:"updatedAt,omitempty"`
+	UpdatedBy   string                      `json:"updatedBy,omitempty"`
+	PublicKey   ClientCertificateKey        `json:"publicKey,omitempty"`
+	PrivateKey  ClientCertificatePrivateKey `json:"privateKey,omitempty"`
+}
+
+type ClientCertificateInput struct {
+	Name        string                           `json:"name"`
+	Description string                           `json:"description,omitempty"`
+	Domain      string                           `json:"domain"`
+	PublicKey   ClientCertificateKeyInput        `json:"publicKey"`
+	PrivateKey  ClientCertificatePrivateKeyInput `json:"privateKey"`
+}
+
+type ClientCertificateUpdateInput struct {
+	Description *string                           `json:"description,omitempty"`
+	Domain      *string                           `json:"domain,omitempty"`
+	PublicKey   *ClientCertificateKeyInput        `json:"publicKey,omitempty"`
+	PrivateKey  *ClientCertificatePrivateKeyInput `json:"privateKey,omitempty"`
+}
+
+type ClientCertificateV2Input struct {
+	Certificate ClientCertificateInput `json:"certificate"`
+}
+
+type ClientCertificateV2UpdateInput struct {
+	Certificate ClientCertificateUpdateInput `json:"certificate"`
+}
+
+type ClientCertificateV2Response struct {
+	Certificate ClientCertificate `json:"certificate"`
+}
+
+type ClientCertificatesV2Response struct {
+	Certificates []ClientCertificate `json:"certificates"`
+}
+
 type SslCheckV2Response struct {
 	Test struct {
 		ID                            int                `json:"id,omitempty"`
@@ -502,7 +585,7 @@ type SslCheckV2Response struct {
 		Lastrunat                     time.Time          `json:"lastRunAt"`
 		LastRunCoreMetricsPublishedAt time.Time          `json:"lastRunCoreMetricsPublishedAt"`
 		LastRunLocationId             string             `json:"lastRunLocationId"`
-		LastRunId                     int                `json:"lastRunId"`
+		LastRunId                     string             `json:"lastRunId"`
 		Automaticretries              int                `json:"automaticRetries"`
 		Createdby                     string             `json:"createdBy"`
 		Updatedby                     string             `json:"updatedBy"`
@@ -604,6 +687,7 @@ type HttpCheckV2Response struct {
 		Authentication     *Authentication    `json:"authentication"`
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
+		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
@@ -630,6 +714,7 @@ type HttpCheckV2Input struct {
 		Authentication     *Authentication    `json:"authentication"`
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
+		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
@@ -740,6 +825,52 @@ type BrowserCheckV2Input struct {
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Automaticretries   int                `json:"automaticRetries"`
 	} `json:"test"`
+}
+
+func (b BrowserCheckV2Input) MarshalJSON() ([]byte, error) {
+	type advancedSettingsJSON struct {
+		Advancedsettings
+		CertificateIDs *[]int `json:"certificateIds,omitempty"`
+	}
+
+	type browserCheckV2InputTestJSON struct {
+		Name               string               `json:"name"`
+		Transactions       []Transactions       `json:"transactions"`
+		Urlprotocol        string               `json:"urlProtocol"`
+		Starturl           string               `json:"startUrl"`
+		LocationIds        []string             `json:"locationIds"`
+		DeviceID           int                  `json:"deviceId"`
+		Frequency          int                  `json:"frequency"`
+		Schedulingstrategy string               `json:"schedulingStrategy"`
+		Active             bool                 `json:"active"`
+		Advancedsettings   advancedSettingsJSON `json:"advancedSettings,omitempty"`
+		Customproperties   []CustomProperties   `json:"customProperties"`
+		Automaticretries   int                  `json:"automaticRetries"`
+	}
+
+	advancedSettings := advancedSettingsJSON{Advancedsettings: b.Test.Advancedsettings}
+	if b.Test.CertificateIDs != nil {
+		advancedSettings.CertificateIDs = &b.Test.CertificateIDs
+	}
+
+	return json.Marshal(struct {
+		Test browserCheckV2InputTestJSON `json:"test"`
+	}{
+		Test: browserCheckV2InputTestJSON{
+			Name:               b.Test.Name,
+			Transactions:       b.Test.Transactions,
+			Urlprotocol:        b.Test.Urlprotocol,
+			Starturl:           b.Test.Starturl,
+			LocationIds:        b.Test.LocationIds,
+			DeviceID:           b.Test.DeviceID,
+			Frequency:          b.Test.Frequency,
+			Schedulingstrategy: b.Test.Schedulingstrategy,
+			Active:             b.Test.Active,
+			Advancedsettings:   advancedSettings,
+			Customproperties:   b.Test.Customproperties,
+			Automaticretries:   b.Test.Automaticretries,
+		},
+	})
 }
 
 type BrowserCheckV2Response struct {

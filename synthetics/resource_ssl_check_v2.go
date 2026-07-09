@@ -85,7 +85,7 @@ func sslCheckV2ResourceTestSchema() map[string]*schema.Schema {
 			Computed: true,
 		},
 		"last_run_id": {
-			Type:     schema.TypeInt,
+			Type:     schema.TypeString,
 			Computed: true,
 		},
 		"last_run_core_metrics_published_at": {
@@ -206,7 +206,7 @@ func sslCheckV2DataSourceTestSchema() map[string]*schema.Schema {
 			Computed: true,
 		},
 		"last_run_id": {
-			Type:     schema.TypeInt,
+			Type:     schema.TypeString,
 			Computed: true,
 		},
 		"last_run_core_metrics_published_at": {
