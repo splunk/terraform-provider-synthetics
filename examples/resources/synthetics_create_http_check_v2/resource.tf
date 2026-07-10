@@ -1,3 +1,7 @@
+variable "client_certificate_id" {
+  type = number
+}
+
 resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
   test {
     active = true 
@@ -12,6 +16,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 			value = "value"
 		}
     request_method = "GET"
+    certificate_id = var.client_certificate_id
     verify_certificates = true
     user_agent = "Another User of Agents"
     body = null

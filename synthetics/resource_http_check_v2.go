@@ -103,6 +103,11 @@ func resourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeBool,
 							Required: true,
 						},
+						"certificate_id": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
 						"headers": {
 							Type:     schema.TypeSet,
 							Optional: true,
@@ -244,7 +249,6 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET HTTP BODY: ", o)
 	if err := d.Set("test", flattenHttpV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -264,12 +268,11 @@ func resourceHttpCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteHttpCheckV2(checkIdString)
+	_, err = c.DeleteHttpCheckV2(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
 	d.SetId("")
 
 	return diags
@@ -281,17 +284,18 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 	checkID := d.Id()
 
 	checkData := processHttpCheckV2Items(d)
+	oldRaw, newRaw := d.GetChange("test")
+	checkData.Test.CertificateID = buildHttpV2CertificateIDForUpdate(firstMapFromList(oldRaw), firstMapFromList(newRaw))
 
 	checkIdString, err := strconv.Atoi(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateHttpCheckV2(checkIdString, &checkData)
+	_, _, err = c.UpdateHttpCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] UPDATE BODY: ", o)
 
 	return resourceHttpCheckV2Read(ctx, d, meta)
 }
@@ -299,6 +303,5 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 func processHttpCheckV2Items(d *schema.ResourceData) sc2.HttpCheckV2Input {
 
 	var check = buildHttpV2Data(d)
-	log.Println("[DEBUG] HTTP V2 CHECK OUTPUT: ", check)
 	return check
 }

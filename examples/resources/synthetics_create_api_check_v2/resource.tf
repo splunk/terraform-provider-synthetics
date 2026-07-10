@@ -1,3 +1,7 @@
+variable "client_certificate_id" {
+  type = number
+}
+
 resource "synthetics_create_api_check_v2" "full_api_v2_foo_check" {
   test {
     active = true
@@ -20,6 +24,7 @@ resource "synthetics_create_api_check_v2" "full_api_v2_foo_check" {
         name = "Get products"
         request_method = "GET"
         url = "https://dummyjson.com/products"
+        certificate_id = var.client_certificate_id
       }
       setup {
         name = "Extract from response body"

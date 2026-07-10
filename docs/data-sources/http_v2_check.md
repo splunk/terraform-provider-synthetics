@@ -50,6 +50,7 @@ Read-Only:
 - `active` (Boolean)
 - `automatic_retries` (Number)
 - `body` (String)
+- `certificate_id` (Number)
 - `created_at` (String)
 - `created_by` (String)
 - `last_run_at` (String)

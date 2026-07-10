@@ -99,6 +99,11 @@ func resourceApiCheckV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
+												"certificate_id": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.IntAtLeast(1),
+												},
 											},
 										},
 									},
@@ -270,7 +275,6 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET REQUEST BODY JSON: ", o)
 	if err := d.Set("test", flattenApiV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -290,12 +294,11 @@ func resourceApiCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteApiCheckV2(checkIdString)
+	_, err = c.DeleteApiCheckV2(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
 	d.SetId("")
 
 	return diags
@@ -307,17 +310,18 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	checkID := d.Id()
 
 	checkData := processApiCheckV2Items(d)
+	oldRaw, newRaw := d.GetChange("test")
+	applyAPIRequestCertificateIDUpdates(&checkData, firstMapFromList(oldRaw), firstMapFromList(newRaw))
 
 	checkIdString, err := strconv.Atoi(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateApiCheckV2(checkIdString, &checkData)
+	_, _, err = c.UpdateApiCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] UPDATE BODY JSON: ", o)
 
 	return resourceApiCheckV2Read(ctx, d, meta)
 }
@@ -326,6 +330,5 @@ func processApiCheckV2Items(d *schema.ResourceData) sc2.ApiCheckV2Input {
 
 	var check = buildApiV2Data(d)
 
-	log.Println("[DEBUG] API V2 CHECK OUTPUT: ", check)
 	return check
 }

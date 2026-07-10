@@ -97,6 +97,10 @@ func dataSourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"certificate_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -212,7 +216,6 @@ func dataSourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, m in
 	checkID := flattenIdData(d.Get("test"))
 
 	check, _, err := c.GetHttpCheckV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

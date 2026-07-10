@@ -18,6 +18,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newHttpCheckV2Config = `
@@ -197,4 +199,105 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestBuildHttpV2DataIncludesCertificateID(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceHttpCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{map[string]interface{}{
+			"name":                "api-example",
+			"type":                "http",
+			"url":                 "https://api.example.com/health",
+			"active":              true,
+			"frequency":           5,
+			"automatic_retries":   0,
+			"scheduling_strategy": "round_robin",
+			"request_method":      "GET",
+			"body":                "",
+			"location_ids":        []interface{}{"aws-us-east-1"},
+			"user_agent":          "",
+			"verify_certificates": true,
+			"headers":             []interface{}{},
+			"validations":         []interface{}{},
+			"custom_properties":   []interface{}{},
+			"certificate_id":      123,
+		}},
+	})
+
+	input := buildHttpV2Data(d)
+
+	if input.Test.CertificateID == nil {
+		t.Fatal("CertificateID is nil, want nullable int")
+	}
+	if input.Test.CertificateID.Value == nil {
+		t.Fatal("CertificateID.Value is nil, want 123")
+	}
+	if *input.Test.CertificateID.Value != 123 {
+		t.Fatalf("CertificateID.Value = %d, want 123", *input.Test.CertificateID.Value)
+	}
+}
+
+func TestFlattenHttpV2ReadIncludesCertificateID(t *testing.T) {
+	response := &sc2.HttpCheckV2Response{}
+	response.Test.CertificateID = sc2.NewNullableInt(123)
+
+	flattened := flattenHttpV2Read(response)
+	testBlock := flattened[0].(map[string]interface{})
+	if got := testBlock["certificate_id"]; got != 123 {
+		t.Fatalf("certificate_id = %#v, want 123", got)
+	}
+}
+
+func TestFlattenHttpV2ReadResetsClearedCertificateIDInState(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceHttpCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{map[string]interface{}{
+			"name":                "api-example",
+			"type":                "http",
+			"url":                 "https://api.example.com/health",
+			"active":              true,
+			"frequency":           5,
+			"automatic_retries":   0,
+			"scheduling_strategy": "round_robin",
+			"request_method":      "GET",
+			"location_ids":        []interface{}{"aws-us-west-2"},
+			"verify_certificates": true,
+			"headers":             []interface{}{},
+			"validations":         []interface{}{},
+			"custom_properties":   []interface{}{},
+			"certificate_id":      123,
+		}},
+	})
+
+	response := &sc2.HttpCheckV2Response{}
+	response.Test.Name = "api-example"
+	response.Test.Type = "http"
+	response.Test.URL = "https://api.example.com/health"
+	response.Test.Active = true
+	response.Test.Frequency = 5
+	response.Test.SchedulingStrategy = "round_robin"
+	response.Test.RequestMethod = "GET"
+	response.Test.LocationIds = []string{"aws-us-west-2"}
+	response.Test.Verifycertificates = true
+
+	if err := d.Set("test", flattenHttpV2Read(response)); err != nil {
+		t.Fatalf("set flattened HTTP test: %s", err)
+	}
+
+	testBlock := d.Get("test").(*schema.Set).List()[0].(map[string]interface{})
+	if got := testBlock["certificate_id"]; got != 0 {
+		t.Fatalf("certificate_id = %#v, want 0", got)
+	}
+}
+
+func TestBuildHttpV2UpdateClearsRemovedCertificateID(t *testing.T) {
+	oldTest := map[string]interface{}{"certificate_id": 123}
+	newTest := map[string]interface{}{}
+
+	input := buildHttpV2CertificateIDForUpdate(oldTest, newTest)
+
+	if input == nil {
+		t.Fatal("certificate ID update is nil, want null value")
+	}
+	if input.Value != nil {
+		t.Fatalf("certificate ID update value = %#v, want nil", *input.Value)
+	}
 }
