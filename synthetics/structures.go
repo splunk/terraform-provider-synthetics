@@ -2187,17 +2187,6 @@ func intFromMap(values map[string]interface{}, key string) int {
 	return 0
 }
 
-func interfaceListFromMap(values map[string]interface{}, key string) []interface{} {
-	switch value := values[key].(type) {
-	case []interface{}:
-		return value
-	case *schema.Set:
-		return value.List()
-	default:
-		return []interface{}{}
-	}
-}
-
 func intSliceFromInterface(value interface{}) []int {
 	switch typed := value.(type) {
 	case []interface{}:
