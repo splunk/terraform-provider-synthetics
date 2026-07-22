@@ -201,11 +201,25 @@ func browserCheckV2AdvancedSettingsResource(computed bool) *schema.Resource {
 		collectInteractiveMetricsSchema.Default = false
 	}
 
+	certificateIDsSchema := &schema.Schema{
+		Type: schema.TypeList,
+		Elem: &schema.Schema{
+			Type:         schema.TypeInt,
+			ValidateFunc: validation.IntAtLeast(1),
+		},
+	}
+	if computed {
+		certificateIDsSchema.Computed = true
+	} else {
+		certificateIDsSchema.Optional = true
+	}
+
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"user_agent":                  stringSchema(false, nil),
 			"verify_certificates":         verifyCertificatesSchema,
 			"collect_interactive_metrics": collectInteractiveMetricsSchema,
+			"certificate_ids":             certificateIDsSchema,
 			"authentication": setSchema(&schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"username": stringSchema(false, nil),
@@ -307,12 +321,11 @@ func resourceBrowserCheckV2Delete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteBrowserCheckV2(checkIdString)
+	_, err = c.DeleteBrowserCheckV2(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
 	d.SetId("")
 
 	return diags
@@ -349,7 +362,7 @@ func processBrowserCheckV2Items(d *schema.ResourceData) (sc2.BrowserCheckV2Input
 	if err != nil {
 		return check, err
 	}
-	log.Printf("[DEBUG] built browser v2 check name=%q transactions=%d locations=%d", check.Test.Name, len(check.Test.Transactions), len(check.Test.LocationIds))
+	log.Printf("[DEBUG] built browser v2 check transactions=%d locations=%d", len(check.Test.Transactions), len(check.Test.LocationIds))
 	return check, nil
 }
 

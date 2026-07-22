@@ -75,8 +75,6 @@ func flattenApiV2Read(checkApiV2 *sc2.ApiCheckV2Response) []interface{} {
 	customProperties := flattenCustomProperties(&checkApiV2.Test.Customproperties)
 	apiV2["custom_properties"] = customProperties
 
-	log.Println("[DEBUG] apiv2 data: ", apiV2)
-
 	return []interface{}{apiV2}
 }
 
@@ -297,8 +295,6 @@ func flattenApiV2Data(checkApiV2 *sc2.ApiCheckV2Response, devices []sc2.Device) 
 	customProperties := flattenCustomProperties(&checkApiV2.Test.Customproperties)
 	apiV2["custom_properties"] = customProperties
 
-	log.Println("[DEBUG] apiv2 data: ", apiV2)
-
 	return []interface{}{apiV2}
 }
 
@@ -312,8 +308,6 @@ func flattenVariableV2Read(checkVariableV2 *sc2.VariableV2Response) []interface{
 	variableV2["value"] = checkVariableV2.Value
 
 	variableV2["secret"] = checkVariableV2.Secret
-
-	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
 
 	return []interface{}{variableV2}
 }
@@ -340,8 +334,6 @@ func flattenVariableV2Data(checkVariableV2 *sc2.VariableV2Response) []interface{
 	} else {
 		variableV2["updated_at"] = checkVariableV2.Updatedat.String()
 	}
-
-	log.Println("[DEBUG] VARIABLE V2 data: ", variableV2)
 
 	return []interface{}{variableV2}
 }
@@ -400,7 +392,6 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 			i++
 		}
 	}
-	log.Println("[DEBUG]] build downtimeConfigurationV2 data: ", downtimeConfigurationV2)
 	return downtimeConfigurationV2
 }
 
@@ -428,8 +419,6 @@ func flattenDowntimeConfigurationV2Read(downtimeConfigurationV2 *sc2.DowntimeCon
 	if downtimeConfigurationV2.Recurrence != nil {
 		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.Recurrence)
 	}
-
-	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
 	return []interface{}{DowntimeConfigurationV2}
 }
@@ -475,8 +464,6 @@ func flattenDowntimeConfigurationV2Data(downtimeConfigurationV2 *sc2.DowntimeCon
 	if downtimeConfigurationV2.Recurrence != nil {
 		DowntimeConfigurationV2["recurrence"] = flattenRecurrenceData(downtimeConfigurationV2.Recurrence)
 	}
-
-	log.Println("[DEBUG] DowntimeConfiguration V2 data: ", downtimeConfigurationV2)
 
 	return []interface{}{DowntimeConfigurationV2}
 }
@@ -637,8 +624,6 @@ func flattenLocationV2Data(checkLocationV2 sc2.Location) []interface{} {
 
 	locationV2["country"] = checkLocationV2.Country
 
-	log.Println("[DEBUG] Location V2 data: ", locationV2)
-
 	return []interface{}{locationV2}
 }
 
@@ -648,8 +633,6 @@ func flattenLocationMetaV2Data(checkLocationV2 sc2.Meta) []interface{} {
 	locationMetaV2["active_test_ids"] = checkLocationV2.ActiveTestIds
 
 	locationMetaV2["paused_test_ids"] = checkLocationV2.PausedTestIds
-
-	log.Println("[DEBUG] Location Meta V2 data: ", locationMetaV2)
 
 	return []interface{}{locationMetaV2}
 }
@@ -686,7 +669,7 @@ func flattenBrowserV2Read(checkBrowserV2 *sc2.BrowserCheckV2Response) []interfac
 	customProperties := flattenCustomProperties(&checkBrowserV2.Test.Customproperties)
 	browserV2["custom_properties"] = customProperties
 
-	log.Printf("[DEBUG] read browser v2 data id=%d name=%q locations=%d transactions=%d", checkBrowserV2.Test.ID, checkBrowserV2.Test.Name, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
+	log.Printf("[DEBUG] read browser v2 data id=%d locations=%d transactions=%d", checkBrowserV2.Test.ID, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
 
 	return []interface{}{browserV2}
 }
@@ -761,7 +744,7 @@ func flattenBrowserV2Data(checkBrowserV2 *sc2.BrowserCheckV2Response, devices []
 	transcations := flattenTransactionsData(&checkBrowserV2.Test.Transactions)
 	browserV2["transactions"] = transcations
 
-	log.Printf("[DEBUG] flatten browser v2 data id=%d name=%q locations=%d transactions=%d", checkBrowserV2.Test.ID, checkBrowserV2.Test.Name, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
+	log.Printf("[DEBUG] flatten browser v2 data id=%d locations=%d transactions=%d", checkBrowserV2.Test.ID, len(checkBrowserV2.Test.Locationids), len(checkBrowserV2.Test.Transactions))
 
 	return []interface{}{browserV2}
 }
@@ -804,6 +787,10 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
 
+	if checkHttpV2.Test.CertificateID != nil && checkHttpV2.Test.CertificateID.Value != nil {
+		httpV2["certificate_id"] = *checkHttpV2.Test.CertificateID.Value
+	}
+
 	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
 	httpV2["location_ids"] = locationIds
 
@@ -815,8 +802,6 @@ func flattenHttpV2Read(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	customProperties := flattenCustomProperties(&checkHttpV2.Test.Customproperties)
 	httpV2["custom_properties"] = customProperties
-
-	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
 }
@@ -894,6 +879,10 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 		httpV2["verify_certificates"] = checkHttpV2.Test.Verifycertificates
 	}
 
+	if checkHttpV2.Test.CertificateID != nil && checkHttpV2.Test.CertificateID.Value != nil {
+		httpV2["certificate_id"] = *checkHttpV2.Test.CertificateID.Value
+	}
+
 	locationIds := flattenLocationData(&checkHttpV2.Test.LocationIds)
 	httpV2["location_ids"] = locationIds
 
@@ -905,8 +894,6 @@ func flattenHttpV2Data(checkHttpV2 *sc2.HttpCheckV2Response) []interface{} {
 
 	customProperties := flattenCustomProperties(&checkHttpV2.Test.Customproperties)
 	httpV2["custom_properties"] = customProperties
-
-	log.Println("[DEBUG] httpV2 data: ", httpV2)
 
 	return []interface{}{httpV2}
 }
@@ -950,8 +937,6 @@ func flattenPortCheckV2Read(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	customProperties := flattenCustomProperties(&checkPortV2.Test.Customproperties)
 	portV2["custom_properties"] = customProperties
-
-	log.Println("[DEBUG] portv2 data: ", portV2)
 
 	return []interface{}{portV2}
 }
@@ -1026,8 +1011,6 @@ func flattenPortCheckV2Data(checkPortV2 *sc2.PortCheckV2Response) []interface{} 
 
 	customProperties := flattenCustomProperties(&checkPortV2.Test.Customproperties)
 	portV2["custom_properties"] = customProperties
-
-	log.Println("[DEBUG] portv2 data: ", portV2)
 
 	return []interface{}{portV2}
 }
@@ -1317,6 +1300,10 @@ func flattenConfigurationData(checkConfiguration *sc2.Configuration) []interface
 	}
 	if checkConfiguration.URL != "" {
 		configuration["url"] = checkConfiguration.URL
+	}
+
+	if checkConfiguration.CertificateID != nil && checkConfiguration.CertificateID.Value != nil {
+		configuration["certificate_id"] = *checkConfiguration.CertificateID.Value
 	}
 
 	headers := flattenHeaderData(&checkConfiguration.Headers)
@@ -1721,6 +1708,14 @@ func flattenAdvancedSettingsData(advSettings *sc2.Advancedsettings) []interface{
 	ChromeFlags := flattenChromeFlagsData(advSettings.ChromeFlags)
 	advancedSettings["chrome_flags"] = ChromeFlags
 
+	if advSettings.CertificateIDs != nil {
+		values := make([]interface{}, 0, len(advSettings.CertificateIDs))
+		for _, id := range advSettings.CertificateIDs {
+			values = append(values, id)
+		}
+		advancedSettings["certificate_ids"] = values
+	}
+
 	advancedSettings["excluded_files"] = flattenExcludedFilesV2Data(advSettings.ExcludedFiles)
 
 	return []interface{}{advancedSettings}
@@ -1768,7 +1763,6 @@ func buildApiV2Data(d *schema.ResourceData) sc2.ApiCheckV2Input {
 			apiv2.Test.Customproperties = buildCustomPropertiesData(api["custom_properties"].(*schema.Set))
 		}
 	}
-	log.Println("[DEBUG] build apiv2 data: ", apiv2)
 	return apiv2
 }
 
@@ -1799,7 +1793,7 @@ func buildBrowserV2Data(d *schema.ResourceData) (sc2.BrowserCheckV2Input, error)
 		}
 	}
 
-	log.Printf("[DEBUG] built browser v2 input name=%q transactions=%d locations=%d", browserv2.Test.Name, len(browserv2.Test.Transactions), len(browserv2.Test.LocationIds))
+	log.Printf("[DEBUG] built browser v2 input transactions=%d locations=%d", len(browserv2.Test.Transactions), len(browserv2.Test.LocationIds))
 	return browserv2, nil
 }
 
@@ -1821,6 +1815,9 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			httpv2.Test.RequestMethod = http["request_method"].(string)
 			httpv2.Test.Body = http["body"].(string)
 			httpv2.Test.Verifycertificates = http["verify_certificates"].(bool)
+			if id := intFromMap(http, "certificate_id"); id > 0 {
+				httpv2.Test.CertificateID = sc2.NewNullableInt(id)
+			}
 			userAgentString := http["user_agent"].(string)
 			httpv2.Test.UserAgent = &userAgentString
 			httpv2.Test.HttpHeaders = buildHttpHeadersData(http["headers"].(*schema.Set))
@@ -1829,8 +1826,19 @@ func buildHttpV2Data(d *schema.ResourceData) sc2.HttpCheckV2Input {
 			i++
 		}
 	}
-	log.Println("[DEBUG] build httpv2 data: ", httpv2)
 	return httpv2
+}
+
+func buildHttpV2CertificateIDForUpdate(oldTest map[string]interface{}, newTest map[string]interface{}) *sc2.NullableInt {
+	oldID := intFromMap(oldTest, "certificate_id")
+	newID := intFromMap(newTest, "certificate_id")
+	if newID > 0 {
+		return sc2.NewNullableInt(newID)
+	}
+	if oldID > 0 && newID == 0 {
+		return sc2.NewNullInt()
+	}
+	return nil
 }
 
 func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
@@ -1856,7 +1864,6 @@ func buildPortCheckV2Data(d *schema.ResourceData) sc2.PortCheckV2Input {
 
 		}
 	}
-	log.Println("[DEBUG] build portv2 data: ", portv2)
 	return portv2
 }
 
@@ -2005,6 +2012,220 @@ func caCertificateStringField(caCertificate map[string]interface{}, key string) 
 	return ""
 }
 
+const clientCertificateRedactedValue = "<REDACTED>"
+
+func buildClientCertificateV2Data(d *schema.ResourceData) *sc2.ClientCertificateV2Input {
+	block := firstMapFromList(d.Get("client_certificate"))
+	publicKey := firstMapFromList(block["public_key"])
+	privateKey := firstMapFromList(block["private_key"])
+
+	return &sc2.ClientCertificateV2Input{
+		Certificate: sc2.ClientCertificateInput{
+			Name:        stringFromMap(block, "name"),
+			Description: stringFromMap(block, "description"),
+			Domain:      stringFromMap(block, "domain"),
+			PublicKey: sc2.ClientCertificateKeyInput{
+				Content:       stringFromMap(publicKey, "content"),
+				Filename:      stringFromMap(publicKey, "filename"),
+				FileExtension: stringFromMap(publicKey, "file_extension"),
+			},
+			PrivateKey: sc2.ClientCertificatePrivateKeyInput{
+				Content:       stringFromMap(privateKey, "content"),
+				Filename:      stringFromMap(privateKey, "filename"),
+				FileExtension: stringFromMap(privateKey, "file_extension"),
+				Password:      stringFromMap(privateKey, "password"),
+			},
+		},
+	}
+}
+
+func buildClientCertificateV2UpdateData(d *schema.ResourceData) (*sc2.ClientCertificateV2UpdateInput, error) {
+	oldRaw, newRaw := d.GetChange("client_certificate")
+	oldBlock := firstMapFromList(oldRaw)
+	newBlock := firstMapFromList(newRaw)
+	if err := validateClientCertificatePasswordChange(oldBlock, newBlock); err != nil {
+		return nil, err
+	}
+
+	description := stringFromMap(newBlock, "description")
+	domain := stringFromMap(newBlock, "domain")
+	publicKey := firstMapFromList(newBlock["public_key"])
+	privateKey := firstMapFromList(newBlock["private_key"])
+
+	return &sc2.ClientCertificateV2UpdateInput{
+		Certificate: sc2.ClientCertificateUpdateInput{
+			Description: &description,
+			Domain:      &domain,
+			PublicKey: &sc2.ClientCertificateKeyInput{
+				Content:       stringFromMap(publicKey, "content"),
+				Filename:      stringFromMap(publicKey, "filename"),
+				FileExtension: stringFromMap(publicKey, "file_extension"),
+			},
+			PrivateKey: &sc2.ClientCertificatePrivateKeyInput{
+				Content:       stringFromMap(privateKey, "content"),
+				Filename:      stringFromMap(privateKey, "filename"),
+				FileExtension: stringFromMap(privateKey, "file_extension"),
+				Password:      stringFromMap(privateKey, "password"),
+			},
+		},
+	}, nil
+}
+
+func flattenClientCertificateV2Read(c sc2.ClientCertificate, existing map[string]interface{}) map[string]interface{} {
+	existingPublicKey := firstMapFromList(existing["public_key"])
+	existingPrivateKey := firstMapFromList(existing["private_key"])
+
+	publicKey := map[string]interface{}{
+		"id":             c.PublicKey.ID,
+		"content":        stateOrAPISecret(existingPublicKey, c.PublicKey.Content, "content"),
+		"filename":       c.PublicKey.Filename,
+		"file_extension": c.PublicKey.FileExtension,
+		"created_by":     c.PublicKey.CreatedBy,
+		"updated_by":     c.PublicKey.UpdatedBy,
+	}
+	if !c.PublicKey.CreatedAt.IsZero() {
+		publicKey["created_at"] = c.PublicKey.CreatedAt.String()
+	}
+	if !c.PublicKey.UpdatedAt.IsZero() {
+		publicKey["updated_at"] = c.PublicKey.UpdatedAt.String()
+	}
+
+	privateKey := map[string]interface{}{
+		"id":             c.PrivateKey.ID,
+		"content":        stateOrAPISecret(existingPrivateKey, c.PrivateKey.Content, "content"),
+		"filename":       c.PrivateKey.Filename,
+		"file_extension": c.PrivateKey.FileExtension,
+		"password":       stateOrAPISecret(existingPrivateKey, c.PrivateKey.Password, "password"),
+		"created_by":     c.PrivateKey.CreatedBy,
+		"updated_by":     c.PrivateKey.UpdatedBy,
+	}
+	if !c.PrivateKey.CreatedAt.IsZero() {
+		privateKey["created_at"] = c.PrivateKey.CreatedAt.String()
+	}
+	if !c.PrivateKey.UpdatedAt.IsZero() {
+		privateKey["updated_at"] = c.PrivateKey.UpdatedAt.String()
+	}
+
+	result := map[string]interface{}{
+		"id":          c.ID,
+		"name":        c.Name,
+		"description": c.Description,
+		"domain":      c.Domain,
+		"created_by":  c.CreatedBy,
+		"updated_by":  c.UpdatedBy,
+		"public_key":  []interface{}{publicKey},
+		"private_key": []interface{}{privateKey},
+	}
+	if !c.ExpiresAt.IsZero() {
+		result["expires_at"] = c.ExpiresAt.String()
+	}
+	if !c.CreatedAt.IsZero() {
+		result["created_at"] = c.CreatedAt.String()
+	}
+	if !c.UpdatedAt.IsZero() {
+		result["updated_at"] = c.UpdatedAt.String()
+	}
+
+	return result
+}
+
+func flattenClientCertificateMetadata(c sc2.ClientCertificate) map[string]interface{} {
+	return map[string]interface{}{
+		"id":          c.ID,
+		"name":        c.Name,
+		"description": c.Description,
+		"domain":      c.Domain,
+		"expires_at":  timeString(c.ExpiresAt),
+		"created_at":  timeString(c.CreatedAt),
+		"created_by":  c.CreatedBy,
+		"updated_at":  timeString(c.UpdatedAt),
+		"updated_by":  c.UpdatedBy,
+	}
+}
+
+func timeString(value time.Time) string {
+	if value.IsZero() {
+		return ""
+	}
+	return value.String()
+}
+
+func firstMapFromList(value interface{}) map[string]interface{} {
+	switch typed := value.(type) {
+	case []interface{}:
+		if len(typed) == 0 || typed[0] == nil {
+			return map[string]interface{}{}
+		}
+		if result, ok := typed[0].(map[string]interface{}); ok {
+			return result
+		}
+	case *schema.Set:
+		items := typed.List()
+		if len(items) == 0 || items[0] == nil {
+			return map[string]interface{}{}
+		}
+		if result, ok := items[0].(map[string]interface{}); ok {
+			return result
+		}
+	case map[string]interface{}:
+		return typed
+	}
+	return map[string]interface{}{}
+}
+
+func stringFromMap(values map[string]interface{}, key string) string {
+	if value, ok := values[key].(string); ok {
+		return value
+	}
+	return ""
+}
+
+func intFromMap(values map[string]interface{}, key string) int {
+	if value, ok := values[key].(int); ok {
+		return value
+	}
+	return 0
+}
+
+func intSliceFromInterface(value interface{}) []int {
+	switch typed := value.(type) {
+	case []interface{}:
+		result := make([]int, 0, len(typed))
+		for _, item := range typed {
+			if intValue, ok := item.(int); ok {
+				result = append(result, intValue)
+			}
+		}
+		return result
+	case *schema.Set:
+		return intSliceFromInterface(typed.List())
+	default:
+		return []int{}
+	}
+}
+
+func stateOrAPISecret(existing map[string]interface{}, apiValue string, key string) string {
+	if apiValue == "" || apiValue == clientCertificateRedactedValue {
+		return stringFromMap(existing, key)
+	}
+	return apiValue
+}
+
+func validateClientCertificatePasswordChange(oldBlock map[string]interface{}, newBlock map[string]interface{}) error {
+	oldPrivateKey := firstMapFromList(oldBlock["private_key"])
+	newPrivateKey := firstMapFromList(newBlock["private_key"])
+	oldPassword := stringFromMap(oldPrivateKey, "password")
+	newPassword := stringFromMap(newPrivateKey, "password")
+	oldContent := stringFromMap(oldPrivateKey, "content")
+	newContent := stringFromMap(newPrivateKey, "content")
+
+	if oldPassword != "" && newPassword == "" && oldContent == newContent {
+		return fmt.Errorf("private_key.password cannot be removed while private_key.content is unchanged")
+	}
+
+	return nil
+}
+
 func sslStringField(ssl map[string]interface{}, key string) string {
 	if value, ok := ssl[key].(string); ok {
 		return value
@@ -2040,7 +2261,6 @@ func buildVariableV2Data(d *schema.ResourceData) sc2.VariableV2Input {
 			i++
 		}
 	}
-	log.Println("[DEBUG]] build variablev2 data: ", variablev2)
 	return variablev2
 }
 
@@ -2288,6 +2508,9 @@ func buildConfigurationData(configuration []interface{}) sc2.Configuration {
 	configurationData.Name = config_map["name"].(string)
 	configurationData.RequestMethod = config_map["request_method"].(string)
 	configurationData.URL = config_map["url"].(string)
+	if id := intFromMap(config_map, "certificate_id"); id > 0 {
+		configurationData.CertificateID = sc2.NewNullableInt(id)
+	}
 
 	return configurationData
 }
@@ -2308,6 +2531,9 @@ func buildAdvancedSettingsData(advancedSettings *schema.Set) (sc2.Advancedsettin
 		advancedSettingsData.Cookiesv2 = buildCookiesData(as_map["cookies"].(*schema.Set))
 		advancedSettingsData.HostOverrides = buildHostOverridesData(as_map["host_overrides"].(*schema.Set))
 		advancedSettingsData.ChromeFlags = buildChromeFlagsData(as_map["chrome_flags"].(*schema.Set))
+		if raw, ok := as_map["certificate_ids"]; ok {
+			advancedSettingsData.CertificateIDs = intSliceFromInterface(raw)
+		}
 		excludedFiles, err := buildExcludedFilesV2Data(as_map["excluded_files"].(*schema.Set))
 		if err != nil {
 			return advancedSettingsData, err

@@ -13,6 +13,10 @@ description: |-
 ## Example Usage
 
 ```terraform
+variable "client_certificate_id" {
+  type = number
+}
+
 resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
   test {
     active = true
@@ -136,6 +140,7 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
     }
     advanced_settings {
       verify_certificates = true
+      certificate_ids = [var.client_certificate_id]
       user_agent = "Mozilla/5.0 (X11; Linux x86_64; Splunk Synthetics) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
       collect_interactive_metrics = false
       authentication {
@@ -223,6 +228,7 @@ Required:
 Optional:
 
 - `authentication` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--authentication))
+- `certificate_ids` (List of Number)
 - `chrome_flags` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Block Set) (see [below for nested schema](#nestedblock--test--advanced_settings--cookies))

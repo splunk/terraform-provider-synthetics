@@ -109,6 +109,7 @@ Read-Only:
 Read-Only:
 
 - `body` (String)
+- `certificate_id` (Number)
 - `headers` (Map of String)
 - `name` (String)
 - `request_method` (String)

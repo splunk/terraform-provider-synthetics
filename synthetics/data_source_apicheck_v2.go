@@ -155,6 +155,10 @@ func dataSourceApiCheckV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
+												"certificate_id": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -307,7 +311,6 @@ func dataSourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, m int
 	checkID := flattenIdData(d.Get("test"))
 
 	check, _, err := c.GetApiCheckV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

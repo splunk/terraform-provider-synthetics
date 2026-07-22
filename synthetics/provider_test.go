@@ -80,6 +80,7 @@ func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 	expectedResources := []string{
 		"synthetics_create_ssl_check_v2",
 		"synthetics_create_ca_certificate_v2",
+		"synthetics_create_client_certificate_v2",
 		"synthetics_create_totp_variable_v2",
 	}
 	for _, name := range expectedResources {
@@ -92,6 +93,8 @@ func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 		"synthetics_ssl_v2_check",
 		"synthetics_ca_certificate_v2_check",
 		"synthetics_ca_certificates_v2_check",
+		"synthetics_client_certificate_v2_check",
+		"synthetics_client_certificates_v2_check",
 		"synthetics_excluded_file_types_v2_check",
 		"synthetics_totp_variable_v2_check",
 		"synthetics_totp_variables_v2_check",

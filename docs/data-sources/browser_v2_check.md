@@ -77,6 +77,7 @@ Optional:
 Read-Only:
 
 - `authentication` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--authentication))
+- `certificate_ids` (List of Number)
 - `chrome_flags` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--chrome_flags))
 - `collect_interactive_metrics` (Boolean)
 - `cookies` (Set of Object) (see [below for nested schema](#nestedobjatt--test--advanced_settings--cookies))

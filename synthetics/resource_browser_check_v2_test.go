@@ -15,9 +15,13 @@
 package synthetics
 
 import (
+	"encoding/json"
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newBrowserCheckV2Config = `
@@ -732,6 +736,126 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestBuildBrowserAdvancedSettingsIncludesCertificateIDs(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceBrowserCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{map[string]interface{}{
+			"name": "browser-example",
+			"advanced_settings": []interface{}{map[string]interface{}{
+				"verify_certificates":         true,
+				"collect_interactive_metrics": false,
+				"authentication":              []interface{}{},
+				"chrome_flags":                []interface{}{},
+				"cookies":                     []interface{}{},
+				"headers":                     []interface{}{},
+				"host_overrides":              []interface{}{},
+				"excluded_files":              []interface{}{},
+				"certificate_ids":             []interface{}{123, 456},
+			}},
+		}},
+	})
+	testBlock := d.Get("test").([]interface{})[0].(map[string]interface{})
+	settings := testBlock["advanced_settings"].(*schema.Set)
+
+	result, err := buildAdvancedSettingsData(settings)
+	if err != nil {
+		t.Fatalf("buildAdvancedSettingsData returned error: %s", err)
+	}
+
+	if !reflect.DeepEqual(result.CertificateIDs, []int{123, 456}) {
+		t.Fatalf("CertificateIDs = %#v, want []int{123, 456}", result.CertificateIDs)
+	}
+
+	serialized, present := serializedBrowserCertificateIDs(t, result)
+	if !present {
+		t.Fatal("serialized payload omits advancedSettings.certificateIds")
+	}
+	if !reflect.DeepEqual(serialized, []int{123, 456}) {
+		t.Fatalf("serialized certificateIds = %#v, want []int{123, 456}", serialized)
+	}
+}
+
+func TestBuildBrowserAdvancedSettingsClearsCertificateIDs(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceBrowserCheckV2().Schema, map[string]interface{}{
+		"test": []interface{}{map[string]interface{}{
+			"name": "browser-example",
+			"advanced_settings": []interface{}{map[string]interface{}{
+				"verify_certificates":         true,
+				"collect_interactive_metrics": false,
+				"authentication":              []interface{}{},
+				"chrome_flags":                []interface{}{},
+				"cookies":                     []interface{}{},
+				"headers":                     []interface{}{},
+				"host_overrides":              []interface{}{},
+				"excluded_files":              []interface{}{},
+				"certificate_ids":             []interface{}{},
+			}},
+		}},
+	})
+	testBlock := d.Get("test").([]interface{})[0].(map[string]interface{})
+	settings := testBlock["advanced_settings"].(*schema.Set)
+
+	result, err := buildAdvancedSettingsData(settings)
+	if err != nil {
+		t.Fatalf("buildAdvancedSettingsData returned error: %s", err)
+	}
+
+	if result.CertificateIDs == nil {
+		t.Fatal("CertificateIDs is nil, want empty list")
+	}
+	if len(result.CertificateIDs) != 0 {
+		t.Fatalf("CertificateIDs = %#v, want empty list", result.CertificateIDs)
+	}
+
+	serialized, present := serializedBrowserCertificateIDs(t, result)
+	if !present {
+		t.Fatal("serialized payload omits advancedSettings.certificateIds; detach requires an explicit empty array")
+	}
+	if len(serialized) != 0 {
+		t.Fatalf("serialized certificateIds = %#v, want empty array", serialized)
+	}
+}
+
+func serializedBrowserCertificateIDs(t *testing.T, settings sc2.Advancedsettings) ([]int, bool) {
+	t.Helper()
+
+	var input sc2.BrowserCheckV2Input
+	input.Test.Advancedsettings = settings
+	payload, err := json.Marshal(input)
+	if err != nil {
+		t.Fatalf("marshal browser input: %s", err)
+	}
+
+	var decoded struct {
+		Test struct {
+			AdvancedSettings map[string]json.RawMessage `json:"advancedSettings"`
+		} `json:"test"`
+	}
+	if err := json.Unmarshal(payload, &decoded); err != nil {
+		t.Fatalf("unmarshal browser input: %s", err)
+	}
+
+	raw, present := decoded.Test.AdvancedSettings["certificateIds"]
+	if !present {
+		return nil, false
+	}
+	var certificateIDs []int
+	if err := json.Unmarshal(raw, &certificateIDs); err != nil {
+		t.Fatalf("unmarshal advancedSettings.certificateIds: %s", err)
+	}
+	return certificateIDs, true
+}
+
+func TestFlattenBrowserAdvancedSettingsIncludesCertificateIDs(t *testing.T) {
+	flattened := flattenAdvancedSettingsData(&sc2.Advancedsettings{
+		CertificateIDs: []int{123, 456},
+	})
+
+	block := flattened[0].(map[string]interface{})
+	if !reflect.DeepEqual(block["certificate_ids"], []interface{}{123, 456}) {
+		t.Fatalf("certificate_ids = %#v, want []interface{}{123, 456}", block["certificate_ids"])
+	}
 }
 
 func testAccCheckBrowserV2SingleSelector(resourceName, stepPath, selectorType, selectorValue string) resource.TestCheckFunc {

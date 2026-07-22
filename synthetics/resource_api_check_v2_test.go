@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 const newApiCheckV2Config = `
@@ -353,4 +354,41 @@ func TestAccCreateUpdateApiCheckV2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestBuildAPIRequestConfigurationIncludesCertificateID(t *testing.T) {
+	configuration := []interface{}{map[string]interface{}{
+		"body":           "",
+		"headers":        map[string]interface{}{},
+		"name":           "Health",
+		"request_method": "GET",
+		"url":            "https://api.example.com/health",
+		"certificate_id": 123,
+	}}
+
+	result := buildConfigurationData(configuration)
+
+	if result.CertificateID == nil {
+		t.Fatal("CertificateID is nil, want nullable int")
+	}
+	if result.CertificateID.Value == nil {
+		t.Fatal("CertificateID.Value is nil, want 123")
+	}
+	if *result.CertificateID.Value != 123 {
+		t.Fatalf("CertificateID.Value = %d, want 123", *result.CertificateID.Value)
+	}
+}
+
+func TestFlattenAPIRequestConfigurationIncludesCertificateID(t *testing.T) {
+	flattened := flattenConfigurationData(&sc2.Configuration{
+		Name:          "Health",
+		RequestMethod: "GET",
+		URL:           "https://api.example.com/health",
+		CertificateID: sc2.NewNullableInt(123),
+	})
+
+	block := flattened[0].(map[string]interface{})
+	if got := block["certificate_id"]; got != 123 {
+		t.Fatalf("certificate_id = %#v, want 123", got)
+	}
 }
