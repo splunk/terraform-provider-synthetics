@@ -310,8 +310,6 @@ func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	checkID := d.Id()
 
 	checkData := processApiCheckV2Items(d)
-	oldRaw, newRaw := d.GetChange("test")
-	applyAPIRequestCertificateIDUpdates(&checkData, firstMapFromList(oldRaw), firstMapFromList(newRaw))
 
 	checkIdString, err := strconv.Atoi(checkID)
 	if err != nil {

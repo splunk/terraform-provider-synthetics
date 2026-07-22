@@ -392,17 +392,3 @@ func TestFlattenAPIRequestConfigurationIncludesCertificateID(t *testing.T) {
 		t.Fatalf("certificate_id = %#v, want 123", got)
 	}
 }
-
-func TestBuildAPIRequestConfigurationClearsRemovedCertificateID(t *testing.T) {
-	oldConfiguration := map[string]interface{}{"certificate_id": 123}
-	newConfiguration := map[string]interface{}{}
-
-	input := buildConfigurationCertificateIDForUpdate(oldConfiguration, newConfiguration)
-
-	if input == nil {
-		t.Fatal("certificate ID update is nil, want null value")
-	}
-	if input.Value != nil {
-		t.Fatalf("certificate ID update value = %#v, want nil", *input.Value)
-	}
-}

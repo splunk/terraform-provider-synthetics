@@ -2526,41 +2526,6 @@ func buildConfigurationData(configuration []interface{}) sc2.Configuration {
 	return configurationData
 }
 
-func buildConfigurationCertificateIDForUpdate(oldConfiguration map[string]interface{}, newConfiguration map[string]interface{}) *sc2.NullableInt {
-	oldID := intFromMap(oldConfiguration, "certificate_id")
-	newID := intFromMap(newConfiguration, "certificate_id")
-	if newID > 0 {
-		return sc2.NewNullableInt(newID)
-	}
-	if oldID > 0 && newID == 0 {
-		return sc2.NewNullInt()
-	}
-	return nil
-}
-
-func applyAPIRequestCertificateIDUpdates(input *sc2.ApiCheckV2Input, oldTest map[string]interface{}, newTest map[string]interface{}) {
-	oldRequests := interfaceListFromMap(oldTest, "requests")
-	newRequests := interfaceListFromMap(newTest, "requests")
-
-	for i := range input.Test.Requests {
-		var oldConfiguration map[string]interface{}
-		if i < len(oldRequests) {
-			oldRequest := firstMapFromList(oldRequests[i])
-			oldConfiguration = firstMapFromList(oldRequest["configuration"])
-		}
-
-		var newConfiguration map[string]interface{}
-		if i < len(newRequests) {
-			newRequest := firstMapFromList(newRequests[i])
-			newConfiguration = firstMapFromList(newRequest["configuration"])
-		}
-
-		if certificateID := buildConfigurationCertificateIDForUpdate(oldConfiguration, newConfiguration); certificateID != nil {
-			input.Test.Requests[i].Configuration.CertificateID = certificateID
-		}
-	}
-}
-
 func buildAdvancedSettingsData(advancedSettings *schema.Set) (sc2.Advancedsettings, error) {
 	var advancedSettingsData sc2.Advancedsettings
 
