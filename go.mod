@@ -3,9 +3,10 @@ module github.com/splunk/terraform-provider-synthetics
 go 1.18
 
 require (
+	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
 	github.com/splunk/syntheticsclient v1.0.3
-	github.com/splunk/syntheticsclient/v2 v2.6.0
+	github.com/splunk/syntheticsclient/v2 v2.7.0
 )
 
 require (
@@ -18,7 +19,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-hclog v1.2.1 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-plugin v1.4.6 // indirect

@@ -39,6 +39,7 @@ func resourceHttpCheckV2() *schema.Resource {
 			"test": {
 				Type:     schema.TypeSet,
 				Required: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -65,6 +66,12 @@ func resourceHttpCheckV2() *schema.Resource {
 						"url": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+						"port": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 65535),
+							Description:  "HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Omit this field to leave the port unset.",
 						},
 						"active": {
 							Type:     schema.TypeBool,
@@ -214,7 +221,7 @@ func resourceHttpCheckV2Create(ctx context.Context, d *schema.ResourceData, meta
 
 	checkData := processHttpCheckV2Items(d)
 
-	o, _, err := c.CreateHttpCheckV2(&checkData)
+	o, _, err := c.CreateHttpCheckV2WithNullablePort(&checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -237,7 +244,7 @@ func resourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	o, r, err := c.GetHttpCheckV2(checkID)
+	o, r, err := c.GetHttpCheckV2WithNullablePort(checkID)
 
 	if r.StatusCode == http.StatusNotFound {
 		d.SetId("")
@@ -292,7 +299,7 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	_, _, err = c.UpdateHttpCheckV2(checkIdString, &checkData)
+	_, _, err = c.UpdateHttpCheckV2WithNullablePort(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -300,7 +307,7 @@ func resourceHttpCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 	return resourceHttpCheckV2Read(ctx, d, meta)
 }
 
-func processHttpCheckV2Items(d *schema.ResourceData) sc2.HttpCheckV2Input {
+func processHttpCheckV2Items(d *schema.ResourceData) sc2.HttpCheckV2InputWithNullablePort {
 
 	var check = buildHttpV2Data(d)
 	return check

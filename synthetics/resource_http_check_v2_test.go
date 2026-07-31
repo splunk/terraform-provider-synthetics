@@ -15,6 +15,7 @@
 package synthetics
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -32,6 +33,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "01-acceptance-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.splunk.com"
+    port = 443
     automatic_retries = 1
     scheduling_strategy = "round_robin"
 		custom_properties {
@@ -78,6 +80,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "01-acceptance-updated-Terraform-HTTP-V2"
     type = "http"
     url = "https://www.duckduckgo.com"
+    port = 8443
     automatic_retries = 0
     scheduling_strategy = "concurrent"
 		custom_properties {
@@ -133,6 +136,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.splunk.com"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "443"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "round_robin"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "key"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "value"),
@@ -174,6 +178,7 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.name", "01-acceptance-updated-Terraform-HTTP-V2"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.type", "http"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.url", "https://www.duckduckgo.com"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "8443"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.scheduling_strategy", "concurrent"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.key", "beepkey"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.custom_properties.0.value", "boopvalue"),
@@ -195,6 +200,18 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.comparator", "does_not_equal"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.expected", "400"),
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.validations.1.type", "assert_numeric"),
+				),
+			},
+			{
+				// SDKv2's flatmap state model cannot distinguish "port omitted"
+				// from "port = 0" for a scalar TypeInt nested in a TypeSet block:
+				// d.Set() backfills any missing key in a set element with the
+				// schema's zero value. buildHttpV2Data still sends the API an
+				// explicit null (see TestBuildHttpV2DataUsesNullPortWhenOmitted),
+				// but the read-back state after removal is 0, not absent.
+				Config: providerConfig + strings.Replace(updatedHttpCheckV2Config, "    port = 8443\n", "", 1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "0"),
 				),
 			},
 		},
@@ -237,7 +254,7 @@ func TestBuildHttpV2DataIncludesCertificateID(t *testing.T) {
 }
 
 func TestFlattenHttpV2ReadIncludesCertificateID(t *testing.T) {
-	response := &sc2.HttpCheckV2Response{}
+	response := &sc2.HttpCheckV2ResponseWithNullablePort{}
 	response.Test.CertificateID = sc2.NewNullableInt(123)
 
 	flattened := flattenHttpV2Read(response)
@@ -267,7 +284,7 @@ func TestFlattenHttpV2ReadResetsClearedCertificateIDInState(t *testing.T) {
 		}},
 	})
 
-	response := &sc2.HttpCheckV2Response{}
+	response := &sc2.HttpCheckV2ResponseWithNullablePort{}
 	response.Test.Name = "api-example"
 	response.Test.Type = "http"
 	response.Test.URL = "https://api.example.com/health"

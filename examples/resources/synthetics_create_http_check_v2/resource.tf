@@ -10,6 +10,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "Terraform1 - HTTP V2 Checkaroo"
     type = "http"
     url = "https://www.splunk.com"
+    port = 443
     scheduling_strategy = "round_robin"
     custom_properties {
 			key = "key"
