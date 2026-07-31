@@ -203,9 +203,15 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 				),
 			},
 			{
+				// SDKv2's flatmap state model cannot distinguish "port omitted"
+				// from "port = 0" for a scalar TypeInt nested in a TypeSet block:
+				// d.Set() backfills any missing key in a set element with the
+				// schema's zero value. buildHttpV2Data still sends the API an
+				// explicit null (see TestBuildHttpV2DataUsesNullPortWhenOmitted),
+				// but the read-back state after removal is 0, not absent.
 				Config: providerConfig + strings.Replace(updatedHttpCheckV2Config, "    port = 8443\n", "", 1),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "0"),
 				),
 			},
 		},
