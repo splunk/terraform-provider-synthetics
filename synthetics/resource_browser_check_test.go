@@ -23,6 +23,7 @@ import (
 )
 
 func TestAccBrowserCheckBasic(t *testing.T) {
+	t.Skip("Rigor Classic (V1) has been deprecated; monitoring-api.rigor.com no longer resolves. Skipping until this V1 resource and its tests are removed.")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
