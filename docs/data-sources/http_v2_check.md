@@ -57,6 +57,7 @@ Read-Only:
 - `last_run_status` (String)
 - `location_ids` (List of String)
 - `name` (String)
+- `port` (Number) HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation.
 - `request_method` (String)
 - `scheduling_strategy` (String)
 - `type` (String)

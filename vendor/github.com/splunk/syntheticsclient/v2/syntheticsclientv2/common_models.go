@@ -740,6 +740,7 @@ type HttpCheckV2ResponseWithNullablePort struct {
 		Authentication     *Authentication    `json:"authentication"`
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
+		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
@@ -766,6 +767,7 @@ type HttpCheckV2InputWithNullablePort struct {
 		Authentication     *Authentication    `json:"authentication"`
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
+		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
 		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`

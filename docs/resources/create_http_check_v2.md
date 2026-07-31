@@ -25,6 +25,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
     name = "Terraform1 - HTTP V2 Checkaroo"
     type = "http"
     url = "https://www.splunk.com"
+    port = 443
     scheduling_strategy = "round_robin"
     custom_properties {
 			key = "key"
@@ -78,6 +79,7 @@ Optional:
 - `certificate_id` (Number)
 - `custom_properties` (Block Set) (see [below for nested schema](#nestedblock--test--custom_properties))
 - `headers` (Block Set) (see [below for nested schema](#nestedblock--test--headers))
+- `port` (Number) HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Omit this field to leave the port unset.
 - `scheduling_strategy` (String)
 - `type` (String)
 - `user_agent` (String)

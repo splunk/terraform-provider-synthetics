@@ -59,6 +59,7 @@
 #     name = "Terraform1 - HTTP V2 Checkaroo"
 #     type = "http"
 #     url = "https://www.splunk.com"
+#     port = 443
 #     scheduling_strategy = "round_robin"
 #     request_method = "GET"
 #     verify_certificates = true

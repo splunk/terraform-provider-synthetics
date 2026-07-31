@@ -15,12 +15,15 @@
 package synthetics
 
 import (
+	"context"
 	"encoding/json"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
@@ -632,4 +635,191 @@ func TestFlattenCaCertificateV2ReadPreservesExistingStateContent(t *testing.T) {
 	if caCertificate["content"] != "existing-sensitive-content" {
 		t.Fatalf("content = %#v, want existing state content", caCertificate["content"])
 	}
+}
+
+func TestBuildHttpV2DataUsesNullPortWhenOmitted(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, false, 0)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
+func TestBuildHttpV2DataPreservesExplicitZeroPort(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, true, 0)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value == nil || *got.Test.Port.Value != 0 {
+		t.Fatalf("Port = %#v, want 0", got.Test.Port.Value)
+	}
+}
+
+func TestBuildHttpV2DataPreservesConfiguredPortAndCertificate(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, true, 443)
+	test := d.Get("test").(*schema.Set).List()[0].(map[string]interface{})
+	test["certificate_id"] = 123
+	if err := d.Set("test", []interface{}{test}); err != nil {
+		t.Fatalf("set certificate_id: %s", err)
+	}
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value == nil || *got.Test.Port.Value != 443 {
+		t.Fatalf("Port = %#v, want 443", got.Test.Port.Value)
+	}
+	if got.Test.CertificateID == nil || got.Test.CertificateID.Value == nil || *got.Test.CertificateID.Value != 123 {
+		t.Fatalf("CertificateID = %#v, want 123", got.Test.CertificateID)
+	}
+}
+
+func TestBuildHttpV2DataIgnoresStaleRawPlanPortWhenCurrentConfigOmitsPort(t *testing.T) {
+	d := httpV2ResourceDataForPortRawConfigPlanTest(
+		t,
+		false,
+		0,
+		httpV2RawTestBlockForPortTest(false, 0),
+		httpV2RawTestBlockForPortTest(true, 443),
+	)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.Port.Value != nil {
+		t.Fatalf("Port = %#v, want nil", got.Test.Port.Value)
+	}
+}
+
+func TestFlattenHttpV2ReadPortSemantics(t *testing.T) {
+	tests := []struct {
+		name    string
+		port    sc2.NullableInt
+		want    int
+		present bool
+	}{
+		{name: "null", port: *sc2.NewNullInt(), present: false},
+		{name: "zero", port: *sc2.NewNullableInt(0), want: 0, present: true},
+		{name: "configured", port: *sc2.NewNullableInt(443), want: 443, present: true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+			check.Test.Port = test.port
+
+			got := flattenHttpV2Read(check)[0].(map[string]interface{})
+			value, present := got["port"]
+			if present != test.present {
+				t.Fatalf("port present = %t, want %t", present, test.present)
+			}
+			if test.present && value != test.want {
+				t.Fatalf("port = %#v, want %d", value, test.want)
+			}
+		})
+	}
+}
+
+func TestFlattenHttpV2DataIncludesPortForDataSource(t *testing.T) {
+	check := &sc2.HttpCheckV2ResponseWithNullablePort{}
+	check.Test.Port = *sc2.NewNullableInt(8443)
+
+	got := flattenHttpV2Data(check)[0].(map[string]interface{})
+
+	if got["port"] != 8443 {
+		t.Fatalf("port = %#v, want 8443", got["port"])
+	}
+}
+
+func TestHttpV2PortSchemas(t *testing.T) {
+	resourceTestSchema := resourceHttpCheckV2().Schema["test"].Elem.(*schema.Resource).Schema
+	resourcePortSchema := resourceTestSchema["port"]
+	if resourcePortSchema == nil {
+		t.Fatal("resource test.port schema missing")
+	}
+	if !resourcePortSchema.Optional || resourcePortSchema.ValidateFunc == nil {
+		t.Fatal("resource test.port must be optional and validated")
+	}
+	for _, value := range []int{0, 443, 65535} {
+		_, errs := resourcePortSchema.ValidateFunc(value, "test.0.port")
+		if len(errs) != 0 {
+			t.Fatalf("port validation for %d returned errors: %#v", value, errs)
+		}
+	}
+	for _, value := range []int{-1, 65536} {
+		_, errs := resourcePortSchema.ValidateFunc(value, "test.0.port")
+		if len(errs) == 0 {
+			t.Fatalf("port validation for %d returned no errors", value)
+		}
+	}
+
+	dataSourceTestSchema := dataSourceHttpCheckV2().Schema["test"].Elem.(*schema.Resource).Schema
+	dataSourcePortSchema := dataSourceTestSchema["port"]
+	if dataSourcePortSchema == nil || !dataSourcePortSchema.Computed {
+		t.Fatal("data source test.port must be computed")
+	}
+}
+
+func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *schema.ResourceData {
+	t.Helper()
+
+	rawTestBlock := httpV2RawTestBlockForPortTest(includePort, port)
+	return httpV2ResourceDataForPortRawConfigPlanTest(t, includePort, port, rawTestBlock, rawTestBlock)
+}
+
+func httpV2ResourceDataForPortRawConfigPlanTest(t *testing.T, includePort bool, port int, rawConfigTestBlock cty.Value, rawPlanTestBlock cty.Value) *schema.ResourceData {
+	t.Helper()
+
+	testBlock := map[string]interface{}{
+		"name":                "http-port",
+		"type":                "http",
+		"url":                 "https://example.com",
+		"active":              true,
+		"frequency":           5,
+		"scheduling_strategy": "round_robin",
+		"request_method":      "GET",
+		"body":                "",
+		"location_ids":        []interface{}{"aws-us-east-1"},
+		"user_agent":          "",
+		"verify_certificates": true,
+		"headers":             []interface{}{},
+		"validations":         []interface{}{},
+		"custom_properties":   []interface{}{},
+		"automatic_retries":   0,
+	}
+	if includePort {
+		testBlock["port"] = port
+	}
+
+	sm := schema.InternalMap(resourceHttpCheckV2().Schema)
+	diff, err := sm.Diff(context.Background(), nil, terraform.NewResourceConfigRaw(map[string]interface{}{
+		"test": []interface{}{testBlock},
+	}), nil, nil, true)
+	if err != nil {
+		t.Fatalf("resource diff: %s", err)
+	}
+
+	diff.RawConfig = httpV2RawConfigForPortTest(rawConfigTestBlock)
+	diff.RawPlan = httpV2RawConfigForPortTest(rawPlanTestBlock)
+
+	result, err := sm.Data(nil, diff)
+	if err != nil {
+		t.Fatalf("resource data: %s", err)
+	}
+	return result
+}
+
+func httpV2RawConfigForPortTest(rawTestBlock cty.Value) cty.Value {
+	return cty.ObjectVal(map[string]cty.Value{
+		"test": cty.SetVal([]cty.Value{rawTestBlock}),
+	})
+}
+
+func httpV2RawTestBlockForPortTest(includePort bool, port int) cty.Value {
+	if includePort {
+		return cty.ObjectVal(map[string]cty.Value{
+			"port": cty.NumberIntVal(int64(port)),
+		})
+	}
+	return cty.EmptyObjectVal
 }

@@ -109,6 +109,11 @@ func dataSourceHttpCheckV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"port": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation.",
+						},
 						"request_method": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -215,7 +220,7 @@ func dataSourceHttpCheckV2Read(ctx context.Context, d *schema.ResourceData, m in
 
 	checkID := flattenIdData(d.Get("test"))
 
-	check, _, err := c.GetHttpCheckV2(checkID)
+	check, _, err := c.GetHttpCheckV2WithNullablePort(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
