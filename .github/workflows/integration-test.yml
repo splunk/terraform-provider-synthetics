@@ -135,7 +135,11 @@ jobs:
                   continue;
                 }
                 if (event.Action === 'build-fail') buildFailed = true;
-                if (event.Test && (event.Action === 'pass' || event.Action === 'fail' || event.Action === 'skip')) {
+                // Only live acceptance tests (TestAcc* — the convention every
+                // resource.Test/ParallelTest caller in this repo follows) show up
+                // here; unit tests still run and still gate the job on failure,
+                // they're just not what this table is reporting on.
+                if (event.Test && event.Test.startsWith('TestAcc') && (event.Action === 'pass' || event.Action === 'fail' || event.Action === 'skip')) {
                   results.push(event);
                 }
               }
@@ -144,14 +148,14 @@ jobs:
               if (buildFailed) {
                 table = '⚠️ Build failed before any tests ran — see the job log for compiler errors.';
               } else if (results.length === 0) {
-                table = '⚠️ No test results were produced — see the job log for details.';
+                table = '⚠️ No acceptance test (TestAcc*) results were produced — see the job log for details.';
               } else {
                 const passed = results.filter(r => r.Action === 'pass').length;
                 const failed = results.filter(r => r.Action === 'fail').length;
                 const skipped = results.filter(r => r.Action === 'skip').length;
                 const icon = r => r.Action === 'pass' ? '✅ Pass' : r.Action === 'skip' ? '⚠️ Skip' : '❌ Fail';
                 const rows = results.map(r => `| ${r.Test} | ${icon(r)} | ${r.Elapsed ?? 0} |`).join('\n');
-                table = `**Total:** ${results.length} | **Passed:** ${passed} | **Failed:** ${failed} | **Skipped:** ${skipped}\n\n` +
+                table = `**Live acceptance tests — Total:** ${results.length} | **Passed:** ${passed} | **Failed:** ${failed} | **Skipped:** ${skipped}\n\n` +
                   `| Test | Result | Duration (s) |\n|---|---|---|\n${rows}`;
               }
             }
