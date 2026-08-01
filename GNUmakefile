@@ -54,4 +54,7 @@ test:
 
 testacc: SHELL:=/bin/bash
 testacc:
-	set -o pipefail; TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 30m | sed '/X-Sf-Token/d'
+	set -o pipefail; TF_ACC=1 go test -json $(TEST) $(TESTARGS) -timeout 30m \
+		| sed '/X-Sf-Token/d' \
+		| tee testacc.jsonl \
+		| jq -j -r 'if .Action == "output" then .Output else empty end'
