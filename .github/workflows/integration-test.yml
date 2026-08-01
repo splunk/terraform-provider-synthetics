@@ -13,6 +13,11 @@ on:
   workflow_run:
     workflows: ["PR Metadata"]
     types: [completed]
+  # TEMPORARY — validates the job logic on this PR, since workflow_run only
+  # fires for workflows already on the default branch and this file isn't
+  # there yet. Remove this pull_request trigger before merging.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -21,13 +26,13 @@ permissions:
   checks: write
 
 concurrency:
-  group: integration-test-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  group: integration-test-${{ github.event_name == 'workflow_run' && format('{0}-{1}', github.event.workflow_run.head_repository.full_name, github.event.workflow_run.head_branch) || github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   integration-test:
     name: integration-test
-    if: github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment: integration-test   # gate: waits for reviewer approval here
@@ -35,6 +40,7 @@ jobs:
     steps:
       - name: Download PR metadata
         id: download
+        if: github.event_name == 'workflow_run'
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
@@ -46,6 +52,15 @@ jobs:
       - name: Read PR metadata
         id: pr
         run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # TEMPORARY branch for direct pull_request validation — remove with the trigger above.
+            {
+              echo "found=true"
+              echo "number=${{ github.event.pull_request.number }}"
+              echo "sha=${{ github.event.pull_request.head.sha }}"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "${{ steps.download.outcome }}" != "success" ] || [ ! -s pr-metadata/pr-number ]; then
             # PR Metadata's record-pr job was skipped (e.g. draft PR) and produced no
             # artifact — nothing to test, exit without creating a check or comment.
