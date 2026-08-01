@@ -1,58 +1,144 @@
 name: Integration Test
 
+# Trusted trigger: runs in the base repo's context (full GITHUB_TOKEN
+# permissions, environment secrets available) regardless of whether the
+# triggering PR came from a fork. This is the privilege-separated
+# counterpart to pr-metadata.yml, which does the untrusted checkout-free
+# bookkeeping. See: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
+#
+# workflow_run does not automatically attach as a PR status check, so this
+# workflow explicitly creates/updates a Check Run on the PR's head SHA via
+# the Checks API — that's what branch protection actually watches.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_run:
+    workflows: ["PR Metadata"]
+    types: [completed]
 
 permissions:
   contents: read
   pull-requests: write
+  actions: read
+  checks: write
 
 concurrency:
-  group: integration-test-${{ github.event.pull_request.number }}
+  group: integration-test-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:
   integration-test:
     name: integration-test
-    if: github.event.pull_request.draft == false
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     environment: integration-test   # gate: waits for reviewer approval here
 
     steps:
+      - name: Download PR metadata
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-metadata
+          path: pr-metadata
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Read PR metadata
+        id: pr
+        run: |
+          if [ "${{ steps.download.outcome }}" != "success" ] || [ ! -s pr-metadata/pr-number ]; then
+            # PR Metadata's record-pr job was skipped (e.g. draft PR) and produced no
+            # artifact — nothing to test, exit without creating a check or comment.
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          {
+            echo "found=true"
+            echo "number=$(cat pr-metadata/pr-number)"
+            echo "sha=$(cat pr-metadata/pr-sha)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create pending check run
+        if: steps.pr.outputs.found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'integration-test',
+              head_sha: '${{ steps.pr.outputs.sha }}',
+              status: 'in_progress',
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });
+
       - name: Checkout PR head
+        if: steps.pr.outputs.found == 'true'
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: refs/pull/${{ steps.pr.outputs.number }}/head
+
+      - name: Verify checked-out SHA matches recorded PR head
+        if: steps.pr.outputs.found == 'true'
+        run: |
+          actual="$(git rev-parse HEAD)"
+          expected="${{ steps.pr.outputs.sha }}"
+          if [ "$actual" != "$expected" ]; then
+            echo "Checked-out SHA ($actual) does not match PR metadata ($expected) — PR head moved since pr-metadata ran, refusing to run privileged tests against a stale checkout." >&2
+            exit 1
+          fi
 
       - name: Setup Go
+        if: steps.pr.outputs.found == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
           cache: true
 
       - name: Setup Terraform
+        if: steps.pr.outputs.found == 'true'
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
       - name: Run acceptance tests against live endpoint
+        if: steps.pr.outputs.found == 'true'
         env:
           TF_VAR_observability_token: ${{ secrets.TF_VAR_OBSERVABILITY_TOKEN }}
           TF_VAR_realm: ${{ secrets.TF_VAR_REALM }}
           TF_VAR_rigor_token: ${{ secrets.TF_VAR_RIGOR_TOKEN }}
         run: make testacc
 
-      - name: Post result to PR
-        if: always()
+      - name: Report check run result
+        if: always() && steps.pr.outputs.found == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const status = '${{ job.status }}';
+            const conclusion = status === 'success' ? 'success' : 'failure';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.pr.outputs.sha }}',
+              check_name: 'integration-test',
+            });
+            const check = checks.data.check_runs[0];
+            if (check) {
+              await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: check.id,
+                status: 'completed',
+                conclusion,
+                details_url: runUrl,
+              });
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `### Integration Test: ${status === 'success' ? '✅ Passed' : '❌ Failed'}\n\n[View run](${runUrl})`,
+              issue_number: ${{ steps.pr.outputs.number }},
+              body: `### Integration Test: ${conclusion === 'success' ? '✅ Passed' : '❌ Failed'}\n\n[View run](${runUrl})`,
             });

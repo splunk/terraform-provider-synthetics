@@ -54,4 +54,4 @@ test:
 
 testacc: SHELL:=/bin/bash
 testacc:
-	set -o pipefail; TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 120m | sed '/X-Sf-Token/d'
+	set -o pipefail; TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 30m | sed '/X-Sf-Token/d'
