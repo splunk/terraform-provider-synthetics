@@ -52,5 +52,6 @@ test:
 	go test -i $(TEST) || exit 1                                                   
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4                    
 
-testacc: 
-	TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 120m   | sed '/X-Sf-Token/d'
+testacc: SHELL:=/bin/bash
+testacc:
+	set -o pipefail; TF_ACC=1 go test $(TEST) $(TESTARGS) -timeout 120m | sed '/X-Sf-Token/d'
