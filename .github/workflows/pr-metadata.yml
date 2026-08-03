@@ -28,6 +28,8 @@ jobs:
         with:
           name: pr-metadata
           path: pr-metadata/
-          # Must outlive the integration-test environment's approval wait, or the
-          # artifact expires while a reviewer is still deciding — see integration-test.yml.
-          retention-days: 14
+          # integration-test.yml's ungated `resolve` job downloads and validates this
+          # artifact immediately on workflow_run, before any approval wait — so this only
+          # needs to survive normal workflow_run delivery/retry latency, not the (up to
+          # 30-day) environment approval SLA. Keeping several days as a rerun buffer.
+          retention-days: 3
