@@ -307,3 +307,55 @@ jobs:
               issue_number: Number(process.env.PR_NUMBER),
               body: `### Integration Test: ${conclusion === 'success' ? '✅ Passed' : '❌ Failed'}\n\n[View run](${runUrl})\n\n${table}`,
             });
+
+  # Ungated, and scheduled regardless of how integration-test ended. Needed
+  # because environment-approval rejection or timeout fails the
+  # integration-test job before any of its own steps run — including its
+  # "Report check run result" step — which would otherwise leave the check
+  # `resolve` created stuck at queued/in_progress until GitHub marks it stale
+  # after 14 days, hiding the rejection/timeout from the required check.
+  finalize-on-incomplete:
+    name: finalize-on-incomplete
+    needs: [resolve, integration-test]
+    if: always() && needs.resolve.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ensure the check run reaches a terminal state
+        uses: actions/github-script@v7
+        env:
+          PR_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.number }}
+        with:
+          script: |
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: process.env.PR_SHA,
+              check_name: 'integration-test',
+            });
+            const check = checks.data.check_runs[0];
+            // If integration-test ran far enough to reach its own "Report check run
+            // result" step, the check is already completed and there's nothing to do.
+            if (!check || check.status === 'completed') return;
+
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: check.id,
+              status: 'completed',
+              conclusion: 'failure',
+              details_url: runUrl,
+              output: {
+                title: 'Integration test did not complete',
+                summary: 'The integration-test job did not run to completion — the environment approval was likely rejected or timed out before the job started.',
+              },
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `### Integration Test: ❌ Failed\n\nThe integration-test job did not run to completion — the environment approval was likely rejected or timed out before the job started. [View run](${runUrl})`,
+            });
