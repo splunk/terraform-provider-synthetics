@@ -187,7 +187,7 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 		log.Println("[WARN] Synthetics API error.", downtimeConfigurationID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] GET downtime_configuration response data: ", downtimeConfiguration)
+	log.Println("[DEBUG] read downtime_configuration id:", downtimeConfigurationID)
 	if err := d.Set("downtime_configuration", flattenDowntimeConfigurationV2Read(downtimeConfiguration)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -207,12 +207,12 @@ func resourceDowntimeConfigurationV2Delete(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteDowntimeConfigurationV2(DowntimeConfigurationIdString)
+	_, err = c.DeleteDowntimeConfigurationV2(DowntimeConfigurationIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete downtime_configuration response data: ", resp)
+	log.Println("[DEBUG] deleted downtime_configuration id:", DowntimeConfigurationIdString)
 	d.SetId("")
 
 	return diags
@@ -230,22 +230,17 @@ func resourceDowntimeConfigurationV2Update(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateDowntimeConfigurationV2(DowntimeConfigurationIdString, &DowntimeConfigurationData)
+	_, _, err = c.UpdateDowntimeConfigurationV2(DowntimeConfigurationIdString, &DowntimeConfigurationData)
 	if err != nil {
-		log.Println("[ERROR] downtime_configuration failed to update. Dumping request data: ", o)
+		log.Println("[ERROR] downtime_configuration failed to update id:", DowntimeConfigurationIdString)
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Update downtime_configuration response data: ", o)
+	log.Println("[DEBUG] updated downtime_configuration id:", DowntimeConfigurationIdString)
 	return resourceDowntimeConfigurationV2Read(ctx, d, meta)
 }
 
 func processDowntimeConfigurationV2Items(d *schema.ResourceData) sc2.DowntimeConfigurationV2Input {
-
-	log.Println("[DEBUG] Process downtime_configuration Resource Data: ", d)
-
 	var downtimeConfig = buildDowntimeConfigurationV2Data(d)
-
-	log.Println("[DEBUG] Processed downtime_configuration Resource Data OUTPUT: ", downtimeConfig)
 	return downtimeConfig
 }

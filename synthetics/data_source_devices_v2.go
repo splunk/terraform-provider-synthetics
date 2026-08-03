@@ -95,7 +95,6 @@ func dataSourceDevicesV2Read(ctx context.Context, d *schema.ResourceData, m inte
 	var diags diag.Diagnostics
 
 	check, _, err := c.GetDevicesV2()
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

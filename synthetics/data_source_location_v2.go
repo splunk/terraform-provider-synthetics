@@ -93,7 +93,6 @@ func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m int
 	checkID := flattenStringIdData(d.Get("location"))
 
 	check, _, err := c.GetLocationV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

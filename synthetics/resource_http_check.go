@@ -444,11 +444,11 @@ func resourceHttpCheckRead(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	check, _, err := c.GetHttpCheck(checkID)
+	_, _, err = c.GetHttpCheck(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET check response data: ", check)
+	log.Println("[DEBUG] read http check id:", checkID)
 
 	return diags
 }
@@ -465,12 +465,12 @@ func resourceHttpCheckDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteHttpCheck(checkIdString)
+	_, err = c.DeleteHttpCheck(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
+	log.Println("[DEBUG] deleted http check id:", checkIdString)
 	d.SetId("")
 
 	return diags
@@ -490,11 +490,11 @@ func resourceHttpCheckUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateHttpCheck(checkIdString, &checkData)
+	_, _, err = c.UpdateHttpCheck(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] Update check response data: ", o)
+	log.Println("[DEBUG] updated http check id:", checkIdString)
 	if err := d.Set("last_updated", time.Now().Format(time.RFC850)); err != nil {
 		return diag.FromErr(err)
 	}

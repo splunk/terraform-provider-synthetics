@@ -88,7 +88,7 @@ func resourceLocationV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] LOCATION ID IS: ", o.ID)
+	log.Println("[DEBUG] created location id:", o.ID)
 	d.SetId(o.ID)
 
 	resourceLocationV2Read(ctx, d, meta)
@@ -115,7 +115,7 @@ func resourceLocationV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		log.Println("[WARN] Synthetics API error.", locationID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] GET location response data: ", location)
+	log.Println("[DEBUG] read location id:", locationID)
 	if err := d.Set("location", flattenLocationV2Data(location.Location)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -132,23 +132,18 @@ func resourceLocationV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 
 	var locationIdString = locationID
 
-	resp, err := c.DeleteLocationV2(locationIdString)
+	_, err := c.DeleteLocationV2(locationIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete location response data: ", resp)
+	log.Println("[DEBUG] deleted location id:", locationIdString)
 	d.SetId("")
 
 	return diags
 }
 
 func processLocationV2Items(d *schema.ResourceData) sc2.LocationV2Input {
-
-	log.Println("[DEBUG] Process Location Resource Data: ", d)
-
 	var check = buildLocationV2Data(d)
-
-	log.Println("[DEBUG] Processed Location Resource Data OUTPUT: ", check)
 	return check
 }

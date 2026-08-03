@@ -121,7 +121,7 @@ func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta in
 		log.Println("[WARN] Synthetics API error.", variableID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("DEBUG] GET variable response data: ", variable)
+	log.Println("[DEBUG] read variable id:", variableID)
 	if err := d.Set("variable", flattenVariableV2Read(variable)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -141,12 +141,12 @@ func resourceVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteVariableV2(variableIdString)
+	_, err = c.DeleteVariableV2(variableIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete variable response data: ", resp)
+	log.Println("[DEBUG] deleted variable id:", variableIdString)
 	d.SetId("")
 
 	return diags
@@ -164,22 +164,17 @@ func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateVariableV2(variableIdString, &variableData)
+	_, _, err = c.UpdateVariableV2(variableIdString, &variableData)
 	if err != nil {
-		log.Println("[ERROR] Variable failed to update. Dumping request data: ", o)
+		log.Println("[ERROR] variable failed to update id:", variableIdString)
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Update variable response data: ", o)
+	log.Println("[DEBUG] updated variable id:", variableIdString)
 	return resourceVariableV2Read(ctx, d, meta)
 }
 
 func processVariableV2Items(d *schema.ResourceData) sc2.VariableV2Input {
-
-	log.Println("[DEBUG] Process Variable Resource Data: ", d)
-
 	var check = buildVariableV2Data(d)
-
-	log.Println("[DEBUG] Processed Variable Resource Data OUTPUT: ", check)
 	return check
 }

@@ -138,7 +138,6 @@ func dataSourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, m in
 	checkID := flattenIdData(d.Get("test"))
 
 	check, _, err := c.GetPortCheckV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

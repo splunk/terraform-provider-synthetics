@@ -176,7 +176,7 @@ func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 		log.Println("[WARN] Synthetics API error.", checkID, err.Error(), r.StatusCode)
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET PORT BODY: ", o)
+	log.Println("[DEBUG] read port check id:", checkID)
 	if err := d.Set("test", flattenPortCheckV2Read(o)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -196,12 +196,12 @@ func resourcePortCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeletePortCheckV2(checkIdString)
+	_, err = c.DeletePortCheckV2(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
+	log.Println("[DEBUG] deleted port check id:", checkIdString)
 	d.SetId("")
 
 	return diags
@@ -219,18 +219,16 @@ func resourcePortCheckV2Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdatePortCheckV2(checkIdString, &checkData)
+	_, _, err = c.UpdatePortCheckV2(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] UPDATE BODY: ", o)
+	log.Println("[DEBUG] updated port check id:", checkIdString)
 
 	return resourcePortCheckV2Read(ctx, d, meta)
 }
 
 func processPortCheckV2Items(d *schema.ResourceData) sc2.PortCheckV2Input {
-
 	var check = buildPortCheckV2Data(d)
-	log.Println("[DEBUG] PORT V2 CHECK OUTPUT: ", check)
 	return check
 }
