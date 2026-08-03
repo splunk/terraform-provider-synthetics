@@ -335,9 +335,16 @@ jobs:
               check_name: 'integration-test',
             });
             const check = checks.data.check_runs[0];
-            // If integration-test ran far enough to reach its own "Report check run
-            // result" step, the check is already completed and there's nothing to do.
-            if (!check || check.status === 'completed') return;
+            // integration-test's own "Report check run result" step only ever sets
+            // conclusion 'success' or 'failure' — treat those, and only those, as
+            // already finalized. A queued/in_progress check left waiting on approval
+            // for more than 14 days is auto-completed by GitHub with conclusion
+            // 'stale' (see https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-checks),
+            // which happens well before the up-to-30-day approval timeout elapses —
+            // so status === 'completed' alone is not a safe "nothing to do" signal.
+            const reportedConclusions = ['success', 'failure'];
+            if (!check) return;
+            if (check.status === 'completed' && reportedConclusions.includes(check.conclusion)) return;
 
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.checks.update({
