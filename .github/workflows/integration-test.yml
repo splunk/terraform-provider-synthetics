@@ -35,7 +35,6 @@ jobs:
     steps:
       - name: Download PR metadata
         id: download
-        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: pr-metadata
@@ -43,31 +42,78 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Read PR metadata
+      - name: Read and validate PR metadata
         id: pr
-        run: |
-          if [ "${{ steps.download.outcome }}" != "success" ] || [ ! -s pr-metadata/pr-number ]; then
-            # PR Metadata's record-pr job was skipped (e.g. draft PR) and produced no
-            # artifact — nothing to test, exit without creating a check or comment.
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          {
-            echo "found=true"
-            echo "number=$(cat pr-metadata/pr-number)"
-            echo "sha=$(cat pr-metadata/pr-sha)"
-          } >> "$GITHUB_OUTPUT"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // pr-metadata.yml is a pull_request-triggered workflow, so its *file* can be
+            // rewritten by a fork PR to upload arbitrary pr-number/pr-sha content — never
+            // trust the artifact as-is. Enforce strict formats and cross-check against
+            // fields GitHub itself attaches to this trusted workflow_run event, which a
+            // rewritten pr-metadata.yml cannot forge.
+            //
+            // The job-level guard above (conclusion == 'success') already means a draft
+            // PR (whose record-pr job is skipped, reporting conclusion 'skipped') never
+            // reaches this job at all — verified empirically against a real draft PR. So
+            // getting here with a missing or malformed artifact is always an anomaly, not
+            // a legitimate "nothing to test" case: fail loudly rather than silently
+            // exiting success with no check or comment.
+            const rawNumber = fs.readFileSync('pr-metadata/pr-number', 'utf8').trim();
+            const rawSha = fs.readFileSync('pr-metadata/pr-sha', 'utf8').trim();
+
+            if (!/^[0-9]+$/.test(rawNumber)) {
+              core.setFailed(`pr-metadata artifact has malformed pr-number: ${JSON.stringify(rawNumber)}`);
+              return;
+            }
+            if (!/^[0-9a-f]{40}$/.test(rawSha)) {
+              core.setFailed(`pr-metadata artifact has malformed pr-sha: ${JSON.stringify(rawSha)}`);
+              return;
+            }
+
+            // github.event.workflow_run.head_sha is the commit that triggered the
+            // pr-metadata.yml run itself — a value GitHub computes and attaches to the
+            // workflow_run event independently of anything pr-metadata.yml's script did.
+            // Trust this, not the artifact's own pr-sha file.
+            const trustedSha = context.payload.workflow_run.head_sha;
+            if (rawSha !== trustedSha) {
+              core.setFailed(`pr-metadata artifact sha (${rawSha}) does not match the workflow_run's own head_sha (${trustedSha}) — refusing to trust a forged or stale artifact.`);
+              return;
+            }
+
+            // Independently resolve which PR is open at that trusted SHA via the API,
+            // rather than trusting the artifact's pr-number — this is what prevents a
+            // tampered artifact from redirecting privileged testing/comments/checks to an
+            // unrelated PR.
+            const associated = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: trustedSha,
+            });
+            const matchingPr = associated.data.find(p => String(p.number) === rawNumber);
+            if (!matchingPr) {
+              core.setFailed(`No open PR #${rawNumber} found associated with commit ${trustedSha} via the GitHub API — refusing to trust the pr-metadata artifact.`);
+              return;
+            }
+
+            core.setOutput('found', 'true');
+            core.setOutput('number', rawNumber);
+            core.setOutput('sha', trustedSha);
 
       - name: Create pending check run
         if: steps.pr.outputs.found == 'true'
         uses: actions/github-script@v7
+        env:
+          PR_SHA: ${{ steps.pr.outputs.sha }}
         with:
           script: |
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: 'integration-test',
-              head_sha: '${{ steps.pr.outputs.sha }}',
+              head_sha: process.env.PR_SHA,
               status: 'in_progress',
               details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
             });
@@ -77,14 +123,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ steps.pr.outputs.number }}/head
+          persist-credentials: false
 
       - name: Verify checked-out SHA matches recorded PR head
         if: steps.pr.outputs.found == 'true'
+        env:
+          PR_SHA: ${{ steps.pr.outputs.sha }}
         run: |
           actual="$(git rev-parse HEAD)"
-          expected="${{ steps.pr.outputs.sha }}"
-          if [ "$actual" != "$expected" ]; then
-            echo "Checked-out SHA ($actual) does not match PR metadata ($expected) — PR head moved since pr-metadata ran, refusing to run privileged tests against a stale checkout." >&2
+          if [ "$actual" != "$PR_SHA" ]; then
+            echo "Checked-out SHA ($actual) does not match PR metadata ($PR_SHA) — PR head moved since pr-metadata ran, refusing to run privileged tests against a stale checkout." >&2
             exit 1
           fi
 
@@ -112,10 +160,14 @@ jobs:
       - name: Report check run result
         if: always() && steps.pr.outputs.found == 'true'
         uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         with:
           script: |
             const fs = require('fs');
-            const status = '${{ job.status }}';
+            const status = process.env.JOB_STATUS;
             const conclusion = status === 'success' ? 'success' : 'failure';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
@@ -163,7 +215,7 @@ jobs:
             const checks = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: '${{ steps.pr.outputs.sha }}',
+              ref: process.env.PR_SHA,
               check_name: 'integration-test',
             });
             const check = checks.data.check_runs[0];
@@ -181,6 +233,6 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.pr.outputs.number }},
+              issue_number: Number(process.env.PR_NUMBER),
               body: `### Integration Test: ${conclusion === 'success' ? '✅ Passed' : '❌ Failed'}\n\n[View run](${runUrl})\n\n${table}`,
             });

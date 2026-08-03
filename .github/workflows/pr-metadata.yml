@@ -28,4 +28,6 @@ jobs:
         with:
           name: pr-metadata
           path: pr-metadata/
-          retention-days: 1
+          # Must outlive the integration-test environment's approval wait, or the
+          # artifact expires while a reviewer is still deciding — see integration-test.yml.
+          retention-days: 14
