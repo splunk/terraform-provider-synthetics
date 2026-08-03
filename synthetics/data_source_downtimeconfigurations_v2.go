@@ -150,7 +150,6 @@ func dataSourceDowntimeConfigurationsV2Read(ctx context.Context, d *schema.Resou
 	var diags diag.Diagnostics
 
 	downtime_configs, _, err := c.GetDowntimeConfigurationsV2(&downtimeOptions)
-	println(downtime_configs)
 	if err != nil {
 		return diag.FromErr(err)
 	}

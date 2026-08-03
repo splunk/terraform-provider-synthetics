@@ -79,7 +79,6 @@ func dataSourceVariableV2Read(ctx context.Context, d *schema.ResourceData, m int
 	checkID := flattenIdData(d.Get("variable"))
 
 	check, _, err := c.GetVariableV2(checkID)
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

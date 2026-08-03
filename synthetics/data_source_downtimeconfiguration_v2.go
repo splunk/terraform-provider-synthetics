@@ -144,7 +144,6 @@ func dataSourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resour
 	downtimeConfigID := flattenIdData(d.Get("downtime_configuration"))
 
 	downtimeConfig, _, err := c.GetDowntimeConfigurationV2(downtimeConfigID)
-	println(downtimeConfig)
 	if err != nil {
 		return diag.FromErr(err)
 	}

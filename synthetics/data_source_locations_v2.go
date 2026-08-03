@@ -74,7 +74,6 @@ func dataSourceLocationsV2Read(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 
 	check, _, err := c.GetLocationsV2()
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

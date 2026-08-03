@@ -75,7 +75,6 @@ func dataSourceVariablesV2Read(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 
 	check, _, err := c.GetVariablesV2()
-	println(check)
 	if err != nil {
 		return diag.FromErr(err)
 	}

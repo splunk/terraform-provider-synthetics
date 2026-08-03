@@ -744,11 +744,11 @@ func resourceBrowserCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	check, _, err := c.GetCheck(checkID)
+	_, _, err = c.GetCheck(checkID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] GET check response data: ", check)
+	log.Println("[DEBUG] read browser check id:", checkID)
 
 	return diags
 }
@@ -765,12 +765,12 @@ func resourceBrowserCheckDelete(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	resp, err := c.DeleteBrowserCheck(checkIdString)
+	_, err = c.DeleteBrowserCheck(checkIdString)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] Delete check response data: ", resp)
+	log.Println("[DEBUG] deleted browser check id:", checkIdString)
 	d.SetId("")
 
 	return diags
@@ -790,11 +790,11 @@ func resourceBrowserCheckUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	o, _, err := c.UpdateBrowserCheck(checkIdString, &checkData)
+	_, _, err = c.UpdateBrowserCheck(checkIdString, &checkData)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Println("[DEBUG] Update check response data: ", o)
+	log.Println("[DEBUG] updated browser check id:", checkIdString)
 	if err := d.Set("last_updated", time.Now().Format(time.RFC850)); err != nil {
 		return diag.FromErr(err)
 	}
