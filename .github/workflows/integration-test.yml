@@ -1,0 +1,368 @@
+name: Integration Test
+
+# Trusted trigger: runs in the base repo's context (full GITHUB_TOKEN
+# permissions, environment secrets available) regardless of whether the
+# triggering PR came from a fork. This is the privilege-separated
+# counterpart to pr-metadata.yml, which does the untrusted checkout-free
+# bookkeeping. See: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
+#
+# workflow_run does not automatically attach as a PR status check, so this
+# workflow explicitly creates/updates a Check Run on the PR's head SHA via
+# the Checks API — that's what branch protection actually watches.
+on:
+  workflow_run:
+    workflows: ["PR Metadata"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+  checks: write
+
+concurrency:
+  group: integration-test-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  # Ungated on purpose: downloads and validates the pr-metadata artifact
+  # immediately, before any approval wait. An environment approval can take
+  # up to 30 days (GitHub's own timeout), which would otherwise force the
+  # artifact retention window to also cover the entire approval SLA. Resolving
+  # here means only this job's (short) runtime needs the artifact to still
+  # exist, not however long a reviewer takes to click approve.
+  resolve:
+    name: resolve
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      found: ${{ steps.pr.outputs.found }}
+      number: ${{ steps.pr.outputs.number }}
+      sha: ${{ steps.pr.outputs.sha }}
+
+    steps:
+      - name: Download PR metadata
+        id: download
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-metadata
+          path: pr-metadata
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Read and validate PR metadata
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // pr-metadata.yml is a pull_request-triggered workflow, so its *file* can be
+            // rewritten by a fork PR to upload arbitrary pr-number/pr-sha content — never
+            // trust the artifact as-is. Enforce strict formats and cross-check against
+            // fields GitHub itself attaches to this trusted workflow_run event, which a
+            // rewritten pr-metadata.yml cannot forge.
+            //
+            // The job-level guard above (conclusion == 'success') already means a draft
+            // PR (whose record-pr job is skipped, reporting conclusion 'skipped') never
+            // reaches this job at all — verified empirically against a real draft PR. So
+            // getting here with a missing or malformed artifact is always an anomaly, not
+            // a legitimate "nothing to test" case: fail loudly rather than silently
+            // exiting success with no check or comment.
+            const rawNumber = fs.readFileSync('pr-metadata/pr-number', 'utf8').trim();
+            const rawSha = fs.readFileSync('pr-metadata/pr-sha', 'utf8').trim();
+
+            if (!/^[0-9]+$/.test(rawNumber)) {
+              core.setFailed(`pr-metadata artifact has malformed pr-number: ${JSON.stringify(rawNumber)}`);
+              return;
+            }
+            if (!/^[0-9a-f]{40}$/.test(rawSha)) {
+              core.setFailed(`pr-metadata artifact has malformed pr-sha: ${JSON.stringify(rawSha)}`);
+              return;
+            }
+
+            // github.event.workflow_run.head_sha is the commit that triggered the
+            // pr-metadata.yml run itself — a value GitHub computes and attaches to the
+            // workflow_run event independently of anything pr-metadata.yml's script did.
+            // Trust this, not the artifact's own pr-sha file.
+            const trustedSha = context.payload.workflow_run.head_sha;
+            if (rawSha !== trustedSha) {
+              core.setFailed(`pr-metadata artifact sha (${rawSha}) does not match the workflow_run's own head_sha (${trustedSha}) — refusing to trust a forged or stale artifact.`);
+              return;
+            }
+
+            // Fetch the PR the artifact claims by number, then verify every field that
+            // matters against values GitHub itself attached to this trusted workflow_run
+            // event — never trust the artifact's number on its own.
+            //
+            // Deliberately not using listPullRequestsAssociatedWithCommit or the
+            // workflow_run payload's own `pull_requests` field: (a) the commit-associated
+            // lookup can return multiple open/merged PRs for the same commit (e.g. a
+            // commit shared via cherry-pick or a stacked branch), letting a forged
+            // artifact redirect handling to an unrelated but-also-matching PR; and (b)
+            // workflow_run.pull_requests is documented to come back empty for PRs from
+            // forked repositories, which is precisely the case this workflow exists to
+            // support. Instead: fetch the claimed PR by number directly, then require
+            // every trust-relevant field to match values GitHub attached to this event.
+            let pr;
+            try {
+              const resp = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: Number(rawNumber),
+              });
+              pr = resp.data;
+            } catch (e) {
+              core.setFailed(`Could not fetch PR #${rawNumber} via the API — refusing to trust the pr-metadata artifact: ${e.message}`);
+              return;
+            }
+
+            const headRepo = context.payload.workflow_run.head_repository;
+            const baseRepo = context.payload.workflow_run.repository;
+            const headBranch = context.payload.workflow_run.head_branch;
+
+            if (pr.state !== 'open') {
+              core.setFailed(`PR #${rawNumber} is not open (state: ${pr.state}) — refusing to trust the pr-metadata artifact.`);
+              return;
+            }
+            if (pr.head.sha !== trustedSha) {
+              core.setFailed(`PR #${rawNumber}'s current head sha (${pr.head.sha}) does not match the trusted workflow_run head_sha (${trustedSha}) — PR head moved or artifact is stale/forged.`);
+              return;
+            }
+            if (!pr.head.repo || pr.head.repo.full_name !== headRepo.full_name) {
+              core.setFailed(`PR #${rawNumber}'s head repo (${pr.head.repo && pr.head.repo.full_name}) does not match the trusted workflow_run head_repository (${headRepo.full_name}) — refusing to trust the pr-metadata artifact.`);
+              return;
+            }
+            if (pr.head.ref !== headBranch) {
+              core.setFailed(`PR #${rawNumber}'s head branch (${pr.head.ref}) does not match the trusted workflow_run head_branch (${headBranch}) — refusing to trust the pr-metadata artifact.`);
+              return;
+            }
+            if (pr.base.repo.full_name !== baseRepo.full_name) {
+              core.setFailed(`PR #${rawNumber}'s base repo (${pr.base.repo.full_name}) is not this repository — refusing to trust the pr-metadata artifact.`);
+              return;
+            }
+
+            core.setOutput('found', 'true');
+            core.setOutput('number', String(pr.number));
+            core.setOutput('sha', trustedSha);
+
+      - name: Create pending check run
+        if: steps.pr.outputs.found == 'true'
+        uses: actions/github-script@v7
+        env:
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'integration-test',
+              head_sha: process.env.PR_SHA,
+              status: 'queued',
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });
+
+  integration-test:
+    name: integration-test
+    needs: resolve
+    if: needs.resolve.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: integration-test   # gate: waits for reviewer approval here
+
+    steps:
+      - name: Mark check run in progress
+        uses: actions/github-script@v7
+        env:
+          PR_SHA: ${{ needs.resolve.outputs.sha }}
+        with:
+          script: |
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: process.env.PR_SHA,
+              check_name: 'integration-test',
+            });
+            const check = checks.data.check_runs[0];
+            if (check) {
+              await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: check.id,
+                status: 'in_progress',
+              });
+            }
+
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ needs.resolve.outputs.number }}/head
+          persist-credentials: false
+
+      - name: Verify checked-out SHA matches recorded PR head
+        env:
+          PR_SHA: ${{ needs.resolve.outputs.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          if [ "$actual" != "$PR_SHA" ]; then
+            echo "Checked-out SHA ($actual) does not match PR metadata ($PR_SHA) — PR head moved since pr-metadata ran, refusing to run privileged tests against a stale checkout." >&2
+            exit 1
+          fi
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Run acceptance tests against live endpoint
+        env:
+          TF_VAR_observability_token: ${{ secrets.TF_VAR_OBSERVABILITY_TOKEN }}
+          TF_VAR_realm: ${{ secrets.TF_VAR_REALM }}
+          TF_VAR_rigor_token: ${{ secrets.TF_VAR_RIGOR_TOKEN }}
+        run: make testacc
+
+      - name: Report check run result
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          PR_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const status = process.env.JOB_STATUS;
+            const conclusion = status === 'success' ? 'success' : 'failure';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // testacc.jsonl already has X-Sf-Token lines stripped by GNUmakefile's
+            // testacc target (sed '/X-Sf-Token/d') before it ever reaches this file.
+            let table = '_No test output was captured (job likely failed before tests started)._';
+            if (fs.existsSync('testacc.jsonl')) {
+              const lines = fs.readFileSync('testacc.jsonl', 'utf8').split('\n');
+              const results = [];
+              let buildFailed = false;
+              for (const line of lines) {
+                if (!line) continue;
+                let event;
+                try {
+                  event = JSON.parse(line);
+                } catch (e) {
+                  continue;
+                }
+                if (event.Action === 'build-fail') buildFailed = true;
+                // Only live acceptance tests (TestAcc* — the convention every
+                // resource.Test/ParallelTest caller in this repo follows) show up
+                // here; unit tests still run and still gate the job on failure,
+                // they're just not what this table is reporting on.
+                if (event.Test && event.Test.startsWith('TestAcc') && (event.Action === 'pass' || event.Action === 'fail' || event.Action === 'skip')) {
+                  results.push(event);
+                }
+              }
+              results.sort((a, b) => a.Test.localeCompare(b.Test));
+
+              if (buildFailed) {
+                table = '⚠️ Build failed before any tests ran — see the job log for compiler errors.';
+              } else if (results.length === 0) {
+                table = '⚠️ No acceptance test (TestAcc*) results were produced — see the job log for details.';
+              } else {
+                const passed = results.filter(r => r.Action === 'pass').length;
+                const failed = results.filter(r => r.Action === 'fail').length;
+                const skipped = results.filter(r => r.Action === 'skip').length;
+                const icon = r => r.Action === 'pass' ? '✅ Pass' : r.Action === 'skip' ? '⚠️ Skip' : '❌ Fail';
+                const rows = results.map(r => `| ${r.Test} | ${icon(r)} | ${r.Elapsed ?? 0} |`).join('\n');
+                table = `**Live acceptance tests — Total:** ${results.length} | **Passed:** ${passed} | **Failed:** ${failed} | **Skipped:** ${skipped}\n\n` +
+                  `| Test | Result | Duration (s) |\n|---|---|---|\n${rows}`;
+              }
+            }
+
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: process.env.PR_SHA,
+              check_name: 'integration-test',
+            });
+            const check = checks.data.check_runs[0];
+            if (check) {
+              await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: check.id,
+                status: 'completed',
+                conclusion,
+                details_url: runUrl,
+              });
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `### Integration Test: ${conclusion === 'success' ? '✅ Passed' : '❌ Failed'}\n\n[View run](${runUrl})\n\n${table}`,
+            });
+
+  # Ungated, and scheduled regardless of how integration-test ended. Needed
+  # because environment-approval rejection or timeout fails the
+  # integration-test job before any of its own steps run — including its
+  # "Report check run result" step — which would otherwise leave the check
+  # `resolve` created stuck at queued/in_progress until GitHub marks it stale
+  # after 14 days, hiding the rejection/timeout from the required check.
+  finalize-on-incomplete:
+    name: finalize-on-incomplete
+    needs: [resolve, integration-test]
+    if: always() && needs.resolve.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ensure the check run reaches a terminal state
+        uses: actions/github-script@v7
+        env:
+          PR_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.number }}
+        with:
+          script: |
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: process.env.PR_SHA,
+              check_name: 'integration-test',
+            });
+            const check = checks.data.check_runs[0];
+            // integration-test's own "Report check run result" step only ever sets
+            // conclusion 'success' or 'failure' — treat those, and only those, as
+            // already finalized. A queued/in_progress check left waiting on approval
+            // for more than 14 days is auto-completed by GitHub with conclusion
+            // 'stale' (see https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-checks),
+            // which happens well before the up-to-30-day approval timeout elapses —
+            // so status === 'completed' alone is not a safe "nothing to do" signal.
+            const reportedConclusions = ['success', 'failure'];
+            if (!check) return;
+            if (check.status === 'completed' && reportedConclusions.includes(check.conclusion)) return;
+
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: check.id,
+              status: 'completed',
+              conclusion: 'failure',
+              details_url: runUrl,
+              output: {
+                title: 'Integration test did not complete',
+                summary: 'The integration-test job did not run to completion — the environment approval was likely rejected or timed out before the job started.',
+              },
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `### Integration Test: ❌ Failed\n\nThe integration-test job did not run to completion — the environment approval was likely rejected or timed out before the job started. [View run](${runUrl})`,
+            });
