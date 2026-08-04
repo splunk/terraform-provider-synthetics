@@ -40,96 +40,100 @@ func resourcePortCheckV2() *schema.Resource {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"updated_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "port",
-						},
-						"url": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"protocol": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^tcp$|^udp$)`), "Setting must match tcp or udp"),
-						},
-						"host": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"active": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"frequency": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"scheduling_strategy": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      "round_robin",
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
-						},
-						"location_ids": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"custom_properties": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
-									},
-									"value": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
-									},
-								},
-							},
-						},
-						"automatic_retries": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
-						},
-					},
+					Schema: portCheckV2ResourceTestSchema(),
 				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+	}
+}
+
+func portCheckV2ResourceTestSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"id": {
+			Type:     schema.TypeInt,
+			Computed: true,
+		},
+		"created_at": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"updated_at": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"type": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  "port",
+		},
+		"url": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"port": {
+			Type:     schema.TypeInt,
+			Required: true,
+		},
+		"protocol": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^tcp$|^udp$)`), "Setting must match tcp or udp"),
+		},
+		"host": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"active": {
+			Type:     schema.TypeBool,
+			Required: true,
+		},
+		"frequency": {
+			Type:     schema.TypeInt,
+			Required: true,
+		},
+		"scheduling_strategy": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "round_robin",
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
+		},
+		"location_ids": {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"custom_properties": {
+			Type:     schema.TypeSet,
+			Computed: true,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
+					},
+					"value": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
+					},
+				},
+			},
+		},
+		"automatic_retries": {
+			Type:     schema.TypeInt,
+			Computed: true,
+			Optional: true,
 		},
 	}
 }

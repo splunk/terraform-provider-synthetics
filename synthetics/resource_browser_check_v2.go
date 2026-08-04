@@ -40,99 +40,103 @@ func resourceBrowserCheckV2() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"active": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"frequency": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-						"scheduling_strategy": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      "round_robin",
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
-						},
-						"url_protocol": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"start_url": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"location_ids": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"device_id": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-						"advanced_settings": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Elem:     browserCheckV2AdvancedSettingsResource(false),
-						},
-						"transactions": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"steps": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: "Unique steps for the transaction. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_browser/latest#endpoint-createbrowsertest) as the source of truth for descriptions and options for these values.",
-										Elem: &schema.Resource{
-											Schema: browserCheckV2StepSchema(false),
-										},
-									},
-								},
-							},
-						},
-						"custom_properties": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
-									},
-									"value": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
-									},
-								},
-							},
-						},
-						"automatic_retries": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
-						},
-					},
+					Schema: browserCheckV2ResourceTestSchema(),
 				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+	}
+}
+
+func browserCheckV2ResourceTestSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"active": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"frequency": {
+			Type:     schema.TypeInt,
+			Optional: true,
+		},
+		"scheduling_strategy": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "round_robin",
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
+		},
+		"url_protocol": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"start_url": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"location_ids": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"device_id": {
+			Type:     schema.TypeInt,
+			Optional: true,
+		},
+		"advanced_settings": {
+			Type:     schema.TypeSet,
+			Required: true,
+			Elem:     browserCheckV2AdvancedSettingsResource(false),
+		},
+		"transactions": {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"steps": {
+						Type:        schema.TypeList,
+						Required:    true,
+						Description: "Unique steps for the transaction. See official [API documentation](https://dev.splunk.com/observability/reference/api/synthetics_browser/latest#endpoint-createbrowsertest) as the source of truth for descriptions and options for these values.",
+						Elem: &schema.Resource{
+							Schema: browserCheckV2StepSchema(false),
+						},
+					},
+				},
+			},
+		},
+		"custom_properties": {
+			Type:     schema.TypeSet,
+			Computed: true,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
+					},
+					"value": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
+					},
+				},
+			},
+		},
+		"automatic_retries": {
+			Type:     schema.TypeInt,
+			Computed: true,
+			Optional: true,
 		},
 	}
 }

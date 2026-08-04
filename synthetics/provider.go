@@ -92,6 +92,11 @@ func Provider() *schema.Provider {
 			"synthetics_devices_v2_check":                 dataSourceDevicesV2(),
 			"synthetics_downtime_configuration_v2_check":  dataSourceDowntimeConfigurationV2(),
 			"synthetics_downtime_configurations_v2_check": dataSourceDowntimeConfigurationsV2(),
+			"synthetics_validate_api_check_v2":            dataSourceValidateApiCheckV2(),
+			"synthetics_validate_browser_check_v2":        dataSourceValidateBrowserCheckV2(),
+			"synthetics_validate_http_check_v2":           dataSourceValidateHttpCheckV2(),
+			"synthetics_validate_port_check_v2":           dataSourceValidatePortCheckV2(),
+			"synthetics_validate_ssl_check_v2":            dataSourceValidateSslCheckV2(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
