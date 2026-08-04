@@ -41,175 +41,179 @@ func resourceHttpCheckV2() *schema.Resource {
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"updated_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "http",
-						},
-						"url": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"port": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Description:  "HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Omit this field to leave the port unset.",
-						},
-						"active": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"frequency": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"scheduling_strategy": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      "round_robin",
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
-						},
-						"request_method": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"body": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"location_ids": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"user_agent": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"verify_certificates": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"certificate_id": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntAtLeast(1),
-						},
-						"headers": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringDoesNotContainAny(" "),
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"validations": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"actual": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"comparator": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"expected": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"type": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"extractor": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"source": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"variable": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"code": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"custom_properties": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
-									},
-									"value": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
-									},
-								},
-							},
-						},
-						"automatic_retries": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
-						},
-					},
+					Schema: httpCheckV2ResourceTestSchema(),
 				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+	}
+}
+
+func httpCheckV2ResourceTestSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"id": {
+			Type:     schema.TypeInt,
+			Computed: true,
+		},
+		"created_at": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"updated_at": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"type": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  "http",
+		},
+		"url": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"port": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			ValidateFunc: validation.IntBetween(0, 65535),
+			Description:  "HTTP port override for the check. Valid range is 0 through 65535, matching Synthetics API validation. Omit this field to leave the port unset.",
+		},
+		"active": {
+			Type:     schema.TypeBool,
+			Required: true,
+		},
+		"frequency": {
+			Type:     schema.TypeInt,
+			Required: true,
+		},
+		"scheduling_strategy": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "round_robin",
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^concurrent$|^round_robin$)`), "Setting must match concurrent or round_robin"),
+		},
+		"request_method": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"body": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"location_ids": {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"user_agent": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"verify_certificates": {
+			Type:     schema.TypeBool,
+			Required: true,
+		},
+		"certificate_id": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			ValidateFunc: validation.IntAtLeast(1),
+		},
+		"headers": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringDoesNotContainAny(" "),
+					},
+					"value": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"validations": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"actual": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"comparator": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"expected": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"name": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"type": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"extractor": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"source": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"variable": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"value": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"code": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"custom_properties": {
+			Type:     schema.TypeSet,
+			Computed: true,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[a-zA-Z][\w.-]{0,127}$`), "custom_properties key must start with a letter and may contain letters, numbers, underscore, dot, and hyphen, up to 128 characters total with no whitespace"),
+					},
+					"value": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^.{0,256}$`), "custom_properties value must be at most 256 characters"),
+					},
+				},
+			},
+		},
+		"automatic_retries": {
+			Type:     schema.TypeInt,
+			Computed: true,
+			Optional: true,
 		},
 	}
 }

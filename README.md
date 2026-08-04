@@ -25,6 +25,33 @@ To install this provider locally follow the directions for installing [In-House 
 see ./examples/ for examples of Splunk Synthetics resources and datasources.
 see ./examples/rigor/ for examples of Rigor Classic resources and datasources
 
+## Validate Support
+
+Data sources are available to validate a test payload against the Synthetics API without
+creating, updating, deleting, or running a test. Validate calls always respond `HTTP 200`;
+check the `valid` attribute and, when `valid` is `false`, the `field_errors` attribute for
+field-level validation messages.
+
+Each data source supports two flows, matching the pattern of its corresponding `synthetics_create_*`
+resource:
+- **Create-style**: omit `test_id` to validate the payload as if creating a new test.
+- **Update-style**: set `test_id` to validate the payload as if updating that existing test.
+
+| Test type | Data source |
+| --- | --- |
+| API | `synthetics_validate_api_check_v2` |
+| Browser | `synthetics_validate_browser_check_v2` |
+| HTTP | `synthetics_validate_http_check_v2` |
+| Port | `synthetics_validate_port_check_v2` |
+| SSL | `synthetics_validate_ssl_check_v2` |
+
+See ./docs/data-sources/ for the full schema of each validate data source and
+./examples/data-sources/ for example configurations.
+
+Validate support is not available for Rigor Classic (V1) resources, and there is no
+Synthetics API validate endpoint for Location, Variable, TOTP variable, downtime
+configuration, CA certificate, or client certificate resources.
+
 ## Import Existing Tests
 
 Use `terraform import` as normally described in the [Terraform docs](https://developer.hashicorp.com/terraform/cli/import/usage) to bring the resource into your state file. Using the check id number as the identifier.
