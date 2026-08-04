@@ -139,6 +139,13 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         type  = "custom"
         regex = "cdn\\.example\\.com"
       }
+      chrome_flags {
+        name = "--disable-web-security"
+      }
+      chrome_flags {
+        name  = "--proxy-bypass-list"
+        value = "127.0.0.1:8080"
+      }
       headers {
         name = "superstar-machine"
         value = "\"taking it too the staaaaars\""

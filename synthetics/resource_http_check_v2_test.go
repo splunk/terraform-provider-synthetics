@@ -113,7 +113,89 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 				expected = 400
 				type = "assert_numeric"
 		}
-  }    
+  }
+}
+`
+
+const httpCheckV2OneHeaderRemovedConfig = `
+resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
+	provider = synthetics.synthetics
+  test {
+    active = false
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    name = "01-acceptance-updated-Terraform-HTTP-V2"
+    type = "http"
+    url = "https://www.duckduckgo.com"
+    port = 8443
+    automatic_retries = 0
+    scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
+    request_method = "PUT"
+    verify_certificates = false
+    user_agent = "Another User of Agents and snake oil"
+    body = "boopboopboop"
+		headers {
+			name = "back_transaction_01"
+			value = "peekoboot"
+		}
+		validations {
+				name = "002 My validation step"
+				actual = "{{response.body}}"
+				comparator = "matches"
+				expected = "12221"
+				type = "assert_string"
+		}
+		validations {
+				name = "My validation step 001"
+				actual = "{{response.code}}"
+				comparator = "does_not_equal"
+				expected = 400
+				type = "assert_numeric"
+		}
+  }
+}
+`
+
+const httpCheckV2AllHeadersRemovedConfig = `
+resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
+	provider = synthetics.synthetics
+  test {
+    active = false
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    name = "01-acceptance-updated-Terraform-HTTP-V2"
+    type = "http"
+    url = "https://www.duckduckgo.com"
+    port = 8443
+    automatic_retries = 0
+    scheduling_strategy = "concurrent"
+		custom_properties {
+			key = "beepkey"
+			value = "boopvalue"
+		}
+    request_method = "PUT"
+    verify_certificates = false
+    user_agent = "Another User of Agents and snake oil"
+    body = "boopboopboop"
+		validations {
+				name = "002 My validation step"
+				actual = "{{response.body}}"
+				comparator = "matches"
+				expected = "12221"
+				type = "assert_string"
+		}
+		validations {
+				name = "My validation step 001"
+				actual = "{{response.code}}"
+				comparator = "does_not_equal"
+				expected = 400
+				type = "assert_numeric"
+		}
+  }
 }
 `
 
@@ -212,6 +294,23 @@ func TestAccCreateUpdateHttpCheckV2(t *testing.T) {
 				Config: providerConfig + strings.Replace(updatedHttpCheckV2Config, "    port = 8443\n", "", 1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.port", "0"),
+				),
+			},
+			// Remove one of the two headers (SYN-6879 / GitHub #73).
+			{
+				Config: providerConfig + httpCheckV2OneHeaderRemovedConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.headers.#", "1"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.headers.0.name", "back_transaction_01"),
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.headers.0.value", "peekoboot"),
+				),
+			},
+			// Remove all remaining headers; the API must actually clear them,
+			// not just accept a request that omits the field (SYN-6879 / GitHub #73).
+			{
+				Config: providerConfig + httpCheckV2AllHeadersRemovedConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_http_check_v2.http_v2_foo_check", "test.0.headers.#", "0"),
 				),
 			},
 		},
