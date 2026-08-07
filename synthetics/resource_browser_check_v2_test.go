@@ -466,6 +466,51 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
 }
 `
 
+const valuelessChromeFlagBrowserCheckV2Config = `
+resource "synthetics_create_variable_v2" "variable_v2_foo" {
+  provider = synthetics.synthetics
+  variable {
+    description = "The most awesome variable. Full of snakes."
+    value = "barv3v3"
+    name = "acceptance-variable-terraform-test"
+    secret = false
+  }
+}
+resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
+  provider = synthetics.synthetics
+  depends_on = [synthetics_create_variable_v2.variable_v2_foo]
+  test {
+    active = false
+    device_id = 2
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    automatic_retries = 0
+    name = "01-acceptance-valueless-chrome-flag-Terraform-Browser-V2"
+    scheduling_strategy = "concurrent"
+    advanced_settings {
+      verify_certificates = true
+      user_agent = "Jozilla/5.0"
+      collect_interactive_metrics = false
+      chrome_flags {
+        name = "--disable-web-security"
+      }
+      chrome_flags {
+        name  = "--proxy-bypass-list"
+        value = "127.0.0.1:8080"
+      }
+    }
+    transactions {
+      name = "01 First Synthetic transaction"
+      steps {
+        name = "01 Go to URL"
+        type = "go_to_url"
+        url  = "https://www.splunk.com"
+      }
+    }
+  }
+}
+`
+
 func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -732,6 +777,22 @@ func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.verify_certificates", "true"),
 					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.excluded_files.#", "0"),
+				),
+			},
+			// A valueless chrome flag round-trips with an empty value, alongside
+			// a flag that still carries one (SYN-6879 / GitHub #82).
+			{
+				Config: providerConfig + valuelessChromeFlagBrowserCheckV2Config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.*", map[string]string{
+						"name":  "--disable-web-security",
+						"value": "",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("synthetics_create_browser_check_v2.browser_v2_foo_check", "test.0.advanced_settings.0.chrome_flags.*", map[string]string{
+						"name":  "--proxy-bypass-list",
+						"value": "127.0.0.1:8080",
+					}),
 				),
 			},
 		},

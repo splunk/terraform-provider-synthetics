@@ -110,8 +110,8 @@ type Advancedsettings struct {
 }
 
 type ChromeFlag struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string  `json:"name"`
+	Value *string `json:"value,omitempty"`
 }
 
 type ChromeFlagsResponse struct {
@@ -715,7 +715,7 @@ type HttpCheckV2Input struct {
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
 		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
-		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
+		HttpHeaders        *[]HttpHeaders     `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Automaticretries   int                `json:"automaticRetries"`
@@ -768,7 +768,7 @@ type HttpCheckV2InputWithNullablePort struct {
 		UserAgent          *string            `json:"userAgent"`
 		Verifycertificates bool               `json:"verifyCertificates"`
 		CertificateID      *NullableInt       `json:"certificateId,omitempty"`
-		HttpHeaders        []HttpHeaders      `json:"headers,omitempty"`
+		HttpHeaders        *[]HttpHeaders     `json:"headers,omitempty"`
 		Validations        []Validations      `json:"validations"`
 		Customproperties   []CustomProperties `json:"customProperties"`
 		Automaticretries   int                `json:"automaticRetries"`

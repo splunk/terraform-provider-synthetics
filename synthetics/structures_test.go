@@ -760,6 +760,123 @@ func TestHttpV2PortSchemas(t *testing.T) {
 	}
 }
 
+// Reproduces SYN-6879 / GitHub #73: clearing all headers must still be sent
+// to the API as an explicit empty list, not omitted entirely.
+func TestBuildHttpV2DataEmitsExplicitEmptyHeadersOnRemoval(t *testing.T) {
+	d := httpV2ResourceDataForPortTest(t, true, 443)
+
+	got := buildHttpV2Data(d)
+
+	if got.Test.HttpHeaders == nil {
+		t.Fatalf("HttpHeaders = nil, want non-nil empty slice so the API receives an explicit removal")
+	}
+	if len(*got.Test.HttpHeaders) != 0 {
+		t.Fatalf("HttpHeaders = %#v, want empty", *got.Test.HttpHeaders)
+	}
+
+	body, err := json.Marshal(got)
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if !strings.Contains(string(body), `"headers":[]`) {
+		t.Fatalf("request JSON = %s, want explicit \"headers\":[] so the API clears existing headers", string(body))
+	}
+}
+
+// Reproduces SYN-6879 / GitHub #82: Chrome flags that are valid without a
+// value (e.g. --disable-web-security) must round-trip distinctly from a
+// flag carrying an empty-string value.
+func TestChromeFlagsSupportValuelessFlags(t *testing.T) {
+	settings := schema.NewSet(schema.HashResource(browserCheckV2AdvancedSettingsResource(false)), []interface{}{
+		map[string]interface{}{
+			"user_agent":                  "",
+			"verify_certificates":         true,
+			"collect_interactive_metrics": false,
+			"authentication":              schema.NewSet(schema.HashString, nil),
+			"chrome_flags": schema.NewSet(schema.HashResource(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name":  {Type: schema.TypeString, Optional: true},
+					"value": {Type: schema.TypeString, Optional: true},
+				},
+			}), []interface{}{
+				map[string]interface{}{
+					"name":  "--disable-web-security",
+					"value": "",
+				},
+			}),
+			"cookies":        schema.NewSet(schema.HashString, nil),
+			"headers":        schema.NewSet(schema.HashString, nil),
+			"host_overrides": schema.NewSet(schema.HashString, nil),
+			"excluded_files": schema.NewSet(schema.HashString, nil),
+		},
+	})
+
+	got, err := buildAdvancedSettingsData(settings)
+	if err != nil {
+		t.Fatalf("buildAdvancedSettingsData() error = %v", err)
+	}
+	if len(got.ChromeFlags) != 1 {
+		t.Fatalf("ChromeFlags = %#v, want 1 flag", got.ChromeFlags)
+	}
+
+	body, err := json.Marshal(got.ChromeFlags[0])
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if strings.Contains(string(body), `"value":""`) {
+		t.Fatalf("chrome flag JSON = %s, want the valueless flag to be distinct from an empty-string value", string(body))
+	}
+}
+
+// A Chrome flag with a real value must keep round-tripping unchanged: build
+// maps a non-empty HCL value to a non-nil pointer, and flatten reads it back
+// as the same string.
+func TestChromeFlagsRoundTripPreservesValue(t *testing.T) {
+	settings := schema.NewSet(schema.HashResource(browserCheckV2AdvancedSettingsResource(false)), []interface{}{
+		map[string]interface{}{
+			"user_agent":                  "",
+			"verify_certificates":         true,
+			"collect_interactive_metrics": false,
+			"authentication":              schema.NewSet(schema.HashString, nil),
+			"chrome_flags": schema.NewSet(schema.HashResource(&schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name":  {Type: schema.TypeString, Optional: true},
+					"value": {Type: schema.TypeString, Optional: true},
+				},
+			}), []interface{}{
+				map[string]interface{}{
+					"name":  "--proxy-bypass-list",
+					"value": "127.0.0.1:8080",
+				},
+			}),
+			"cookies":        schema.NewSet(schema.HashString, nil),
+			"headers":        schema.NewSet(schema.HashString, nil),
+			"host_overrides": schema.NewSet(schema.HashString, nil),
+			"excluded_files": schema.NewSet(schema.HashString, nil),
+		},
+	})
+
+	got, err := buildAdvancedSettingsData(settings)
+	if err != nil {
+		t.Fatalf("buildAdvancedSettingsData() error = %v", err)
+	}
+	if len(got.ChromeFlags) != 1 {
+		t.Fatalf("ChromeFlags = %#v, want 1 flag", got.ChromeFlags)
+	}
+	if got.ChromeFlags[0].Value == nil || *got.ChromeFlags[0].Value != "127.0.0.1:8080" {
+		t.Fatalf("ChromeFlags[0].Value = %#v, want \"127.0.0.1:8080\"", got.ChromeFlags[0].Value)
+	}
+
+	flattened := flattenChromeFlagsData(got.ChromeFlags)
+	if len(flattened) != 1 {
+		t.Fatalf("flattenChromeFlagsData() = %#v, want 1 flag", flattened)
+	}
+	flag := flattened[0].(map[string]interface{})
+	if flag["name"] != "--proxy-bypass-list" || flag["value"] != "127.0.0.1:8080" {
+		t.Fatalf("flattened flag = %#v, want name/value preserved", flag)
+	}
+}
+
 func httpV2ResourceDataForPortTest(t *testing.T, includePort bool, port int) *schema.ResourceData {
 	t.Helper()
 

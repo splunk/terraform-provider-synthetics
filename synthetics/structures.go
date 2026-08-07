@@ -1400,9 +1400,13 @@ func flattenChromeFlagsData(chromeFlags []sc2.ChromeFlag) []interface{} {
 
 	var result []interface{}
 	for _, flag := range chromeFlags {
+		value := ""
+		if flag.Value != nil {
+			value = *flag.Value
+		}
 		flagData := map[string]interface{}{
 			"name":  flag.Name,
-			"value": flag.Value,
+			"value": value,
 		}
 		result = append(result, flagData)
 	}
@@ -2423,7 +2427,7 @@ func buildBusinessTransactionsData(businessTransactions []interface{}) ([]sc2.Tr
 	return businessTransactionsList, nil
 }
 
-func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
+func buildHttpHeadersData(httpHeaders *schema.Set) *[]sc2.HttpHeaders {
 	httpHeadersList := make([]sc2.HttpHeaders, len(httpHeaders.List()))
 
 	for i, httpHeads := range httpHeaders.List() {
@@ -2438,7 +2442,7 @@ func buildHttpHeadersData(httpHeaders *schema.Set) []sc2.HttpHeaders {
 		httpHeadersList[i] = headerValues
 
 	}
-	return httpHeadersList
+	return &httpHeadersList
 }
 
 func buildCustomPropertiesData(customProperties *schema.Set) []sc2.CustomProperties {
@@ -2621,9 +2625,13 @@ func buildChromeFlagsData(d *schema.Set) []sc2.ChromeFlag {
 	var flags []sc2.ChromeFlag
 	for _, item := range d.List() {
 		data := item.(map[string]interface{})
+		var value *string
+		if v := data["value"].(string); v != "" {
+			value = &v
+		}
 		flags = append(flags, sc2.ChromeFlag{
 			Name:  data["name"].(string),
-			Value: data["value"].(string),
+			Value: value,
 		})
 	}
 	return flags

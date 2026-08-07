@@ -252,7 +252,7 @@ Optional:
 Optional:
 
 - `name` (String)
-- `value` (String)
+- `value` (String) Omit or leave empty for flags that are valid without a value (e.g. `--disable-web-security`); a flag with no `value` is sent to the API distinctly from one with an explicit empty string.
 
 
 <a id="nestedblock--test--advanced_settings--cookies"></a>
