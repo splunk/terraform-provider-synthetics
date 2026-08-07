@@ -27,6 +27,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var privateLocationIDPattern = regexp.MustCompile(`\Aprivate-[a-z\-]*[a-z]\z`)
+
 func resourceLocationV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLocationV2Create,
@@ -46,7 +48,7 @@ func resourceLocationV2() *schema.Resource {
 						"id": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`\Aprivate-[a-z\-]*[a-z]\z`), "name must start with 'private-'"),
+							ValidateFunc: validation.StringMatch(privateLocationIDPattern, "name must start with 'private-'"),
 							ForceNew:     true,
 						},
 						"label": {
