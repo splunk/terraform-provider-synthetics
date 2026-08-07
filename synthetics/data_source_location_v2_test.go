@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 // A disposable private location is used for the singleton read so the test does not
@@ -58,6 +59,13 @@ func TestAccDataSourceLocationV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		// Location ids are strings, so this lookup is not wrapped in testAccIntLookup.
+		CheckDestroy: testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_location_v2": func(id string) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetLocationV2(id)
+				return details, err
+			},
+		}),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + testAccDataSourceLocationV2Config(id, label),

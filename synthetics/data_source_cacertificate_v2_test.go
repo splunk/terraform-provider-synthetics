@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 // Reuses acceptanceCaCertificateContent from resource_ca_certificate_v2_test.go rather
@@ -58,6 +59,12 @@ func TestAccDataSourceCaCertificateV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		CheckDestroy: testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_ca_certificate_v2": testAccIntLookup(func(id int) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetCaCertificateV2(id)
+				return details, err
+			}),
+		}),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + testAccDataSourceCaCertificateV2Config(name),

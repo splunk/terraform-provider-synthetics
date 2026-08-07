@@ -16,13 +16,58 @@ package synthetics
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
+
+// testAccCheckFixturesDestroyed asserts that every fixture the test created is gone from
+// the API after Terraform destroys it. The SDK already fails a test whose destroy errors,
+// but that only proves the provider reported success; this re-reads each id and requires a
+// 404, so a Delete that silently no-ops cannot pass.
+//
+// lookups is keyed by resource type. Each lookup receives the raw state id and returns the
+// request details of a get for that id.
+func testAccCheckFixturesDestroyed(lookups map[string]func(id string) (*sc2.RequestDetails, error)) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			lookup, ok := lookups[rs.Type]
+			if !ok {
+				continue
+			}
+
+			details, err := lookup(rs.Primary.ID)
+			if details != nil && details.StatusCode == http.StatusNotFound {
+				continue
+			}
+			if err != nil {
+				return fmt.Errorf("verifying %s %s was destroyed: %w", rs.Type, rs.Primary.ID, err)
+			}
+
+			return fmt.Errorf("%s %s still exists after destroy", rs.Type, rs.Primary.ID)
+		}
+
+		return nil
+	}
+}
+
+// testAccIntLookup adapts a client getter keyed by an integer id to the string-keyed
+// signature testAccCheckFixturesDestroyed expects.
+func testAccIntLookup(get func(id int) (*sc2.RequestDetails, error)) func(string) (*sc2.RequestDetails, error) {
+	return func(id string) (*sc2.RequestDetails, error) {
+		n, err := strconv.Atoi(id)
+		if err != nil {
+			return nil, err
+		}
+		return get(n)
+	}
+}
 
 // testAccUniqueName builds a collision-resistant fixture name so the acceptance
 // suite can be re-run and run in parallel against the same live org.
@@ -160,6 +205,60 @@ func testAccCheckDataSourceElemFieldsNonEmpty(dataSourceName, collection string,
 
 		return fmt.Errorf("%s had no %s element with all of %v set to a non-empty value", dataSourceName, collection, fields)
 	}
+}
+
+// The client reports a missing object as a 404 in RequestDetails *and* a non-nil error,
+// so the status check has to come before the error check. This pins that ordering: a
+// deleted fixture must pass, and a fixture the API still returns must fail.
+func TestCheckFixturesDestroyed(t *testing.T) {
+	state := &terraform.State{
+		Modules: []*terraform.ModuleState{{
+			Path: []string{"root"},
+			Resources: map[string]*terraform.ResourceState{
+				"synthetics_create_variable_v2.fixture": {
+					Type:     "synthetics_create_variable_v2",
+					Primary:  &terraform.InstanceState{ID: "42"},
+					Provider: "provider.synthetics",
+				},
+			},
+		}},
+	}
+
+	lookups := func(details *sc2.RequestDetails, err error) map[string]func(string) (*sc2.RequestDetails, error) {
+		return map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_variable_v2": func(string) (*sc2.RequestDetails, error) {
+				return details, err
+			},
+		}
+	}
+
+	t.Run("deleted fixture passes even though the client also returns an error", func(t *testing.T) {
+		check := testAccCheckFixturesDestroyed(lookups(&sc2.RequestDetails{StatusCode: http.StatusNotFound}, fmt.Errorf("Status Code: 404 Not Found")))
+		if err := check(state); err != nil {
+			t.Fatalf("expected a destroyed fixture to pass, got: %s", err)
+		}
+	})
+
+	t.Run("surviving fixture fails", func(t *testing.T) {
+		check := testAccCheckFixturesDestroyed(lookups(&sc2.RequestDetails{StatusCode: http.StatusOK}, nil))
+		if err := check(state); err == nil {
+			t.Fatal("expected a fixture that still exists to fail the destroy check")
+		}
+	})
+
+	t.Run("unexpected error fails", func(t *testing.T) {
+		check := testAccCheckFixturesDestroyed(lookups(&sc2.RequestDetails{StatusCode: http.StatusInternalServerError}, fmt.Errorf("boom")))
+		if err := check(state); err == nil {
+			t.Fatal("expected an unexpected lookup error to fail the destroy check")
+		}
+	})
+
+	t.Run("unmapped resource types are ignored", func(t *testing.T) {
+		check := testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){})
+		if err := check(state); err != nil {
+			t.Fatalf("expected unmapped resource types to be skipped, got: %s", err)
+		}
+	})
 }
 
 func TestUniquePrivateLocationIDIsValid(t *testing.T) {

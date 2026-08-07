@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 // A downtime configuration requires start_time in the future and test_ids that exist in
@@ -77,6 +78,17 @@ func TestAccDataSourceDowntimeConfigurationV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		// This test creates two fixtures; both must be gone after destroy.
+		CheckDestroy: testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_downtime_configuration_v2": testAccIntLookup(func(id int) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetDowntimeConfigurationV2(id)
+				return details, err
+			}),
+			"synthetics_create_port_check_v2": testAccIntLookup(func(id int) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetPortCheckV2(id)
+				return details, err
+			}),
+		}),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + testAccDataSourceDowntimeConfigurationV2Config(name, startTime, endTime),

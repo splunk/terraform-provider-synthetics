@@ -64,8 +64,9 @@ data "synthetics_client_certificates_v2_check" "all" {
 `
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckClientCertificateV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + config,

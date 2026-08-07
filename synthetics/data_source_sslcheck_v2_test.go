@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 func testAccDataSourceSslCheckV2Config(name string) string {
@@ -57,6 +58,12 @@ func TestAccDataSourceSslCheckV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		CheckDestroy: testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_ssl_check_v2": testAccIntLookup(func(id int) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetSslCheckV2(id)
+				return details, err
+			}),
+		}),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + testAccDataSourceSslCheckV2Config(name),

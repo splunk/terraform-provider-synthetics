@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
 func testAccDataSourcePortCheckV2Config(name string) string {
@@ -55,6 +56,12 @@ func TestAccDataSourcePortCheckV2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		CheckDestroy: testAccCheckFixturesDestroyed(map[string]func(string) (*sc2.RequestDetails, error){
+			"synthetics_create_port_check_v2": testAccIntLookup(func(id int) (*sc2.RequestDetails, error) {
+				_, details, err := testAccProvider.Meta().(*sc2.Client).GetPortCheckV2(id)
+				return details, err
+			}),
+		}),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig + testAccDataSourcePortCheckV2Config(name),
