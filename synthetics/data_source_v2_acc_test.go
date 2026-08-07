@@ -27,6 +27,20 @@ import (
 	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
 )
 
+// A note on indexing TypeSet blocks in these tests, since the two halves differ:
+//
+//   - In HCL, a TypeSet block cannot be indexed, so a fixture is referenced through the
+//     top-level resource id (`tonumber(resource.id)`) rather than `test[0].id`.
+//   - In assertions, `test.0.name` is correct. helper/schema stores set elements under
+//     hash keys, but acceptance tests do not read that state: the SDK reads Terraform's
+//     JSON state and rebuilds the flatmap through shimStateFromJson, whose AddSlice
+//     numbers every collection sequentially from 0 (state_shim.go). So set elements
+//     arrive as `test.0.*` regardless of their hash.
+//
+// Ordering within a *multi-element* set is still not meaningful, which is why list reads
+// go through testAccCheckDataSourceListContains instead of a fixed index. Singleton reads
+// assert `<block>.#` is 1 first, so index 0 is unambiguous.
+
 // testAccCheckFixturesDestroyed asserts that every fixture the test created is gone from
 // the API after Terraform destroys it. The SDK already fails a test whose destroy errors,
 // but that only proves the provider reported success; this re-reads each id and requires a

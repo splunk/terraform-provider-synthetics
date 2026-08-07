@@ -24,7 +24,8 @@ import (
 
 // The api check resource's `test` block is a TypeSet, which HCL cannot index, so the
 // data source reads back the top-level resource id via tonumber() instead of
-// test[0].id.
+// test[0].id. See data_source_v2_acc_test.go for why the assertions below can still
+// index the set as test.0.*.
 func testAccDataSourceApiCheckV2Config(name string) string {
 	return fmt.Sprintf(`
 resource "synthetics_create_api_check_v2" "api_v2_datasource_fixture" {

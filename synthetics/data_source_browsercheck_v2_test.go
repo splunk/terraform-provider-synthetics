@@ -24,6 +24,7 @@ import (
 
 // The top-level resource id is used rather than test[0].id: the block is a TypeSet on
 // most check resources and HCL cannot index a set, so this keeps one idiom throughout.
+// See data_source_v2_acc_test.go for why the assertions below can still index the set.
 func testAccDataSourceBrowserCheckV2Config(name string) string {
 	return fmt.Sprintf(`
 resource "synthetics_create_browser_check_v2" "browser_v2_datasource_fixture" {
