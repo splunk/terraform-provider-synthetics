@@ -24,9 +24,16 @@ import (
 	"github.com/splunk/terraform-provider-synthetics/synthetics"
 )
 
+// version and commit are set via -ldflags by .goreleaser.yml.
+var (
+	version = "dev"
+	commit  = "none"
+)
+
 func main() {
 
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+	log.Printf("terraform-provider-synthetics version=%s commit=%s", version, commit)
 
 	plugin.Serve(&plugin.ServeOpts{
 		ProviderFunc: func() *schema.Provider {
