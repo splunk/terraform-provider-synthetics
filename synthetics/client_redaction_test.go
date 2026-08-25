@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 func TestCaCertificateRequestDetailsRedactsSensitiveValues(t *testing.T) {
