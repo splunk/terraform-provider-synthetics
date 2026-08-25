@@ -15,10 +15,13 @@
 package synthetics
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 var testAccProvider *schema.Provider
@@ -43,17 +46,6 @@ provider "synthetics" {
 	realm = var.realm
 	apikey = var.observability_token
 }
-`
-	rigorConfig = `
-variable "rigor_token" {
-	description = "API token for rigor"
-}
-provider "synthetics" {
-	alias = "rigor"
-	product = "rigor"
-	realm = "none"
-	apikey = var.rigor_token
-}	
 `
 )
 
@@ -106,14 +98,22 @@ func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 	}
 }
 
-func testAccPreCheck(t *testing.T) {
-	if err := os.Getenv("TF_VAR_rigor_token"); err == "" {
-		t.Fatal("TF_VAR_rigor_token environment variable must be set for acceptance tests. Set to empty string if not testing v1 rigor resources.")
+func testAccStateIdFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		return rs.Primary.Attributes["id"], nil
 	}
+}
+
+func testAccPreCheck(t *testing.T) {
 	if err := os.Getenv("TF_VAR_observability_token"); err == "" {
-		t.Fatal("TF_VAR_observability_token environment variable must be set for acceptance tests. Set to empty string if not testing v2 Observability resources")
+		t.Fatal("TF_VAR_observability_token environment variable must be set for acceptance tests")
 	}
 	if err := os.Getenv("TF_VAR_realm"); err == "" {
-		t.Fatal("TF_VAR_realm environment variable must be set for acceptance tests. If testing v1 rigor resources any value can be provided")
+		t.Fatal("TF_VAR_realm environment variable must be set for acceptance tests")
 	}
 }

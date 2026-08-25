@@ -225,7 +225,6 @@ jobs:
         env:
           TF_VAR_observability_token: ${{ secrets.TF_VAR_OBSERVABILITY_TOKEN }}
           TF_VAR_realm: ${{ secrets.TF_VAR_REALM }}
-          TF_VAR_rigor_token: ${{ secrets.TF_VAR_RIGOR_TOKEN }}
         run: make testacc
 
       - name: Report check run result
