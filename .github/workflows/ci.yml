@@ -104,7 +104,7 @@ jobs:
 
   build:
     name: Build
-    needs: [fmt, vet, lint, test]
+    needs: [fmt, vet, lint, test, race, vendor, vuln]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
