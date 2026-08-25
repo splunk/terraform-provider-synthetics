@@ -5,6 +5,8 @@ NAME=synthetics
 BINARY=terraform-provider-${NAME}
 VERSION=3.0.0-dev
 
+.PHONY: default tools fmt fmtcheck lint vet govulncheck docs vendor-check build install test test-race testacc
+
 default: install
 
 tools:
@@ -36,6 +38,10 @@ vet:
 govulncheck:
 	@echo "==> Checking for known vulnerabilities..."
 	govulncheck ./...
+
+docs:
+	@echo "==> Generating provider documentation..."
+	go generate ./...
 
 vendor-check:
 	@echo "==> Checking vendor/ is in sync with go.mod..."

@@ -3,7 +3,7 @@
 page_title: "synthetics_ssl_v2_check Data Source - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-
+  
 ---
 
 # synthetics_ssl_v2_check (Data Source)

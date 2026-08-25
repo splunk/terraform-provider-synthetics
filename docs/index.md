@@ -38,4 +38,4 @@ provider "synthetics" {
 ### Optional
 
 - `apiurl` (String) Splunk Observability Realm API Endpoint (E.G. `https://api.<REALM>.signalfx.com`). Will pull from `API_URL` environment variable if available.
-- `product` (String) Must be `observability`. Retained for compatibility with existing configurations. Defaults to `observability`. **Deprecated:** product is no longer required now that this provider supports only Splunk Observability Synthetics; it will be removed in a future major release.
+- `product` (String, Deprecated) Must be `observability`. Retained for compatibility with existing configurations.

@@ -14,6 +14,8 @@
 
 package main
 
+//go:generate go tool tfplugindocs generate
+
 import (
 	"log"
 
