@@ -14,6 +14,10 @@
 # Acceptance test log written by `make testacc`
 testacc.jsonl
 
+# Coverage/test-result artifacts written by `make test-cover`
+test-results.json
+main.breakdown
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
