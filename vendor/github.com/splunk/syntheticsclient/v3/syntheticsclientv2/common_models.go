@@ -114,8 +114,15 @@ type ChromeFlag struct {
 	Value *string `json:"value,omitempty"`
 }
 
+type ChromeFlagOption struct {
+	Name         string `json:"name"`
+	Label        string `json:"label"`
+	Description  string `json:"description"`
+	AcceptsValue bool   `json:"acceptsValue"`
+}
+
 type ChromeFlagsResponse struct {
-	ChromeFlags []ChromeFlag `json:"chromeFlags"`
+	ChromeFlags []ChromeFlagOption `json:"chromeFlags"`
 }
 
 type ExcludedFileTypesResponse struct {

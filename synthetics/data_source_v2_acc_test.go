@@ -24,7 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 // A note on indexing TypeSet blocks in these tests, since the two halves differ:

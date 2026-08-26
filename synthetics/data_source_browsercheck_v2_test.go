@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 // The top-level resource id is used rather than test[0].id: the block is a TypeSet on

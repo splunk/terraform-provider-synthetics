@@ -7,7 +7,7 @@ toolchain go1.26.7
 require (
 	github.com/hashicorp/go-cty v1.5.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1
-	github.com/splunk/syntheticsclient/v2 v2.8.0
+	github.com/splunk/syntheticsclient/v3 v3.0.0
 )
 
 require (

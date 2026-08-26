@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 // A disposable private location is used for the singleton read so the test does not

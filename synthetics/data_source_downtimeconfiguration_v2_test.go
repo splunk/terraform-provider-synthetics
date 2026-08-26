@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	sc2 "github.com/splunk/syntheticsclient/v2/syntheticsclientv2"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 // A downtime configuration requires start_time in the future and test_ids that exist in
