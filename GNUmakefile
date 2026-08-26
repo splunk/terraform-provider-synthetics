@@ -5,14 +5,22 @@ NAME=synthetics
 BINARY=terraform-provider-${NAME}
 VERSION=3.0.0-dev
 
+.PHONY: default tools fmt fmtcheck lint vet govulncheck docs vendor-check build install test test-race testacc
+
 default: install
 
 tools:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.1
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."
 	gofmt -s -w ./${NAME}/*.go
+
+fmtcheck:
+	@echo "==> Checking source code is gofmt'd..."
+	@out=$$(gofmt -s -l ./${NAME}/*.go ./main.go); if [ -n "$$out" ]; then \
+		echo "The following files are not gofmt'd:"; echo "$$out"; exit 1; \
+	fi
 
 lint:
 	@echo "==> Checking source code against linters..."
@@ -20,37 +28,39 @@ lint:
 
 vet:
 	@echo "go vet ."
-	@go vet $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
+	@go vet -mod=vendor $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
 		echo ""; \
 		echo "Vet found suspicious constructs. Please check the reported constructs"; \
 		echo "and fix them if necessary before submitting the code for review."; \
 		exit 1; \
 	fi
 
-build: 
-	go build -o ${BINARY}
+govulncheck:
+	@echo "==> Checking for known vulnerabilities..."
+	govulncheck ./...
 
-release:
-	GOOS=darwin GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_darwin_amd64
-	GOOS=freebsd GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_freebsd_386
-	GOOS=freebsd GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_freebsd_amd64
-	GOOS=freebsd GOARCH=arm go build -o ./bin/${BINARY}_${VERSION}_freebsd_arm
-	GOOS=linux GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_linux_386
-	GOOS=linux GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_linux_amd64
-	GOOS=linux GOARCH=arm go build -o ./bin/${BINARY}_${VERSION}_linux_arm
-	GOOS=openbsd GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_openbsd_386
-	GOOS=openbsd GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_openbsd_amd64
-	GOOS=solaris GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_solaris_amd64
-	GOOS=windows GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_windows_386
-	GOOS=windows GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_windows_amd64
+docs:
+	@echo "==> Generating provider documentation..."
+	go generate ./...
+
+vendor-check:
+	@echo "==> Checking vendor/ is in sync with go.mod..."
+	go mod tidy
+	go mod vendor
+	git diff --exit-code -- go.mod go.sum vendor/
+
+build:
+	go build -mod=vendor -o ${BINARY}
 
 install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
-test: 
-	go test -i $(TEST) || exit 1                                                   
-	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4                    
+test:
+	go test -mod=vendor $(TEST) $(TESTARGS) -timeout=30s -parallel=4
+
+test-race:
+	go test -mod=vendor -race $(TEST) $(TESTARGS) -timeout=60s -parallel=4
 
 testacc: SHELL:=/bin/bash
 testacc:

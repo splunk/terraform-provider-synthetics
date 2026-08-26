@@ -154,6 +154,13 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         type  = "custom"
         regex = "cdn\\.example\\.com"
       }
+      chrome_flags {
+        name = "--disable-web-security"
+      }
+      chrome_flags {
+        name  = "--proxy-bypass-list"
+        value = "127.0.0.1:8080"
+      }
       headers {
         name = "superstar-machine"
         value = "\"taking it too the staaaaars\""
@@ -252,7 +259,7 @@ Optional:
 Optional:
 
 - `name` (String)
-- `value` (String) Omit or leave empty for flags that are valid without a value (e.g. `--disable-web-security`); a flag with no `value` is sent to the API distinctly from one with an explicit empty string.
+- `value` (String)
 
 
 <a id="nestedblock--test--advanced_settings--cookies"></a>

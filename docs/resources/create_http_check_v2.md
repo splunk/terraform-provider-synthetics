@@ -53,7 +53,7 @@ resource "synthetics_create_http_check_v2" "http_v2_foo_check" {
 
 ### Required
 
-- `test` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--test))
+- `test` (Block Set, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--test))
 
 ### Read-Only
 

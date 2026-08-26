@@ -3,7 +3,7 @@
 page_title: "synthetics_create_ssl_check_v2 Resource - terraform-provider-synthetics"
 subcategory: ""
 description: |-
-
+  
 ---
 
 # synthetics_create_ssl_check_v2 (Resource)
