@@ -53,7 +53,7 @@ jobs:
 
       - name: Read and validate PR metadata
         id: pr
-        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -149,7 +149,7 @@ jobs:
 
       - name: Create pending check run
         if: steps.pr.outputs.found == 'true'
-        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_SHA: ${{ steps.pr.outputs.sha }}
         with:
@@ -173,7 +173,7 @@ jobs:
 
     steps:
       - name: Mark check run in progress
-        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_SHA: ${{ needs.resolve.outputs.sha }}
         with:
@@ -236,7 +236,7 @@ jobs:
 
       - name: Report check run result
         if: always()
-        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           JOB_STATUS: ${{ job.status }}
           PR_SHA: ${{ needs.resolve.outputs.sha }}
@@ -328,7 +328,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Ensure the check run reaches a terminal state
-        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_SHA: ${{ needs.resolve.outputs.sha }}
           PR_NUMBER: ${{ needs.resolve.outputs.number }}
