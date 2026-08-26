@@ -79,11 +79,14 @@ jobs:
       # GitHub downgrades GITHUB_TOKEN to read-only for pull_request runs from forks,
       # regardless of the checks:write/pull-requests:write requested above - creating a
       # check run or posting a PR comment there fails with "Resource not accessible by
-      # integration". Skip both write-dependent reporting steps in that case; the job
-      # itself still fails (and blocks merge) on a test or coverage failure regardless.
+      # integration". Dependabot-authored PRs get the same read-only downgrade even
+      # though head.repo.full_name still equals this repository (it's not a fork), so
+      # they need their own exclusion, not just the fork check. Skip all write-dependent
+      # reporting steps in either case; the job itself still fails (and blocks merge) on
+      # a test or coverage failure regardless.
       - name: Report test results
         uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3
-        if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         with:
           name: Go Tests
           path: test-results.json
@@ -117,18 +120,19 @@ jobs:
       # No status function here: leaving the implicit success() check in
       # place means this (and the coverage step it reads outputs from) is
       # skipped if make test-cover failed, instead of erroring on a missing
-      # report from a skipped step. Also skipped for fork PRs - see the
-      # test-reporter step above for why pull-requests:write isn't usable there.
+      # report from a skipped step. Also skipped for fork and Dependabot PRs -
+      # see the test-reporter step above for why pull-requests:write isn't
+      # usable there.
       - name: Find existing coverage comment
         id: find-coverage-comment
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository }}
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4.0.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: '<!-- coverage-report -->'
       - name: Post coverage report to PR
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository }}
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
         with:
           comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
