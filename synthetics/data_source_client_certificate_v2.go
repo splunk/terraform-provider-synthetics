@@ -68,7 +68,7 @@ func dataSourceClientCertificateV2() *schema.Resource {
 	}
 }
 
-func dataSourceClientCertificateV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceClientCertificateV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := m.(*sc2.Client)
 
 	response, _, err := c.GetClientCertificateV2(d.Get("id").(int))

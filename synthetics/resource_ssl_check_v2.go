@@ -331,7 +331,7 @@ func sslCheckV2CustomPropertiesSchema(validate bool) map[string]*schema.Schema {
 	}
 }
 
-func resourceSslCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSslCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -347,7 +347,7 @@ func resourceSslCheckV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	return append(diags, resourceSslCheckV2Read(ctx, d, meta)...)
 }
 
-func resourceSslCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSslCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -378,7 +378,7 @@ func resourceSslCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 	return diags
 }
 
-func resourceSslCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSslCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	checkID, err := strconv.Atoi(d.Id())
@@ -395,7 +395,7 @@ func resourceSslCheckV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceSslCheckV2Read(ctx, d, meta)
 }
 
-func resourceSslCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSslCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics

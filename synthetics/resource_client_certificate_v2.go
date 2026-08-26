@@ -208,7 +208,7 @@ func clientCertificatePrivateKeySchema() *schema.Schema {
 	}
 }
 
-func resourceClientCertificateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClientCertificateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 
@@ -221,7 +221,7 @@ func resourceClientCertificateV2Create(ctx context.Context, d *schema.ResourceDa
 	return append(diags, resourceClientCertificateV2Read(ctx, d, meta)...)
 }
 
-func resourceClientCertificateV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClientCertificateV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 
@@ -253,7 +253,7 @@ func resourceClientCertificateV2Read(ctx context.Context, d *schema.ResourceData
 	return diags
 }
 
-func resourceClientCertificateV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClientCertificateV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	clientCertificateID, err := strconv.Atoi(d.Id())
@@ -274,7 +274,7 @@ func resourceClientCertificateV2Update(ctx context.Context, d *schema.ResourceDa
 	return resourceClientCertificateV2Read(ctx, d, meta)
 }
 
-func resourceClientCertificateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClientCertificateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 

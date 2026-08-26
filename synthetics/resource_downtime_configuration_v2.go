@@ -145,7 +145,7 @@ func resourceDowntimeConfigurationV2() *schema.Resource {
 	}
 }
 
-func resourceDowntimeConfigurationV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDowntimeConfigurationV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -165,7 +165,7 @@ func resourceDowntimeConfigurationV2Create(ctx context.Context, d *schema.Resour
 	// return nil
 }
 
-func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -195,7 +195,7 @@ func resourceDowntimeConfigurationV2Read(ctx context.Context, d *schema.Resource
 	return diags
 }
 
-func resourceDowntimeConfigurationV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDowntimeConfigurationV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -218,7 +218,7 @@ func resourceDowntimeConfigurationV2Delete(ctx context.Context, d *schema.Resour
 	return diags
 }
 
-func resourceDowntimeConfigurationV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDowntimeConfigurationV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	DowntimeConfigurationID := d.Id()

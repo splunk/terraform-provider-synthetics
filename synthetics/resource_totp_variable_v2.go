@@ -109,7 +109,7 @@ func totpVariableV2ResourceSchema() map[string]*schema.Schema {
 	}
 }
 
-func resourceTotpVariableV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTotpVariableV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 
@@ -127,7 +127,7 @@ func resourceTotpVariableV2Create(ctx context.Context, d *schema.ResourceData, m
 	return append(diags, resourceTotpVariableV2Read(ctx, d, meta)...)
 }
 
-func resourceTotpVariableV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTotpVariableV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 
@@ -158,7 +158,7 @@ func resourceTotpVariableV2Read(ctx context.Context, d *schema.ResourceData, met
 	return diags
 }
 
-func resourceTotpVariableV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTotpVariableV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	totpVariableID, err := strconv.Atoi(d.Id())
@@ -175,7 +175,7 @@ func resourceTotpVariableV2Update(ctx context.Context, d *schema.ResourceData, m
 	return resourceTotpVariableV2Read(ctx, d, meta)
 }
 
-func resourceTotpVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTotpVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	var diags diag.Diagnostics
 

@@ -234,7 +234,7 @@ func resourceApiCheckV2() *schema.Resource {
 	}
 }
 
-func resourceApiCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -253,7 +253,7 @@ func resourceApiCheckV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	// return nil
 }
 
-func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -282,7 +282,7 @@ func resourceApiCheckV2Read(ctx context.Context, d *schema.ResourceData, meta in
 	return diags
 }
 
-func resourceApiCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -304,7 +304,7 @@ func resourceApiCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return diags
 }
 
-func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	checkID := d.Id()
