@@ -102,6 +102,10 @@ func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 }
 
 func TestProviderConfigureDefaultClient(t *testing.T) {
+	// apiurl is omitted below so Provider().Schema's EnvDefaultFunc would otherwise pull
+	// an ambient API_URL and make this test depend on the environment it runs in.
+	t.Setenv("API_URL", "")
+
 	d := schema.TestResourceDataRaw(t, Provider().Schema, map[string]interface{}{
 		"apikey": "token123",
 		"realm":  "us1",
@@ -141,6 +145,13 @@ func TestProviderConfigureApiUrlOverride(t *testing.T) {
 }
 
 func TestProviderConfigureEmptyCredentialsStillReturnsDefaultClient(t *testing.T) {
+	// Every field is omitted below, so ambient OBSERVABILITY_API_TOKEN/REALM/API_URL
+	// would otherwise be pulled in via EnvDefaultFunc, defeating the "empty credentials"
+	// premise this test is named for.
+	t.Setenv("OBSERVABILITY_API_TOKEN", "")
+	t.Setenv("REALM", "")
+	t.Setenv("API_URL", "")
+
 	d := schema.TestResourceDataRaw(t, Provider().Schema, map[string]interface{}{})
 
 	got, diags := providerConfigure(context.Background(), d)
