@@ -101,7 +101,12 @@ make test          # go test -mod=vendor ./...
 make test-race     # go test -mod=vendor -race ./...
 make vendor-check  # go mod tidy && go mod vendor, fails on vendor/ drift
 make govulncheck   # requires govulncheck on PATH
+make docs          # go generate ./...; commit any docs/ changes it produces
 ```
+
+CI's `generate` job runs `make docs`'s equivalent and then fails the build if that
+produces any uncommitted diff — after running `make docs`, check `git status` and
+commit any regenerated files under `docs/` before opening the PR.
 
 `golangci-lint`, `govulncheck`, and `actionlint` (for linting `.github/workflows/`) are not
 vendored; install the versions CI pins with:
