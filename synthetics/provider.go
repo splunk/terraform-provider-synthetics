@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	sc "github.com/splunk/syntheticsclient/syntheticsclient"
 )
 
 func Provider() *schema.Provider {
@@ -32,10 +31,15 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 
 			"product": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "One of: `observability` or `rigor`",
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(^observability$|^rigor$)`), "product setting must match either observability or rigor (v1.0.0+)"),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "observability",
+				Description: "Must be `observability`. Retained for compatibility with existing configurations.",
+				Deprecated:  "product is no longer required now that this provider supports only Splunk Observability Synthetics; it will be removed in a future major release.",
+				ValidateFunc: validation.StringMatch(
+					regexp.MustCompile(`^observability$`),
+					"product must be observability; this provider supports only Splunk Observability Synthetics",
+				),
 			},
 			"apikey": {
 				Type:        schema.TypeString,
@@ -46,7 +50,7 @@ func Provider() *schema.Provider {
 			"realm": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available. For Rigor use realm rigor",
+				Description: "Splunk Observability Realm (E.G. `us1`). Will pull from `REALM` environment variable if available.",
 				DefaultFunc: schema.EnvDefaultFunc("REALM", nil),
 			},
 			"apiurl": {
@@ -57,8 +61,6 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"synthetics_create_http_check":                resourceHttpCheck(),
-			"synthetics_create_browser_check":             resourceBrowserCheck(),
 			"synthetics_create_api_check_v2":              resourceApiCheckV2(),
 			"synthetics_create_browser_check_v2":          resourceBrowserCheckV2(),
 			"synthetics_create_http_check_v2":             resourceHttpCheckV2(),
@@ -72,7 +74,6 @@ func Provider() *schema.Provider {
 			"synthetics_create_downtime_configuration_v2": resourceDowntimeConfigurationV2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"synthetics_check":                            dataSourceCheck(),
 			"synthetics_api_v2_check":                     dataSourceApiCheckV2(),
 			"synthetics_browser_v2_check":                 dataSourceBrowserCheckV2(),
 			"synthetics_http_v2_check":                    dataSourceHttpCheckV2(),
@@ -100,40 +101,21 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("apikey").(string)
 	realm := d.Get("realm").(string)
-	product := d.Get("product").(string)
 	apiurl := d.Get("apiurl").(string)
 
 	var diags diag.Diagnostics
 
-	if product == "observability" {
-		if token != "" && realm != "" {
-			if apiurl != "" {
-				args := sc2.NewClientArgs(
-					30,
-					strings.TrimSuffix(apiurl, "/")+"/v2/synthetics",
-				)
-				c := sc2.NewConfigurableClient(token, realm, args)
-				return c, diags
-			}
-
-			// Default client (no apiurl override)
-			c := sc2.NewClient(token, realm)
-
-			return c, diags
-		}
-
-		c := sc2.NewClient(token, realm)
-
-		return c, diags
-	} else {
-		if product == "rigor" && token != "" {
-			c := sc.NewClient(token)
-
-			return c, diags
-		}
-
-		c := sc.NewClient(token)
-
+	if token != "" && realm != "" && apiurl != "" {
+		args := sc2.NewClientArgs(
+			30,
+			strings.TrimSuffix(apiurl, "/")+"/v2/synthetics",
+		)
+		c := sc2.NewConfigurableClient(token, realm, args)
 		return c, diags
 	}
+
+	// Default client (no apiurl override)
+	c := sc2.NewClient(token, realm)
+
+	return c, diags
 }
