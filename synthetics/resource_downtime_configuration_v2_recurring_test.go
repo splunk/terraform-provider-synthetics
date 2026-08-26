@@ -74,6 +74,11 @@ func TestAccCreateRecurringDowntimeConfigurationV2(t *testing.T) {
 	endTime := time.Now().Add(25 * time.Hour).Format("2006-01-02T15:04:05.000Z")
 	recurrenceEndDate := time.Now().Add(30 * 24 * time.Hour).Format("2006-01-02")
 
+	// name is ForceNew; keep it constant across the update step below so this exercises
+	// resourceDowntimeConfigurationV2Update rather than a destroy/recreate.
+	updatedDescription := "The most awesome recurring downtime_configuration, now even more updated. Still full of snakes."
+	updatedRecurrenceEndDate := time.Now().Add(45 * 24 * time.Hour).Format("2006-01-02")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -98,6 +103,16 @@ func TestAccCreateRecurringDowntimeConfigurationV2(t *testing.T) {
 				ImportState:       true,
 				ImportStateIdFunc: testAccStateIdFunc("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo_recurring"),
 				ImportStateVerify: true,
+			},
+			// Update the recurring downtime configuration in place - exercises
+			// resourceDowntimeConfigurationV2Update on a config with recurrence/repeats/end set.
+			{
+				Config: providerConfig + testAccRecurringDowntimeConfigurationV2Config(name, updatedDescription, startTime, endTime, updatedRecurrenceEndDate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo_recurring", "downtime_configuration.0.description", updatedDescription),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo_recurring", "downtime_configuration.0.name", name),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo_recurring", "downtime_configuration.0.recurrence.0.end.0.value", updatedRecurrenceEndDate),
+				),
 			},
 		},
 	})
