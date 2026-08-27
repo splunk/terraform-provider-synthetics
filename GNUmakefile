@@ -5,9 +5,12 @@ NAME=synthetics
 BINARY=terraform-provider-${NAME}
 VERSION=3.0.0-dev
 
-.PHONY: default tools fmt fmtcheck lint vet govulncheck docs vendor-check build install test test-race testacc
+.PHONY: default tools fmt fmtcheck lint vet govulncheck docs vendor-check build install test test-cover test-race testacc clean
 
 default: install
+
+clean:
+	rm -f coverage.out test-results.json main.breakdown testacc.jsonl
 
 tools:
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
@@ -58,6 +61,9 @@ install: build
 
 test:
 	go test -mod=vendor $(TEST) $(TESTARGS) -timeout=30s -parallel=4
+
+test-cover: clean
+	go test -mod=vendor $(TEST) $(TESTARGS) -timeout=30s -parallel=4 -json -cover -covermode=atomic -coverprofile=coverage.out > test-results.json
 
 test-race:
 	go test -mod=vendor -race $(TEST) $(TESTARGS) -timeout=60s -parallel=4

@@ -1,0 +1,16 @@
+profile: coverage.out
+
+threshold:
+  # SYN-6888 added unit tests across structures.go, structures_totp_variable_v2.go,
+  # resource_browser_check_v2_diff.go, provider.go, and the processXItems wrappers,
+  # raising effective coverage (respecting coverage-ignore annotations below) from
+  # 34.9% to 94.1%. Floor set at 90 (the ticket's target) rather than the measured
+  # value, to leave headroom for minor fluctuations without relaxing the original goal.
+  total: 90
+
+# When true, requires every // coverage-ignore annotation to carry an explanation,
+# not just the bare marker - see the annotated resource Create/Read/Update/Delete and
+# data-source Read functions, which call the live Splunk Observability Synthetics API
+# client with no seam for a fake/mock and are exercised by TestAcc* acceptance tests
+# instead.
+force-annotation-comment: true
