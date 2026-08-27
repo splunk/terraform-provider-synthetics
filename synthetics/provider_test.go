@@ -15,13 +15,16 @@
 package synthetics
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	sc2 "github.com/splunk/syntheticsclient/v3/syntheticsclientv2"
 )
 
 var testAccProvider *schema.Provider
@@ -95,6 +98,68 @@ func TestProviderContainsRecentV2ResourcesAndDataSources(t *testing.T) {
 		if _, ok := provider.DataSourcesMap[name]; !ok {
 			t.Fatalf("Provider().DataSourcesMap missing %q", name)
 		}
+	}
+}
+
+func TestProviderConfigureDefaultClient(t *testing.T) {
+	// apiurl is omitted below so Provider().Schema's EnvDefaultFunc would otherwise pull
+	// an ambient API_URL and make this test depend on the environment it runs in.
+	t.Setenv("API_URL", "")
+
+	d := schema.TestResourceDataRaw(t, Provider().Schema, map[string]interface{}{
+		"apikey": "token123",
+		"realm":  "us1",
+	})
+
+	got, diags := providerConfigure(context.Background(), d)
+	if diags.HasError() {
+		t.Fatalf("providerConfigure() diags = %#v, want none", diags)
+	}
+	c, ok := got.(*sc2.Client)
+	if !ok {
+		t.Fatalf("providerConfigure() = %T, want *sc2.Client", got)
+	}
+	if !strings.Contains(c.String(), "https://api.us1.signalfx.com/v2/synthetics") {
+		t.Fatalf("client URL = %s, want the default us1 endpoint", c.String())
+	}
+}
+
+func TestProviderConfigureApiUrlOverride(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, Provider().Schema, map[string]interface{}{
+		"apikey": "token123",
+		"realm":  "us1",
+		"apiurl": "https://api.custom.example.com/",
+	})
+
+	got, diags := providerConfigure(context.Background(), d)
+	if diags.HasError() {
+		t.Fatalf("providerConfigure() diags = %#v, want none", diags)
+	}
+	c, ok := got.(*sc2.Client)
+	if !ok {
+		t.Fatalf("providerConfigure() = %T, want *sc2.Client", got)
+	}
+	if !strings.Contains(c.String(), "https://api.custom.example.com/v2/synthetics") {
+		t.Fatalf("client URL = %s, want the apiurl override with trailing slash trimmed", c.String())
+	}
+}
+
+func TestProviderConfigureEmptyCredentialsStillReturnsDefaultClient(t *testing.T) {
+	// Every field is omitted below, so ambient OBSERVABILITY_API_TOKEN/REALM/API_URL
+	// would otherwise be pulled in via EnvDefaultFunc, defeating the "empty credentials"
+	// premise this test is named for.
+	t.Setenv("OBSERVABILITY_API_TOKEN", "")
+	t.Setenv("REALM", "")
+	t.Setenv("API_URL", "")
+
+	d := schema.TestResourceDataRaw(t, Provider().Schema, map[string]interface{}{})
+
+	got, diags := providerConfigure(context.Background(), d)
+	if diags.HasError() {
+		t.Fatalf("providerConfigure() diags = %#v, want none", diags)
+	}
+	if _, ok := got.(*sc2.Client); !ok {
+		t.Fatalf("providerConfigure() = %T, want *sc2.Client", got)
 	}
 }
 
