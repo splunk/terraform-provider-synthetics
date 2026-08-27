@@ -79,7 +79,7 @@ func resourceVariableV2() *schema.Resource {
 	}
 }
 
-func resourceVariableV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -99,7 +99,7 @@ func resourceVariableV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	// return nil
 }
 
-func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -129,7 +129,7 @@ func resourceVariableV2Read(ctx context.Context, d *schema.ResourceData, meta in
 	return diags
 }
 
-func resourceVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -152,7 +152,7 @@ func resourceVariableV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return diags
 }
 
-func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	variableID := d.Id()

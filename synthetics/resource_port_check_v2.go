@@ -134,7 +134,7 @@ func resourcePortCheckV2() *schema.Resource {
 	}
 }
 
-func resourcePortCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePortCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -154,7 +154,7 @@ func resourcePortCheckV2Create(ctx context.Context, d *schema.ResourceData, meta
 	return diags
 }
 
-func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -184,7 +184,7 @@ func resourcePortCheckV2Read(ctx context.Context, d *schema.ResourceData, meta i
 	return diags
 }
 
-func resourcePortCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePortCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -207,7 +207,7 @@ func resourcePortCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta
 	return diags
 }
 
-func resourcePortCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePortCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	checkID := d.Id()

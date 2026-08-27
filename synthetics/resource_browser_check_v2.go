@@ -259,7 +259,7 @@ func browserCheckV2AdvancedSettingsResource(computed bool) *schema.Resource {
 	}
 }
 
-func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -278,7 +278,7 @@ func resourceBrowserCheckV2Create(ctx context.Context, d *schema.ResourceData, m
 	return diags
 }
 
-func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	// Warning or errors can be collected in a slice type
@@ -309,7 +309,7 @@ func resourceBrowserCheckV2Read(ctx context.Context, d *schema.ResourceData, met
 	return diags
 }
 
-func resourceBrowserCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBrowserCheckV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	var diags diag.Diagnostics
@@ -331,7 +331,7 @@ func resourceBrowserCheckV2Delete(ctx context.Context, d *schema.ResourceData, m
 	return diags
 }
 
-func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBrowserCheckV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 	c := meta.(*sc2.Client)
 
 	checkID := d.Id()

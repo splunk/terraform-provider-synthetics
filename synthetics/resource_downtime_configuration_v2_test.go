@@ -63,6 +63,12 @@ func TestAccCreateDowntimeConfigurationV2(t *testing.T) {
 	startTime := time.Now().Add(24 * time.Hour).Format("2006-01-02T15:04:05.000Z")
 	endTime := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04:05.000Z")
 
+	// name is ForceNew; keep it constant across the update step below so this exercises
+	// resourceDowntimeConfigurationV2Update rather than a destroy/recreate.
+	updatedDescription := "The most awesome downtime_configuration, now even more updated. Still full of snakes."
+	updatedStartTime := time.Now().Add(30 * time.Hour).Format("2006-01-02T15:04:05.000Z")
+	updatedEndTime := time.Now().Add(54 * time.Hour).Format("2006-01-02T15:04:05.000Z")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -83,6 +89,16 @@ func TestAccCreateDowntimeConfigurationV2(t *testing.T) {
 				ImportState:       true,
 				ImportStateIdFunc: testAccStateIdFunc("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo"),
 				ImportStateVerify: true,
+			},
+			// Update the downtime configuration in place - exercises resourceDowntimeConfigurationV2Update.
+			{
+				Config: providerConfig + testAccDowntimeConfigurationV2Config(name, updatedDescription, updatedStartTime, updatedEndTime),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.description", updatedDescription),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.name", name),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.start_time", updatedStartTime),
+					resource.TestCheckResourceAttr("synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo", "downtime_configuration.0.end_time", updatedEndTime),
+				),
 			},
 		},
 	})

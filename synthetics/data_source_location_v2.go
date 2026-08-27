@@ -83,7 +83,7 @@ func dataSourceLocationV2() *schema.Resource {
 	}
 }
 
-func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceLocationV2Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics { // coverage-ignore: calls the live Splunk Observability Synthetics API; covered by TestAcc* acceptance tests, not unit tests
 
 	c := m.(*sc2.Client)
 

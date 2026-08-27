@@ -30,7 +30,7 @@ var (
 	commit  = "none"
 )
 
-func main() {
+func main() { // coverage-ignore: starts the real plugin gRPC server; not exercised by unit tests
 
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 	log.Printf("terraform-provider-synthetics version=%s commit=%s", version, commit)
