@@ -3,7 +3,7 @@ HOSTNAME=github.com
 NAMESPACE=splunk
 NAME=synthetics
 BINARY=terraform-provider-${NAME}
-VERSION=3.0.0-dev
+VERSION=3.0.0
 
 .PHONY: default tools fmt fmtcheck lint vet govulncheck docs vendor-check build install test test-cover test-race testacc clean
 
