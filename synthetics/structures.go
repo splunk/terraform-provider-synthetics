@@ -564,6 +564,23 @@ func flattenDevicesV2Data(devices *[]sc2.Device) []interface{} {
 	return make([]interface{}, 0)
 }
 
+func flattenChromeFlagOptionsData(chromeFlags []sc2.ChromeFlagOption) []interface{} {
+	cls := make([]interface{}, len(chromeFlags))
+
+	for i, flag := range chromeFlags {
+		cl := make(map[string]interface{})
+
+		cl["name"] = flag.Name
+		cl["label"] = flag.Label
+		cl["description"] = flag.Description
+		cl["accepts_value"] = flag.AcceptsValue
+
+		cls[i] = cl
+	}
+
+	return cls
+}
+
 func flattenLocationsV2Data(locations *[]sc2.Location) []interface{} {
 	if locations != nil {
 		cls := make([]interface{}, len(*locations))

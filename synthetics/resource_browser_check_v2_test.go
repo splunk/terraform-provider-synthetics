@@ -17,6 +17,7 @@ package synthetics
 import (
 	"encoding/json"
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -510,6 +511,131 @@ resource "synthetics_create_browser_check_v2" "browser_v2_foo_check" {
   }
 }
 `
+
+const invalidChromeFlagBrowserCheckV2Config = `
+resource "synthetics_create_browser_check_v2" "browser_v2_invalid_chrome_flag" {
+  provider = synthetics.synthetics
+  test {
+    active = false
+    device_id = 2
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    automatic_retries = 0
+    name = "01-acceptance-invalid-chrome-flag-Terraform-Browser-V2"
+    scheduling_strategy = "concurrent"
+    advanced_settings {
+      verify_certificates = true
+      user_agent = "Jozilla/5.0"
+      collect_interactive_metrics = false
+      chrome_flags {
+        name = "--this-is-not-a-real-flag"
+      }
+    }
+    transactions {
+      name = "01 First Synthetic transaction"
+      steps {
+        name = "01 Go to URL"
+        type = "go_to_url"
+        url  = "https://www.splunk.com"
+      }
+    }
+  }
+}
+`
+
+// The backend validates advanced_settings.chrome_flags names against the same catalog
+// the synthetics_chrome_flags data source exposes (SYN-6813); a name outside that
+// catalog is rejected at apply time with a 422 rather than silently accepted, so this
+// pins the error surfaced to the user rather than letting a bad flag pass through.
+func TestAccCreateBrowserCheckV2RejectsInvalidChromeFlag(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      providerConfig + invalidChromeFlagBrowserCheckV2Config,
+				ExpectError: regexp.MustCompile(`(?s)chromeFlags.*must be one of`),
+			},
+		},
+	})
+}
+
+// chromeFlagsPreconditionBrowserCheckV2Config is the full user-authored pattern this
+// provider expects for client-side (plan-time) chrome flag validation: the config reads
+// data.synthetics_chrome_flags to learn the supported catalog, and a lifecycle precondition
+// on the resource cross-checks the configured flag names against it before ever calling the
+// API. This is opt-in config authoring, not something the provider enforces on its own -
+// see resource_browser_check_v2.go's chrome_flags schema, which has no such ValidateFunc.
+const chromeFlagsPreconditionBrowserCheckV2Config = `
+data "synthetics_chrome_flags" "flags" {
+  provider = synthetics.synthetics
+}
+
+locals {
+  precondition_chrome_flag_names = ["--this-is-not-a-real-flag"]
+}
+
+resource "synthetics_create_browser_check_v2" "browser_v2_chrome_flag_precondition" {
+  provider = synthetics.synthetics
+  test {
+    active = false
+    device_id = 2
+    frequency = 15
+    location_ids = ["aws-us-west-2"]
+    automatic_retries = 0
+    name = "01-acceptance-chrome-flag-precondition-Terraform-Browser-V2"
+    scheduling_strategy = "concurrent"
+    advanced_settings {
+      verify_certificates = true
+      user_agent = "Jozilla/5.0"
+      collect_interactive_metrics = false
+      dynamic "chrome_flags" {
+        for_each = local.precondition_chrome_flag_names
+        content {
+          name = chrome_flags.value
+        }
+      }
+    }
+    transactions {
+      name = "01 First Synthetic transaction"
+      steps {
+        name = "01 Go to URL"
+        type = "go_to_url"
+        url  = "https://www.splunk.com"
+      }
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition = alltrue([
+        for name in local.precondition_chrome_flag_names :
+        contains([for f in data.synthetics_chrome_flags.flags.chrome_flags : f.name], name)
+      ])
+      error_message = "chrome_flags contains a name not present in data.synthetics_chrome_flags."
+    }
+  }
+}
+`
+
+// TestAccChromeFlagsPreconditionCatchesInvalidFlagBeforeApply proves the end-to-end
+// reference/validate flow a Terraform user would actually write: consult
+// data.synthetics_chrome_flags, cross-check the configured chrome_flags names against it in
+// a lifecycle precondition, and fail at plan time - before the API is ever called - rather
+// than relying solely on the 422 TestAccCreateBrowserCheckV2RejectsInvalidChromeFlag pins.
+func TestAccChromeFlagsPreconditionCatchesInvalidFlagBeforeApply(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      providerConfig + chromeFlagsPreconditionBrowserCheckV2Config,
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`(?s)chrome_flags contains a name not present in data\.synthetics_chrome_flags`),
+			},
+		},
+	})
+}
 
 func TestAccCreateUpdateBrowserCheckV2(t *testing.T) {
 

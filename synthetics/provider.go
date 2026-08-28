@@ -93,6 +93,7 @@ func Provider() *schema.Provider {
 			"synthetics_devices_v2_check":                 dataSourceDevicesV2(),
 			"synthetics_downtime_configuration_v2_check":  dataSourceDowntimeConfigurationV2(),
 			"synthetics_downtime_configurations_v2_check": dataSourceDowntimeConfigurationsV2(),
+			"synthetics_chrome_flags":                     dataSourceChromeFlags(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
