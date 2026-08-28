@@ -39,7 +39,7 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
       steps {
         name                 = "02 fill in fieldz"
         selector             = "beep"
-        selector_type        = "id"
+        selector_type        = "id" # Valid types: "id", "name", "xpath", "css", "link", "jspath"
         type                 = "enter_value"
         value                = "{{env.beep-var}}"
       }
@@ -121,6 +121,48 @@ resource "synthetics_create_browser_check_v2" "long_browser_v2_foo_check" {
         type                 = "run_javascript"
         value                = "beeeeeeep"
         wait_for_nav         = true
+      }
+      steps {
+        name          = "011 Assert element present"
+        type          = "assert_element_present"
+        max_wait_time = 10000
+        selectors {
+          type  = "css"
+          value = "#checkout-confirmation"
+        }
+      }
+      steps {
+        name          = "012 Assert element not present"
+        type          = "assert_element_not_present"
+        selector      = "checkout-error-banner"
+        selector_type = "id"
+        max_wait_time = 10000
+      }
+      steps {
+        name          = "013 Assert element visible"
+        type          = "assert_element_visible"
+        selector      = "checkout-confirmation-message"
+        selector_type = "id"
+        max_wait_time = 20000
+      }
+      steps {
+        name          = "014 Assert element not visible"
+        type          = "assert_element_not_visible"
+        selector      = "checkout-spinner"
+        selector_type = "id"
+        max_wait_time = 20000
+      }
+      steps {
+        name          = "015 Assert text present"
+        type          = "assert_text_present"
+        value         = "Order confirmed"
+        max_wait_time = 5000
+      }
+      steps {
+        name          = "016 Assert text not present"
+        type          = "assert_text_not_present"
+        value         = "Payment failed"
+        max_wait_time = 5000
       }
     }
     transactions {
