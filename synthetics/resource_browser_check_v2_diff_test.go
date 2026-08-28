@@ -163,6 +163,18 @@ func TestStepSelectorInputFromResourceData(t *testing.T) {
 		}
 	})
 
+	t.Run("no selector fields set (e.g. assert_text_present)", func(t *testing.T) {
+		d := schema.TestResourceDataRaw(t, resourceBrowserCheckV2().Schema, rawBrowserCheckWithStep(map[string]interface{}{
+			"name":  "step1",
+			"type":  "assert_text_present",
+			"value": "Order confirmed",
+		}))
+		got := stepSelectorInputFromResourceData(d, "test.0.transactions.0.steps.0", false)
+		if got.selectorType != "" || got.selector != "" || len(got.selectors) != 0 {
+			t.Fatalf("stepSelectorInputFromResourceData() = %#v, want zero value", got)
+		}
+	})
+
 	t.Run("useState=true on either shape yields an empty input", func(t *testing.T) {
 		d := schema.TestResourceDataRaw(t, resourceBrowserCheckV2().Schema, rawBrowserCheckWithStep(map[string]interface{}{
 			"name":          "step1",
