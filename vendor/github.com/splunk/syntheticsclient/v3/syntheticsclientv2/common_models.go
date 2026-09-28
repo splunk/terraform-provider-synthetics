@@ -919,8 +919,8 @@ type Recurrence struct {
 
 type Repeats struct {
 	Type            string  `json:"type"`
-	Customvalue     *int    `json:"customValue"`
-	Customfrequency *string `json:"customFrequency"`
+	Customvalue     *int    `json:"value,omitempty"`
+	Customfrequency *string `json:"unit,omitempty"`
 }
 
 type End struct {

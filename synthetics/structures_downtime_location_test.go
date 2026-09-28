@@ -15,6 +15,7 @@
 package synthetics
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -912,6 +913,27 @@ func TestBuildRepeatsData(t *testing.T) {
 			},
 		},
 		{
+			// An unset Optional attribute reads back as the zero value, not nil,
+			// so a non-custom recurrence must not forward 0 / "" to the API.
+			name: "non-custom repeats with zero-valued custom attributes",
+			input: map[string]interface{}{
+				"type":             "daily",
+				"custom_value":     0,
+				"custom_frequency": "",
+			},
+			validate: func(t *testing.T, result *sc2.Repeats) {
+				if result == nil {
+					t.Fatal("expected repeats, got nil")
+				}
+				if result.Customvalue != nil {
+					t.Fatalf("expected nil customvalue, got %v", *result.Customvalue)
+				}
+				if result.Customfrequency != nil {
+					t.Fatalf("expected nil customfrequency, got %q", *result.Customfrequency)
+				}
+			},
+		},
+		{
 			name:  "empty repeats",
 			input: map[string]interface{}{},
 			validate: func(t *testing.T, result *sc2.Repeats) {
@@ -946,6 +968,62 @@ func TestBuildRepeatsData(t *testing.T) {
 			}
 			result := buildRepeatsData(s)
 			tt.validate(t, result)
+		})
+	}
+}
+
+// SYN-7042: the downtime API reads the custom recurrence from
+// recurrence.repeats.unit and recurrence.repeats.value. Serializing them as
+// customFrequency / customValue got them dropped by strong parameters, so
+// creating a custom recurring downtime failed with 422 "can't be blank".
+func TestBuildRepeatsDataSerializesCustomRecurrenceAsUnitAndValue(t *testing.T) {
+	hash := schema.HashResource(&schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type":             {Type: schema.TypeString},
+			"custom_value":     {Type: schema.TypeInt},
+			"custom_frequency": {Type: schema.TypeString},
+		},
+	})
+
+	tests := []struct {
+		name  string
+		input map[string]interface{}
+		want  string
+	}{
+		{
+			name: "custom recurrence",
+			input: map[string]interface{}{
+				"type":             "custom",
+				"custom_value":     3,
+				"custom_frequency": "days",
+			},
+			want: `{"type":"custom","value":3,"unit":"days"}`,
+		},
+		{
+			name: "non-custom recurrence",
+			input: map[string]interface{}{
+				"type":             "daily",
+				"custom_value":     0,
+				"custom_frequency": "",
+			},
+			want: `{"type":"daily"}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repeats := buildRepeatsData(schema.NewSet(hash, []interface{}{tt.input}))
+			if repeats == nil {
+				t.Fatal("expected repeats, got nil")
+			}
+
+			payload, err := json.Marshal(repeats)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(payload) != tt.want {
+				t.Fatalf("serialized repeats = %s, want %s", payload, tt.want)
+			}
 		})
 	}
 }

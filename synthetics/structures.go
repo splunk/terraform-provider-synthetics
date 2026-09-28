@@ -2384,11 +2384,13 @@ func buildRepeatsData(repeats *schema.Set) *sc2.Repeats {
 			Type: repeatsMap["type"].(string),
 		}
 
-		if val, ok := repeatsMap["custom_value"].(int); ok {
+		// The API only accepts these for a custom recurrence, and an unset
+		// optional attribute reads back as the zero value rather than nil.
+		if val, ok := repeatsMap["custom_value"].(int); ok && val != 0 {
 			repeatsData.Customvalue = &val
 		}
 
-		if val, ok := repeatsMap["custom_frequency"].(string); ok {
+		if val, ok := repeatsMap["custom_frequency"].(string); ok && val != "" {
 			repeatsData.Customfrequency = &val
 		}
 
