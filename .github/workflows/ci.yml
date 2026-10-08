@@ -96,7 +96,7 @@ jobs:
       # report how this change moves coverage, not just its absolute value.
       - name: Download base branch coverage breakdown
         id: download-main-breakdown
-        uses: dawidd6/action-download-artifact@d63b86af1b34672e53c440b1b83979861906bad7 # v24
+        uses: dawidd6/action-download-artifact@eab87c9830c39eff17e5a6eadb20bfb4bc880477 # v27
         with:
           branch: main
           workflow_conclusion: success
