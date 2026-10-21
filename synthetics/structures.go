@@ -521,10 +521,10 @@ func flattenRepeatsData(repeatsData sc2.Repeats) []interface{} {
 	repeats["type"] = repeatsData.Type
 
 	if repeatsData.Customvalue != nil {
-		repeats["custom_value"] = *repeatsData.Customvalue
+		repeats["value"] = *repeatsData.Customvalue
 	}
 	if repeatsData.Customfrequency != nil {
-		repeats["custom_frequency"] = *repeatsData.Customfrequency
+		repeats["unit"] = *repeatsData.Customfrequency
 	}
 
 	return []interface{}{repeats}
@@ -2386,11 +2386,11 @@ func buildRepeatsData(repeats *schema.Set) *sc2.Repeats {
 
 		// The API only accepts these for a custom recurrence, and an unset
 		// optional attribute reads back as the zero value rather than nil.
-		if val, ok := repeatsMap["custom_value"].(int); ok && val != 0 {
+		if val, ok := repeatsMap["value"].(int); ok && val != 0 {
 			repeatsData.Customvalue = &val
 		}
 
-		if val, ok := repeatsMap["custom_frequency"].(string); ok && val != "" {
+		if val, ok := repeatsMap["unit"].(string); ok && val != "" {
 			repeatsData.Customfrequency = &val
 		}
 

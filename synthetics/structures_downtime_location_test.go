@@ -451,11 +451,11 @@ func TestFlattenRepeatsData(t *testing.T) {
 				if m["type"] != "CUSTOM" {
 					t.Fatalf("expected type 'CUSTOM', got %v", m["type"])
 				}
-				if m["custom_value"] != 5 {
-					t.Fatalf("expected custom_value 5, got %v", m["custom_value"])
+				if m["value"] != 5 {
+					t.Fatalf("expected value 5, got %v", m["value"])
 				}
-				if m["custom_frequency"] != "DAILY" {
-					t.Fatalf("expected custom_frequency 'DAILY', got %v", m["custom_frequency"])
+				if m["unit"] != "DAILY" {
+					t.Fatalf("expected unit 'DAILY', got %v", m["unit"])
 				}
 			},
 		},
@@ -874,9 +874,9 @@ func TestBuildRepeatsData(t *testing.T) {
 		{
 			name: "repeats with type only",
 			input: map[string]interface{}{
-				"type":             "WEEKLY",
-				"custom_value":     nil,
-				"custom_frequency": nil,
+				"type":  "WEEKLY",
+				"value": nil,
+				"unit":  nil,
 			},
 			validate: func(t *testing.T, result *sc2.Repeats) {
 				if result == nil {
@@ -893,9 +893,9 @@ func TestBuildRepeatsData(t *testing.T) {
 		{
 			name: "repeats with custom values",
 			input: map[string]interface{}{
-				"type":             "CUSTOM",
-				"custom_value":     5,
-				"custom_frequency": "DAILY",
+				"type":  "CUSTOM",
+				"value": 5,
+				"unit":  "DAILY",
 			},
 			validate: func(t *testing.T, result *sc2.Repeats) {
 				if result == nil {
@@ -917,9 +917,9 @@ func TestBuildRepeatsData(t *testing.T) {
 			// so a non-custom recurrence must not forward 0 / "" to the API.
 			name: "non-custom repeats with zero-valued custom attributes",
 			input: map[string]interface{}{
-				"type":             "daily",
-				"custom_value":     0,
-				"custom_frequency": "",
+				"type":  "daily",
+				"value": 0,
+				"unit":  "",
 			},
 			validate: func(t *testing.T, result *sc2.Repeats) {
 				if result == nil {
@@ -950,18 +950,18 @@ func TestBuildRepeatsData(t *testing.T) {
 			if len(tt.input) > 0 {
 				hash := schema.HashResource(&schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type":             {Type: schema.TypeString},
-						"custom_value":     {Type: schema.TypeInt},
-						"custom_frequency": {Type: schema.TypeString},
+						"type":  {Type: schema.TypeString},
+						"value": {Type: schema.TypeInt},
+						"unit":  {Type: schema.TypeString},
 					},
 				})
 				s = schema.NewSet(hash, []interface{}{tt.input})
 			} else {
 				hash := schema.HashResource(&schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type":             {Type: schema.TypeString},
-						"custom_value":     {Type: schema.TypeInt},
-						"custom_frequency": {Type: schema.TypeString},
+						"type":  {Type: schema.TypeString},
+						"value": {Type: schema.TypeInt},
+						"unit":  {Type: schema.TypeString},
 					},
 				})
 				s = schema.NewSet(hash, []interface{}{})
@@ -979,9 +979,9 @@ func TestBuildRepeatsData(t *testing.T) {
 func TestBuildRepeatsDataSerializesCustomRecurrenceAsUnitAndValue(t *testing.T) {
 	hash := schema.HashResource(&schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"type":             {Type: schema.TypeString},
-			"custom_value":     {Type: schema.TypeInt},
-			"custom_frequency": {Type: schema.TypeString},
+			"type":  {Type: schema.TypeString},
+			"value": {Type: schema.TypeInt},
+			"unit":  {Type: schema.TypeString},
 		},
 	})
 
@@ -993,18 +993,18 @@ func TestBuildRepeatsDataSerializesCustomRecurrenceAsUnitAndValue(t *testing.T) 
 		{
 			name: "custom recurrence",
 			input: map[string]interface{}{
-				"type":             "custom",
-				"custom_value":     3,
-				"custom_frequency": "days",
+				"type":  "custom",
+				"value": 3,
+				"unit":  "days",
 			},
 			want: `{"type":"custom","value":3,"unit":"days"}`,
 		},
 		{
 			name: "non-custom recurrence",
 			input: map[string]interface{}{
-				"type":             "daily",
-				"custom_value":     0,
-				"custom_frequency": "",
+				"type":  "daily",
+				"value": 0,
+				"unit":  "",
 			},
 			want: `{"type":"daily"}`,
 		},
@@ -1130,9 +1130,9 @@ func TestBuildRecurrenceData(t *testing.T) {
 							map[string]interface{}{
 								"repeats": []interface{}{
 									map[string]interface{}{
-										"type":             "WEEKLY",
-										"custom_value":     0,
-										"custom_frequency": "",
+										"type":  "WEEKLY",
+										"value": 0,
+										"unit":  "",
 									},
 								},
 								"end": []interface{}{
