@@ -422,9 +422,9 @@ func TestFlattenRepeatsData(t *testing.T) {
 		{
 			name: "repeats with type only",
 			input: sc2.Repeats{
-				Type:            "WEEKLY",
-				Customvalue:     nil,
-				Customfrequency: nil,
+				Type:  "WEEKLY",
+				Value: nil,
+				Unit:  nil,
 			},
 			validate: func(t *testing.T, result []interface{}) {
 				if len(result) != 1 {
@@ -439,9 +439,9 @@ func TestFlattenRepeatsData(t *testing.T) {
 		{
 			name: "repeats with custom values",
 			input: sc2.Repeats{
-				Type:            "CUSTOM",
-				Customvalue:     intPtr(5),
-				Customfrequency: stringPtr("DAILY"),
+				Type:  "CUSTOM",
+				Value: intPtr(5),
+				Unit:  stringPtr("DAILY"),
 			},
 			validate: func(t *testing.T, result []interface{}) {
 				if len(result) != 1 {
@@ -885,8 +885,8 @@ func TestBuildRepeatsData(t *testing.T) {
 				if result.Type != "WEEKLY" {
 					t.Fatalf("expected type 'WEEKLY', got %q", result.Type)
 				}
-				if result.Customvalue != nil {
-					t.Fatalf("expected nil customvalue, got %v", result.Customvalue)
+				if result.Value != nil {
+					t.Fatalf("expected nil value, got %v", result.Value)
 				}
 			},
 		},
@@ -904,11 +904,11 @@ func TestBuildRepeatsData(t *testing.T) {
 				if result.Type != "CUSTOM" {
 					t.Fatalf("expected type 'CUSTOM', got %q", result.Type)
 				}
-				if result.Customvalue == nil || *result.Customvalue != 5 {
-					t.Fatalf("expected customvalue 5, got %v", result.Customvalue)
+				if result.Value == nil || *result.Value != 5 {
+					t.Fatalf("expected value 5, got %v", result.Value)
 				}
-				if result.Customfrequency == nil || *result.Customfrequency != "DAILY" {
-					t.Fatalf("expected customfrequency 'DAILY', got %v", result.Customfrequency)
+				if result.Unit == nil || *result.Unit != "DAILY" {
+					t.Fatalf("expected unit 'DAILY', got %v", result.Unit)
 				}
 			},
 		},
@@ -925,11 +925,11 @@ func TestBuildRepeatsData(t *testing.T) {
 				if result == nil {
 					t.Fatal("expected repeats, got nil")
 				}
-				if result.Customvalue != nil {
-					t.Fatalf("expected nil customvalue, got %v", *result.Customvalue)
+				if result.Value != nil {
+					t.Fatalf("expected nil value, got %v", *result.Value)
 				}
-				if result.Customfrequency != nil {
-					t.Fatalf("expected nil customfrequency, got %q", *result.Customfrequency)
+				if result.Unit != nil {
+					t.Fatalf("expected nil unit, got %q", *result.Unit)
 				}
 			},
 		},
