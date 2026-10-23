@@ -96,11 +96,11 @@ func dataSourceDowntimeConfigurationsV2() *schema.Resource {
 													Type:     schema.TypeString,
 													Optional: true,
 												},
-												"custom_value": {
+												"value": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
-												"custom_frequency": {
+												"unit": {
 													Type:     schema.TypeString,
 													Optional: true,
 												},

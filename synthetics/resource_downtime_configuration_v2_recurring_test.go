@@ -16,6 +16,7 @@ package synthetics
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -64,6 +65,107 @@ resource "synthetics_create_downtime_configuration_v2" "downtime_configuration_v
   }
 }
 `, name, description, startTime, endTime, recurrenceEndDate)
+}
+
+// A custom recurrence is the only type that sends recurrence.repeats.unit and
+// recurrence.repeats.value, so it needs its own config; the daily case above
+// leaves both fields out entirely.
+func testAccCustomRecurringDowntimeConfigurationV2Config(name, description, startTime, endTime, recurrenceEndDate string, repeatValue int, repeatUnit string) string {
+	return fmt.Sprintf(`
+resource "synthetics_create_port_check_v2" "downtime_v2_custom_recurring_fixture" {
+	provider = synthetics.synthetics
+  test {
+    active = true
+    frequency = 5
+    location_ids = ["aws-us-west-2"]
+    scheduling_strategy = "round_robin"
+    name = "%[1]s-fixture"
+    port = 8081
+    protocol = "tcp"
+    host = "www.splunk.com"
+  }
+}
+
+resource "synthetics_create_downtime_configuration_v2" "downtime_configuration_v2_foo_custom_recurring" {
+	provider = synthetics.synthetics
+  downtime_configuration {
+    name = "%[1]s"
+    description = "%[2]s"
+    rule = "augment_data"
+    start_time = "%[3]s"
+    end_time = "%[4]s"
+    test_ids = [tonumber(synthetics_create_port_check_v2.downtime_v2_custom_recurring_fixture.id)]
+    timezone = "America/New_York"
+    recurrence {
+      repeats {
+        type = "custom"
+        value = %[6]d
+        unit = "%[7]s"
+      }
+      end {
+        type = "on"
+        value = "%[5]s"
+      }
+    }
+  }
+}
+`, name, description, startTime, endTime, recurrenceEndDate, repeatValue, repeatUnit)
+}
+
+// SYN-7042: creating a custom recurring downtime failed with 422 because the
+// client serialized the custom recurrence fields under names the downtime API
+// does not accept. The import step covers the refresh half of the same
+// mismatch.
+func TestAccCreateCustomRecurringDowntimeConfigurationV2(t *testing.T) {
+
+	name := fmt.Sprintf("acceptance-downtime-configuration-custom-recurring-terraform-test-%d", time.Now().UnixNano())
+	description := "The most awesome custom recurring downtime_configuration. Full of snakes."
+	startTime := time.Now().Add(24 * time.Hour).Format("2006-01-02T15:04:05.000Z")
+	endTime := time.Now().Add(25 * time.Hour).Format("2006-01-02T15:04:05.000Z")
+	recurrenceEndDate := time.Now().Add(30 * 24 * time.Hour).Format("2006-01-02")
+	repeatValue := 3
+	repeatUnit := "days"
+
+	// name is ForceNew; keep it constant across the update step below so this exercises
+	// resourceDowntimeConfigurationV2Update rather than a destroy/recreate.
+	updatedDescription := "The most awesome custom recurring downtime_configuration, now even more updated. Still full of snakes."
+	updatedRecurrenceEndDate := time.Now().Add(45 * 24 * time.Hour).Format("2006-01-02")
+
+	resourceName := "synthetics_create_downtime_configuration_v2.downtime_configuration_v2_foo_custom_recurring"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig + testAccCustomRecurringDowntimeConfigurationV2Config(name, description, startTime, endTime, recurrenceEndDate, repeatValue, repeatUnit),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.name", name),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.repeats.0.type", "custom"),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.repeats.0.value", strconv.Itoa(repeatValue)),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.repeats.0.unit", repeatUnit),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.end.0.value", recurrenceEndDate),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateIdFunc: testAccStateIdFunc(resourceName),
+				ImportStateVerify: true,
+			},
+			// Update in place - exercises resourceDowntimeConfigurationV2Update on a
+			// config whose repeats block carries the custom recurrence fields.
+			{
+				Config: providerConfig + testAccCustomRecurringDowntimeConfigurationV2Config(name, updatedDescription, startTime, endTime, updatedRecurrenceEndDate, repeatValue, repeatUnit),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.description", updatedDescription),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.repeats.0.value", strconv.Itoa(repeatValue)),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.repeats.0.unit", repeatUnit),
+					resource.TestCheckResourceAttr(resourceName, "downtime_configuration.0.recurrence.0.end.0.value", updatedRecurrenceEndDate),
+				),
+			},
+		},
+	})
 }
 
 func TestAccCreateRecurringDowntimeConfigurationV2(t *testing.T) {

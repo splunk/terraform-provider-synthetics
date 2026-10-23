@@ -78,6 +78,6 @@ Optional:
 
 Optional:
 
-- `custom_frequency` (String)
-- `custom_value` (Number)
 - `type` (String)
+- `unit` (String)
+- `value` (Number)
