@@ -104,7 +104,7 @@ jobs:
           if_no_artifact_found: warn
       - name: Check test coverage
         id: coverage
-        uses: vladopajic/go-test-coverage@f94bcf0d6b9fa5fb8b783830b22648f6c17475e2 # v2
+        uses: vladopajic/go-test-coverage@239670d50ed072bfce8b9ab1765227a53429d664 # v2
         continue-on-error: true # fail after the coverage comment is posted below
         with:
           config: ./.testcoverage.yml
