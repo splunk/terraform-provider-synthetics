@@ -26,7 +26,7 @@ resource "synthetics_create_client_certificate_v2" "mtls" {
 
     public_key {
       # The file may also hold the client certificate followed by its intermediate
-      # certificates (up to 10 certificates in total).
+      # certificates (up to 256 KB in total).
       content        = filebase64("${path.module}/client.crt")
       filename       = "client.crt"
       file_extension = "pem"
@@ -103,7 +103,7 @@ Read-Only:
 
 Required:
 
-- `content` (String, Sensitive) Base64-encoded PEM certificate content. A PEM file may hold the client certificate followed by its intermediate certificates, up to 10 certificates in total, for example `filebase64("chain.pem")`.
+- `content` (String, Sensitive) Base64-encoded PEM certificate content. A PEM file may hold the client certificate followed by its intermediate certificates, up to 256 KB once decoded, for example `filebase64("chain.pem")`.
 - `file_extension` (String)
 - `filename` (String)
 

@@ -70,7 +70,7 @@ func caCertificateV2ResourceSchema() map[string]*schema.Schema {
 			Required:     true,
 			Sensitive:    true,
 			Description:  caCertificateContentDescription,
-			ValidateFunc: validateCaCertificateContent,
+			ValidateFunc: validateCertificateContentSize,
 		},
 		"file_extension": {
 			Type:     schema.TypeString,

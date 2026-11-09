@@ -62,59 +62,18 @@ func base64Of(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
 
-func TestValidateClientCertificatePublicKeyContent(t *testing.T) {
-	keyBlock := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: []byte("not a real key")})
-
+func TestValidateCertificateContentSize(t *testing.T) {
 	tests := []struct {
 		name    string
 		value   interface{}
 		wantErr string
 	}{
 		{name: "a single certificate", value: base64Of(testCertificatesPEM(t, 1))},
-		{name: "a chain at the limit", value: base64Of(testCertificatesPEM(t, maxClientCertificateChainLength))},
-		{
-			name:    "a chain over the limit",
-			value:   base64Of(testCertificatesPEM(t, maxClientCertificateChainLength+1)),
-			wantErr: "content contains 11 certificates; the maximum is 10",
-		},
-		{
-			name:  "a private key in the same file is not counted",
-			value: base64Of(append(testCertificatesPEM(t, maxClientCertificateChainLength), keyBlock...)),
-		},
-		{name: "a single DER certificate", value: base64Of(testCertificateDER(t))},
-		{name: "content that is not Base64", value: "not base64!"},
-		{name: "a value that is not a string", value: 42},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			warnings, errs := validateClientCertificatePublicKeyContent(tt.value, "content")
-			if len(warnings) != 0 {
-				t.Fatalf("unexpected warnings: %v", warnings)
-			}
-			if tt.wantErr == "" {
-				if len(errs) != 0 {
-					t.Fatalf("unexpected errors: %v", errs)
-				}
-				return
-			}
-			if len(errs) != 1 || errs[0].Error() != tt.wantErr {
-				t.Fatalf("errors = %v, want %q", errs, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestValidateCaCertificateContent(t *testing.T) {
-	tests := []struct {
-		name    string
-		value   interface{}
-		wantErr string
-	}{
-		{name: "content at the limit", value: base64Of(bytes.Repeat([]byte("a"), maxCaCertificateContentBytes))},
+		{name: "many certificates within the size limit", value: base64Of(testCertificatesPEM(t, 50))},
+		{name: "content at the limit", value: base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes))},
 		{
 			name:    "content one byte over the limit",
-			value:   base64Of(bytes.Repeat([]byte("a"), maxCaCertificateContentBytes+1)),
+			value:   base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes+1)),
 			wantErr: "content is too large (257 KB); the maximum is 256 KB",
 		},
 		{name: "content that is not Base64", value: "not base64!"},
@@ -123,7 +82,7 @@ func TestValidateCaCertificateContent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			warnings, errs := validateCaCertificateContent(tt.value, "content")
+			warnings, errs := validateCertificateContentSize(tt.value, "content")
 			if len(warnings) != 0 {
 				t.Fatalf("unexpected warnings: %v", warnings)
 			}
@@ -167,18 +126,18 @@ func clientCertificateRawConfig(publicKeyContent string) map[string]interface{} 
 	}
 }
 
-func TestClientCertificateV2ResourceValidatesChainLength(t *testing.T) {
+func TestClientCertificateV2ResourceValidatesContentSize(t *testing.T) {
 	resource := resourceClientCertificateV2()
 
-	atLimit := terraform.NewResourceConfigRaw(clientCertificateRawConfig(base64Of(testCertificatesPEM(t, maxClientCertificateChainLength))))
+	atLimit := terraform.NewResourceConfigRaw(clientCertificateRawConfig(base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes))))
 	if diags := resource.Validate(atLimit); diags.HasError() {
-		t.Fatalf("a chain at the limit was rejected: %s", diagnosticsText(diags))
+		t.Fatalf("content at the limit was rejected: %s", diagnosticsText(diags))
 	}
 
-	overLimit := terraform.NewResourceConfigRaw(clientCertificateRawConfig(base64Of(testCertificatesPEM(t, maxClientCertificateChainLength+1))))
+	overLimit := terraform.NewResourceConfigRaw(clientCertificateRawConfig(base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes+1))))
 	diags := resource.Validate(overLimit)
-	if !diags.HasError() || !strings.Contains(diagnosticsText(diags), "contains 11 certificates; the maximum is 10") {
-		t.Fatalf("a chain over the limit was not rejected as expected: %s", diagnosticsText(diags))
+	if !diags.HasError() || !strings.Contains(diagnosticsText(diags), "is too large (257 KB); the maximum is 256 KB") {
+		t.Fatalf("content over the limit was not rejected as expected: %s", diagnosticsText(diags))
 	}
 }
 
@@ -195,12 +154,12 @@ func TestCaCertificateV2ResourceValidatesContentSize(t *testing.T) {
 		}
 	}
 
-	atLimit := terraform.NewResourceConfigRaw(rawConfig(base64Of(bytes.Repeat([]byte("a"), maxCaCertificateContentBytes))))
+	atLimit := terraform.NewResourceConfigRaw(rawConfig(base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes))))
 	if diags := resource.Validate(atLimit); diags.HasError() {
 		t.Fatalf("content at the limit was rejected: %s", diagnosticsText(diags))
 	}
 
-	overLimit := terraform.NewResourceConfigRaw(rawConfig(base64Of(bytes.Repeat([]byte("a"), maxCaCertificateContentBytes+1))))
+	overLimit := terraform.NewResourceConfigRaw(rawConfig(base64Of(bytes.Repeat([]byte("a"), maxCertificateContentBytes+1))))
 	diags := resource.Validate(overLimit)
 	if !diags.HasError() || !strings.Contains(diagnosticsText(diags), "is too large (257 KB); the maximum is 256 KB") {
 		t.Fatalf("content over the limit was not rejected as expected: %s", diagnosticsText(diags))
