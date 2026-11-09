@@ -71,7 +71,7 @@ Read-Only:
 
 - `created_at` (String)
 - `created_by` (String)
-- `expires_at` (String) When the certificate expires, in UTC. For a chain or bundle of certificates, the earliest expiry among them.
+- `expires_at` (String) When the client certificate stops being valid, in UTC. For a chain, this is the latest time a path from the client certificate through the other certificates is still valid: an intermediate that expires sooner counts, unless another certificate in the chain replaces it.
 - `id` (Number)
 - `updated_at` (String)
 - `updated_by` (String)

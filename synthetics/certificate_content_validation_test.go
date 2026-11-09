@@ -167,15 +167,15 @@ func TestCaCertificateV2ResourceValidatesContentSize(t *testing.T) {
 }
 
 func TestCertificateExpiresAtIsDescribed(t *testing.T) {
-	schemas := map[string]string{
-		"client resource":    clientCertificateV2ResourceSchema()["expires_at"].Description,
-		"client data source": dataSourceClientCertificateV2().Schema["expires_at"].Description,
-		"ca resource":        caCertificateV2ResourceSchema()["expires_at"].Description,
-		"ca data source":     caCertificateV2DataSourceSchema()["expires_at"].Description,
+	schemas := map[string][2]string{
+		"client resource":    {clientCertificateV2ResourceSchema()["expires_at"].Description, clientCertificateExpiresAtDescription},
+		"client data source": {dataSourceClientCertificateV2().Schema["expires_at"].Description, clientCertificateExpiresAtDescription},
+		"ca resource":        {caCertificateV2ResourceSchema()["expires_at"].Description, caCertificateExpiresAtDescription},
+		"ca data source":     {caCertificateV2DataSourceSchema()["expires_at"].Description, caCertificateExpiresAtDescription},
 	}
-	for name, description := range schemas {
-		if description != certificateExpiresAtDescription {
-			t.Errorf("%s expires_at description = %q", name, description)
+	for name, descriptions := range schemas {
+		if descriptions[0] != descriptions[1] {
+			t.Errorf("%s expires_at description = %q", name, descriptions[0])
 		}
 	}
 }

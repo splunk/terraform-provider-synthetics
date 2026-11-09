@@ -24,7 +24,9 @@ import (
 // during apply.
 const maxCertificateContentBytes = 256 * 1024
 
-const certificateExpiresAtDescription = "When the certificate expires, in UTC. For a chain or bundle of certificates, the earliest expiry among them."
+const clientCertificateExpiresAtDescription = "When the client certificate stops being valid, in UTC. For a chain, this is the latest time a path from the client certificate through the other certificates is still valid: an intermediate that expires sooner counts, unless another certificate in the chain replaces it."
+
+const caCertificateExpiresAtDescription = "When the CA certificate expires, in UTC. For a bundle of certificates, the earliest expiry among them."
 
 // validateCertificateContentSize rejects certificate content larger than the API accepts.
 func validateCertificateContentSize(value interface{}, key string) ([]string, []error) {

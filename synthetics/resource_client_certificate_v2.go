@@ -94,7 +94,7 @@ func clientCertificateV2ResourceSchema() map[string]*schema.Schema {
 		"expires_at": {
 			Type:        schema.TypeString,
 			Computed:    true,
-			Description: certificateExpiresAtDescription,
+			Description: clientCertificateExpiresAtDescription,
 		},
 		"created_at": {
 			Type:     schema.TypeString,

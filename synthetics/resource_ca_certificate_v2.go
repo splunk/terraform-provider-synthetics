@@ -83,7 +83,7 @@ func caCertificateV2ResourceSchema() map[string]*schema.Schema {
 		"expires_at": {
 			Type:        schema.TypeString,
 			Computed:    true,
-			Description: certificateExpiresAtDescription,
+			Description: caCertificateExpiresAtDescription,
 		},
 		"created_at": {
 			Type:     schema.TypeString,

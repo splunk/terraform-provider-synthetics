@@ -47,7 +47,7 @@ Read-Only:
 - `created_at` (String)
 - `created_by` (String)
 - `description` (String)
-- `expires_at` (String) When the certificate expires, in UTC. For a chain or bundle of certificates, the earliest expiry among them.
+- `expires_at` (String) When the CA certificate expires, in UTC. For a bundle of certificates, the earliest expiry among them.
 - `file_extension` (String)
 - `filename` (String)
 - `name` (String)

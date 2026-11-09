@@ -47,7 +47,7 @@ func dataSourceClientCertificateV2() *schema.Resource {
 			"expires_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: certificateExpiresAtDescription,
+				Description: clientCertificateExpiresAtDescription,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
