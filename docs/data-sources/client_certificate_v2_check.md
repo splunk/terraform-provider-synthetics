@@ -27,7 +27,7 @@ data "synthetics_client_certificate_v2_check" "mtls" {
 - `created_by` (String)
 - `description` (String)
 - `domain` (String)
-- `expires_at` (String)
+- `expires_at` (String) When the certificate expires, in UTC. For a chain or bundle of certificates, the earliest expiry among them.
 - `id` (Number) The ID of this resource.
 - `name` (String)
 - `updated_at` (String)

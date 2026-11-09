@@ -25,6 +25,8 @@ resource "synthetics_create_client_certificate_v2" "mtls" {
     domain      = "api.example.com"
 
     public_key {
+      # The file may also hold the client certificate followed by its intermediate
+      # certificates (up to 10 certificates in total).
       content        = filebase64("${path.module}/client.crt")
       filename       = "client.crt"
       file_extension = "pem"
@@ -59,7 +61,7 @@ Required:
 - `domain` (String)
 - `name` (String)
 - `private_key` (Block List, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--client_certificate--private_key))
-- `public_key` (Block List, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--client_certificate--public_key))
+- `public_key` (Block List, Min: 1, Max: 1) The client certificate. Despite the name, this is not a public key: it is certificate content, optionally followed by the intermediate certificates of its chain. The name remains for backwards compatibility. The Synthetics API moves the certificate that matches the private key to the front. (see [below for nested schema](#nestedblock--client_certificate--public_key))
 
 Optional:
 
@@ -69,7 +71,7 @@ Read-Only:
 
 - `created_at` (String)
 - `created_by` (String)
-- `expires_at` (String)
+- `expires_at` (String) When the certificate expires, in UTC. For a chain or bundle of certificates, the earliest expiry among them.
 - `id` (Number)
 - `updated_at` (String)
 - `updated_by` (String)
@@ -101,7 +103,7 @@ Read-Only:
 
 Required:
 
-- `content` (String, Sensitive)
+- `content` (String, Sensitive) Base64-encoded PEM certificate content. A PEM file may hold the client certificate followed by its intermediate certificates, up to 10 certificates in total, for example `filebase64("chain.pem")`.
 - `file_extension` (String)
 - `filename` (String)
 

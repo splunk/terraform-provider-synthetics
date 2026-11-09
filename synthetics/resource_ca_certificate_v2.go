@@ -26,6 +26,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const caCertificateContentDescription = "Base64-encoded PEM CA certificate content. A PEM file may hold several CA certificates, up to 256 KB once decoded."
+
 func resourceCaCertificateV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCaCertificateV2Create,
@@ -64,9 +66,11 @@ func caCertificateV2ResourceSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 		"content": {
-			Type:      schema.TypeString,
-			Required:  true,
-			Sensitive: true,
+			Type:         schema.TypeString,
+			Required:     true,
+			Sensitive:    true,
+			Description:  caCertificateContentDescription,
+			ValidateFunc: validateCaCertificateContent,
 		},
 		"file_extension": {
 			Type:     schema.TypeString,
@@ -77,8 +81,9 @@ func caCertificateV2ResourceSchema() map[string]*schema.Schema {
 			Required: true,
 		},
 		"expires_at": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: certificateExpiresAtDescription,
 		},
 		"created_at": {
 			Type:     schema.TypeString,
