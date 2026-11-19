@@ -47,7 +47,7 @@ Read-Only:
 - `created_at` (String)
 - `created_by` (String)
 - `description` (String)
-- `expires_at` (String)
+- `expires_at` (String) The earliest expiry among the certificates in the bundle, in UTC.
 - `file_extension` (String)
 - `filename` (String)
 - `name` (String)

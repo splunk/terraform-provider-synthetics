@@ -5,6 +5,7 @@ resource "synthetics_create_ca_certificate_v2" "ca_certificate_v2" {
   ca_certificate {
     name           = "Terraform - CA Certificate V2"
     description    = "Example private CA certificate for SSL tests"
+    # The file may hold several CA certificates (up to 256 KB).
     content        = filebase64("${path.module}/ca.pem")
     file_extension = "pem"
     filename       = "ca.pem"

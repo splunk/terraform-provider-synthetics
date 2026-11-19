@@ -20,6 +20,7 @@ resource "synthetics_create_ca_certificate_v2" "ca_certificate_v2" {
   ca_certificate {
     name           = "Terraform - CA Certificate V2"
     description    = "Example private CA certificate for SSL tests"
+    # The file may hold several CA certificates (up to 256 KB).
     content        = filebase64("${path.module}/ca.pem")
     file_extension = "pem"
     filename       = "ca.pem"
@@ -43,7 +44,7 @@ resource "synthetics_create_ca_certificate_v2" "ca_certificate_v2" {
 
 Required:
 
-- `content` (String, Sensitive)
+- `content` (String, Sensitive) Base64-encoded PEM CA certificate content. A PEM file may hold several CA certificates, up to 256 KB once decoded.
 - `file_extension` (String)
 - `filename` (String)
 - `name` (String)
@@ -56,7 +57,7 @@ Read-Only:
 
 - `created_at` (String)
 - `created_by` (String)
-- `expires_at` (String)
+- `expires_at` (String) The earliest expiry among the certificates in the bundle, in UTC.
 - `id` (Number)
 - `updated_at` (String)
 - `updated_by` (String)

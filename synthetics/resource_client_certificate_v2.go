@@ -31,6 +31,10 @@ var clientCertificateNamePattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 const clientCertificateAuthMaterialDescription = "Client certificates are authentication material for synthetic tests. They are separate from CA certificates used as SSL trust material."
 
+const clientCertificatePublicKeyDescription = "The client certificate. Despite the name, this is not a public key: it is certificate content, optionally followed by the intermediate certificates of its chain. The name remains for backwards compatibility. The Synthetics API moves the certificate that matches the private key to the front."
+
+const clientCertificatePublicKeyContentDescription = "Base64-encoded PEM certificate content. A PEM file may hold the client certificate followed by its intermediate certificates, up to 256 KB once decoded, for example `filebase64(\"chain.pem\")`."
+
 const clientCertificateStateWarning = "Client certificate public key content, private key content, and private key password are stored in Terraform state when managed by this resource. Use encrypted, access-controlled remote state and do not commit Terraform state files or certificate material. API reads return certificate material redacted; imports can recover metadata but cannot recover key content or private-key password."
 
 func validateClientCertificateName(value interface{}, key string) ([]string, []error) {
@@ -88,8 +92,9 @@ func clientCertificateV2ResourceSchema() map[string]*schema.Schema {
 			Required: true,
 		},
 		"expires_at": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: clientCertificateExpiresAtDescription,
 		},
 		"created_at": {
 			Type:     schema.TypeString,
@@ -114,17 +119,20 @@ func clientCertificateV2ResourceSchema() map[string]*schema.Schema {
 
 func clientCertificateKeySchema(required bool) *schema.Schema {
 	s := &schema.Schema{
-		Type:     schema.TypeList,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Description: clientCertificatePublicKeyDescription,
 		Elem: &schema.Resource{Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"content": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				Sensitive:    true,
+				Description:  clientCertificatePublicKeyContentDescription,
+				ValidateFunc: validateCertificateContentSize,
 			},
 			"filename": {
 				Type:     schema.TypeString,
